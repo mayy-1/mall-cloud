@@ -63,11 +63,12 @@
     </appender>
 
     <!--当logstash.enableInnerLog为true时启用LogStash日志输出-->
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>ENABLE_LOG_STASH</key>
+        <value>true</value>
+    </condition>
+
     <if>
-        <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
-            <key>ENABLE_LOG_STASH</key>
-            <value>true</value>
-        </condition>
         <then>
             <!--DEBUG日志输出到LogStash-->
             <appender name="LOG_STASH_DEBUG" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
