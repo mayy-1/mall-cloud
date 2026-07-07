@@ -7,7 +7,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * 应用启动入口
- * Created by macro on 2018/4/26.
  */
 @EnableFeignClients
 @EnableDiscoveryClient

@@ -41,18 +41,12 @@ spring:
                 - Path=/mall-search/**
               filters:
                 - StripPrefix=1
-            - id: mall-demo
-              uri: lb://mall-demo
-              predicates:
-                - Path=/mall-demo/**
-              filters:
-                - StripPrefix=1
   data:
     redis:
       database: 0
       port: 6379
       host: localhost
-      password:
+      password: 241119
 secure:
   ignore:
     urls: #配置白名单路径
