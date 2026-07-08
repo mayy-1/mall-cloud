@@ -10,6 +10,6 @@ logging:
     path: /var/logs
   level:
     root: info
-    com.macro.mall: info
+    com.mym.mall: info
 logstash:
   host: logstash

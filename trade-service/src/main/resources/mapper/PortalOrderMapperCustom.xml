@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.trade.mapper.PortalOrderMapperCustom">
+    <resultMap id="orderDetailMap" type="com.mall.trade.domain.dto.OmsOrderDetail"
+               extends="com.mall.trade.mapper.OmsOrderMapper.BaseResultMap">
+        <collection property="orderItemList" columnPrefix="oi_"
+                    resultMap="com.mall.trade.mapper.OmsOrderItemMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+
+    <select id="getDetail" resultMap="orderDetailMap">
+        SELECT
+            o.*,
+            oi.id oi_id,
+            oi.order_id oi_order_id,
+            oi.order_sn oi_order_sn,
+            oi.product_id oi_product_id,
+            oi.product_pic oi_product_pic,
+            oi.product_name oi_product_name,
+            oi.product_brand oi_product_brand,
+            oi.product_sn oi_product_sn,
+            oi.product_price oi_product_price,
+            oi.product_quantity oi_product_quantity,
+            oi.product_sku_id oi_product_sku_id,
+            oi.product_sku_code oi_product_sku_code,
+            oi.product_category_id oi_product_category_id,
+            oi.promotion_name oi_promotion_name,
+            oi.promotion_amount oi_promotion_amount,
+            oi.coupon_amount oi_coupon_amount,
+            oi.integration_amount oi_integration_amount,
+            oi.real_amount oi_real_amount,
+            oi.gift_integration oi_gift_integration,
+            oi.gift_growth oi_gift_growth,
+            oi.product_attr oi_product_attr
+        FROM oms_order o
+        LEFT JOIN oms_order_item oi ON o.id = oi.order_id
+        WHERE o.id = #{id}
+    </select>
+
+    <update id="updateSkuStock">
+        <foreach collection="itemList" item="item" separator=";">
+            UPDATE pms_sku_stock
+            SET stock = stock - #{item.productQuantity},
+                lock_stock = lock_stock - #{item.productQuantity},
+                sale = sale + #{item.productQuantity}
+            WHERE id = #{item.productSkuId}
+        </foreach>
+    </update>
+
+    <select id="getTimeOutOrders" resultMap="orderDetailMap">
+        SELECT
+            o.*,
+            oi.id oi_id,
+            oi.order_id oi_order_id,
+            oi.order_sn oi_order_sn,
+            oi.product_id oi_product_id,
+            oi.product_pic oi_product_pic,
+            oi.product_name oi_product_name,
+            oi.product_brand oi_product_brand,
+            oi.product_sn oi_product_sn,
+            oi.product_price oi_product_price,
+            oi.product_quantity oi_product_quantity,
+            oi.product_sku_id oi_product_sku_id,
+            oi.product_sku_code oi_product_sku_code,
+            oi.product_category_id oi_product_category_id,
+            oi.promotion_name oi_promotion_name,
+            oi.promotion_amount oi_promotion_amount,
+            oi.coupon_amount oi_coupon_amount,
+            oi.integration_amount oi_integration_amount,
+            oi.real_amount oi_real_amount,
+            oi.gift_integration oi_gift_integration,
+            oi.gift_growth oi_gift_growth,
+            oi.product_attr oi_product_attr
+        FROM oms_order o
+        LEFT JOIN oms_order_item oi ON o.id = oi.order_id
+        WHERE o.status = 0
+        AND o.delete_status = 0
+        AND o.create_time &lt; DATE_SUB(NOW(), INTERVAL #{minute} MINUTE)
+    </select>
+
+    <update id="updateOrderStatus">
+        UPDATE oms_order
+        SET status = #{status}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="releaseSkuStockLock">
+        <foreach collection="itemList" item="item" separator=";">
+            UPDATE pms_sku_stock
+            SET lock_stock = lock_stock - #{item.productQuantity}
+            WHERE id = #{item.productSkuId}
+        </foreach>
+    </update>
+</mapper>

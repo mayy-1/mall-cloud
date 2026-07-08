@@ -1,0 +1,41 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: member-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/mall_member?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    druid:
+      initial-size: 5
+      min-idle: 10
+      max-active: 20
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+    mongodb:
+      host: localhost
+      port: 27017
+      database: mall_member
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  jwt-secret-key: abcdefghijklmnopqrstuvwxyz123456
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

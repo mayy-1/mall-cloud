@@ -4,20 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.macro.mall</groupId>
-    <artifactId>mall-swarm</artifactId>
+    <groupId>com.mym.mall</groupId>
+    <artifactId>mall-cloud</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>mall-common</module>
-        <module>mall-mbg</module>
-        <module>mall-admin</module>
-        <module>mall-search</module>
-        <module>mall-portal</module>
+        <module>mall-api</module>           <!-- Feign 接口 + 跨服务 DTO -->
         <module>mall-monitor</module>
         <module>mall-gateway</module>
         <module>mall-auth</module>
+        <module>user-service</module>       <!-- 后台用户+角色+菜单+资源，端口8081 -->
+        <module>product-service</module>    <!-- 商品+品牌+分类+SKU+文件，端口8082 -->
+        <module>order-service</module>      <!-- 后台订单管理，端口8083 -->
+        <module>marketing-service</module>  <!-- 营销+内容(Cms+Sms合并)，端口8084 -->
+        <module>member-service</module>     <!-- 前台会员+地址+收藏+关注+浏览，端口8085 -->
+        <module>cart-service</module>       <!-- 购物车，端口8086 -->
+        <module>portal-service</module>     <!-- 首页聚合(纯Feign编排)，端口8087 -->
+        <module>trade-service</module>      <!-- 前台下单+支付，端口8090 -->
+        <module>search-service</module>     <!-- 全文搜索(ES)，端口8093 -->
     </modules>
 
     <parent>
@@ -54,10 +60,11 @@
         <knife4j.version>4.5.0</knife4j.version>
         <springdoc-openapi.version>2.8.17</springdoc-openapi.version>
         <sa-token.version>1.42.0</sa-token.version>
+        <redisson.version>3.40.2</redisson.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <mall-common.version>1.0-SNAPSHOT</mall-common.version>
-        <mall-mbg.version>1.0-SNAPSHOT</mall-mbg.version>
-    </properties>
+        <mall-api.version>1.0-SNAPSHOT</mall-api.version>
+            </properties>
 
     <dependencies>
         <dependency>
@@ -108,15 +115,15 @@
             </dependency>
             <!--mall通用模块-->
             <dependency>
-                <groupId>com.macro.mall</groupId>
+                <groupId>com.mym.mall</groupId>
                 <artifactId>mall-common</artifactId>
                 <version>${mall-common.version}</version>
             </dependency>
-            <!--mall中MBG生成模块-->
+            <!--mall-api Feign接口模块-->
             <dependency>
-                <groupId>com.macro.mall</groupId>
-                <artifactId>mall-mbg</artifactId>
-                <version>${mall-mbg.version}</version>
+                <groupId>com.mym.mall</groupId>
+                <artifactId>mall-api</artifactId>
+                <version>${mall-api.version}</version>
             </dependency>
             <!--MyBatis分页插件starter-->
             <dependency>
@@ -261,6 +268,12 @@
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-jwt</artifactId>
                 <version>${sa-token.version}</version>
+            </dependency>
+            <!-- Redisson 分布式锁 -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

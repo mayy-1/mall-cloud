@@ -38,5 +38,5 @@ springdoc:
     enabled: true
   group-configs:
     - group: 'default'
-      packages-to-scan: com.macro.mall.auth.controller
+      packages-to-scan: com.mym.mall.auth.controller
   default-flat-param-object: false

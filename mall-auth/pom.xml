@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.macro.mall</groupId>
+    <groupId>com.mym.mall</groupId>
     <artifactId>mall-auth</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -13,14 +13,14 @@
     <description>mall-auth project for mall</description>
 
     <parent>
-        <groupId>com.macro.mall</groupId>
-        <artifactId>mall-swarm</artifactId>
+        <groupId>com.mym.mall</groupId>
+        <artifactId>mall-cloud</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
-            <groupId>com.macro.mall</groupId>
+            <groupId>com.mym.mall</groupId>
             <artifactId>mall-common</artifactId>
             <exclusions>
                 <exclusion>
@@ -28,6 +28,10 @@
                     <artifactId>spring-boot-starter-data-redis</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.mym.mall</groupId>
+            <artifactId>mall-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

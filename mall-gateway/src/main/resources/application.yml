@@ -17,28 +17,93 @@ spring:
               enabled: true
               lower-case-service-id: true #使用小写service-id
           routes: #配置路由路径
+            # ========== 认证服务 ==========
             - id: mall-auth
               uri: lb://mall-auth
               predicates:
                 - Path=/mall-auth/**
               filters:
                 - StripPrefix=1
-            - id: mall-admin
-              uri: lb://mall-admin
+
+            # ========== 后台管理路由 (mall-admin-web 前端) ==========
+            # 根据前端请求路径前缀，精准转发到各微服务
+            # Controller 路径不变，仅网关路由层做拆分映射
+            - id: admin-user-service
+              uri: lb://user-service
               predicates:
-                - Path=/mall-admin/**
+                - Path=/mall-admin/admin/**,/mall-admin/role/**,/mall-admin/menu/**,/mall-admin/resource/**,/mall-admin/resourceCategory/**,/mall-admin/memberLevel/**
               filters:
                 - StripPrefix=1
-            - id: mall-portal
-              uri: lb://mall-portal
+            - id: admin-product-service
+              uri: lb://product-service
               predicates:
-                - Path=/mall-portal/**
+                - Path=/mall-admin/product/**,/mall-admin/brand/**,/mall-admin/productCategory/**,/mall-admin/sku/**,/mall-admin/productAttribute/**,/mall-admin/aliyun/**,/mall-admin/minio/**
               filters:
                 - StripPrefix=1
+            - id: admin-order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/mall-admin/order/**,/mall-admin/orderSetting/**,/mall-admin/returnApply/**,/mall-admin/returnReason/**,/mall-admin/companyAddress/**
+              filters:
+                - StripPrefix=1
+            - id: admin-marketing-service
+              uri: lb://marketing-service
+              predicates:
+                - Path=/mall-admin/coupon/**,/mall-admin/couponHistory/**,/mall-admin/flash/**,/mall-admin/flashSession/**,/mall-admin/flashProductRelation/**,/mall-admin/home/**,/mall-admin/prefrenceArea/**,/mall-admin/subject/**
+              filters:
+                - StripPrefix=1
+            - id: admin-search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/mall-admin/esProduct/**
+              filters:
+                - StripPrefix=1
+
+            # ========== 前台门户路由 (mall-app / H5 前端) ==========
+            - id: portal-portal-service
+              uri: lb://portal-service
+              predicates:
+                - Path=/mall-portal/home/**,/mall-portal/product/**,/mall-portal/brand/**
+              filters:
+                - StripPrefix=1
+            - id: portal-member-service
+              uri: lb://member-service
+              predicates:
+                - Path=/mall-portal/sso/**,/mall-portal/member/**
+              filters:
+                - StripPrefix=1
+            - id: portal-trade-service
+              uri: lb://trade-service
+              predicates:
+                - Path=/mall-portal/order/**,/mall-portal/alipay/**,/mall-portal/returnApply/**
+              filters:
+                - StripPrefix=1
+            - id: portal-cart-service
+              uri: lb://cart-service
+              predicates:
+                - Path=/mall-portal/cart/**
+              filters:
+                - StripPrefix=1
+            - id: portal-seckill-service
+              uri: lb://marketing-service
+              predicates:
+                - Path=/mall-portal/seckill/**
+              filters:
+                - StripPrefix=1
+
+            # ========== 搜索服务 (独立路径) ==========
             - id: mall-search
-              uri: lb://mall-search
+              uri: lb://search-service
               predicates:
                 - Path=/mall-search/**
+              filters:
+                - StripPrefix=1
+
+            # ========== 秒杀快捷路径 (保留兼容) ==========
+            - id: mall-seckill
+              uri: lb://marketing-service
+              predicates:
+                - Path=/mall-seckill/**
               filters:
                 - StripPrefix=1
   data:

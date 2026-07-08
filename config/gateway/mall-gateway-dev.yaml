@@ -9,7 +9,7 @@ spring:
 logging:
   level:
     root: info
-    com.macro.mall: debug
+    com.mym.mall: debug
 logstash:
   host: localhost
   enableInnerLog: false

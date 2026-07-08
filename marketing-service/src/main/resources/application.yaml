@@ -1,0 +1,39 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: marketing-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/mall_marketing?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    druid:
+      initial-size: 5
+      min-idle: 10
+      max-active: 20
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-registry:8848
+      config:
+        server-addr: nacos-registry:8848
+        file-extension: yaml
+  config:
+    import:
+      - nacos:user-service-prod.yaml?refreshEnabled=true
