@@ -1,7 +1,7 @@
 package com.mym.mall.auth.controller;
 
-import com.mall.api.client.MemberClient;
-import com.mall.api.client.UserClient;
+import com.mall.api.client.member.MemberClient;
+import com.mall.api.client.user.UserClient;
 import com.mym.mall.common.api.CommonResult;
 import com.mym.mall.common.constant.AuthConstant;
 import io.swagger.v3.oas.annotations.Operation;

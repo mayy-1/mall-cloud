@@ -1,7 +1,10 @@
 package com.mall.marketing.service;
 
+import com.mall.marketing.domain.dto.CartPromotionItem;
+import com.mall.marketing.domain.dto.SmsCouponHistoryDetail;
 import com.mall.marketing.domain.dto.SmsCouponParam;
 import com.mall.marketing.model.SmsCoupon;
+import com.mall.marketing.model.SmsCouponHistory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -39,4 +42,24 @@ public interface ICouponService {
      * @param id 优惠券表id
      */
     SmsCouponParam getItem(Long id);
+
+    // ==================== 用户端 ====================
+
+    /** 会员领取优惠券 */
+    void add(Long couponId);
+
+    /** 获取会员优惠券领取历史 */
+    List<SmsCouponHistory> listHistory(Integer useStatus);
+
+    /** 获取购物车可用优惠券列表 */
+    List<SmsCouponHistoryDetail> listCart(List<CartPromotionItem> cartItemList, Integer type);
+
+    /** 获取指定商品可用优惠券列表 */
+    List<SmsCoupon> listByProduct(Long productId);
+
+    /** 获取会员当前可用优惠券 */
+    List<SmsCoupon> listMemberCoupons(Integer useStatus);
+
+    /** 更新优惠券使用状态 */
+    void updateCouponStatus(Long couponId, Long memberId, Integer useStatus);
 }

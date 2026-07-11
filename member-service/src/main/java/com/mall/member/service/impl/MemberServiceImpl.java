@@ -3,15 +3,18 @@ package com.mall.member.service.impl;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
+import com.mall.api.client.user.UserMemberLevelClient;
+import com.mall.api.dto.MemberLevelDTO;
 import com.mym.mall.common.constant.AuthConstant;
 import com.mym.mall.common.dto.UserDto;
 import com.mym.mall.common.exception.Asserts;
-import com.mall.member.mapper.UmsMemberLevelMapper;
 import com.mall.member.mapper.UmsMemberMapper;
-import com.mall.member.model.UmsMember;import com.mall.member.model.UmsMemberLevel;import com.mall.member.service.IMemberCacheService;
+import com.mall.member.model.UmsMember;
+import com.mall.member.service.IMemberCacheService;
 import com.mall.member.service.IMemberService;
 import com.mall.member.util.StpMemberUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +32,13 @@ import java.util.Random;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberServiceImpl implements IMemberService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
     /** 会员Mapper */
     private final UmsMemberMapper memberMapper;
-    /** 会员等级Mapper */
-    private final UmsMemberLevelMapper memberLevelMapper;
+    /** 会员等级 Feign 调用 */
+    private final UserMemberLevelClient userMemberLevelClient;
     /** 会员缓存服务 */
     private final IMemberCacheService memberCacheService;
     /** Redis验证码Key前缀 */
@@ -81,10 +85,8 @@ public class MemberServiceImpl implements IMemberService {
         umsMember.setPassword(BCrypt.hashpw(password));
         umsMember.setCreateTime(new Date());
         umsMember.setStatus(1);
-        //获取默认会员等级并设置
-        UmsMemberLevel levelExample = new UmsMemberLevel();
-        levelExample.setDefaultStatus(1);
-        List<UmsMemberLevel> memberLevelList = memberLevelMapper.selectByCondition(levelExample);
+        //获取默认会员等级并设置（通过 Feign 调用 user-service）
+        List<MemberLevelDTO> memberLevelList = userMemberLevelClient.listByDefaultStatus(1).getData();
         if (!CollectionUtils.isEmpty(memberLevelList)) {
             umsMember.setMemberLevelId(memberLevelList.get(0).getId());
         }
@@ -100,6 +102,7 @@ public class MemberServiceImpl implements IMemberService {
             sb.append(random.nextInt(10));
         }
         memberCacheService.setAuthCode(telephone,sb.toString());
+        log.info("手机号：{}，验证码：{}",telephone,sb);
     }
 
     @Override

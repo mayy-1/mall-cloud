@@ -1,5 +1,6 @@
-package com.mall.api.client;
+package com.mall.api.client.member;
 
+import com.mall.api.dto.IntegrationConsumeSettingDTO;
 import com.mall.api.dto.MemberDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -27,6 +28,10 @@ public interface MemberClient {
     /** 更新会员积分 */
     @PostMapping("/member/updateIntegration")
     void updateIntegration(@RequestParam Long id, @RequestParam Integer integration);
+
+    /** 获取积分消费设置 */
+    @GetMapping("/member/integrationConsumeSetting")
+    CommonResult<IntegrationConsumeSettingDTO> getIntegrationConsumeSetting();
 
     /** 前台会员登录，返回 token */
     @PostMapping("/sso/login")

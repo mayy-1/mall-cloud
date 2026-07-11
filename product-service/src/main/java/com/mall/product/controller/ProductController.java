@@ -199,6 +199,66 @@ public class ProductController {
     }
 
     /**
+     * SKU库存锁定（下单锁定库存）
+     * @param skuId SKU主键ID
+     * @param quantity 锁定数量
+     * @return 操作成功无返回数据
+     */
+    @PostMapping("/sku/{skuId}/stock/lock")
+    @Operation(summary = "锁定SKU库存")
+    public CommonResult<Void> lockStock(
+            @PathVariable Long skuId,
+            @RequestParam Integer quantity
+    ) {
+        skuStockService.lockStock(skuId, quantity);
+        return CommonResult.success(null);
+    }
+
+    /**
+     * SKU库存释放（取消订单释放锁定库存）
+     * @param skuId SKU主键ID
+     * @param quantity 释放数量
+     * @return 操作成功无返回数据
+     */
+    @PostMapping("/sku/{skuId}/stock/release")
+    @Operation(summary = "释放SKU锁定库存")
+    public CommonResult<Void> releaseStock(
+            @PathVariable Long skuId,
+            @RequestParam Integer quantity
+    ) {
+        skuStockService.releaseStock(skuId, quantity);
+        return CommonResult.success(null);
+    }
+
+    /**
+     * 根据商品ID查询SKU库存列表（Feign调用用）
+     * @param productId 商品主键ID
+     * @return SKU库存列表
+     */
+    @GetMapping("/sku/{productId}/list")
+    @Operation(summary = "根据商品ID查询SKU库存列表")
+    public CommonResult<List<PmsSkuStock>> getSkuStockByProductId(@PathVariable Long productId) {
+        List<PmsSkuStock> skuStockList = skuStockService.getSkuStockByProductId(productId);
+        return CommonResult.success(skuStockList);
+    }
+
+    /**
+     * 支付成功扣减库存（减stock + 减lockStock + 增sale）
+     * @param skuId SKU主键ID
+     * @param quantity 扣减数量
+     * @return 操作成功无返回数据
+     */
+    @PostMapping("/sku/{skuId}/stock/paySuccess")
+    @Operation(summary = "支付成功扣减库存")
+    public CommonResult<Void> paySuccessDeductStock(
+            @PathVariable Long skuId,
+            @RequestParam Integer quantity
+    ) {
+        skuStockService.paySuccessDeductStock(skuId, quantity);
+        return CommonResult.success(null);
+    }
+
+    /**
      * 获取完整商品分类树形结构（含子分类）
      * @return 树形分类列表
      */

@@ -23,4 +23,24 @@ public interface ISkuService {
      * 扣减sku库存
      */
     int deductStock(Long skuId, Integer quantity);
+
+    /**
+     * 锁定SKU库存（lockStock增加）
+     */
+    int lockStock(Long skuId, Integer quantity);
+
+    /**
+     * 释放SKU锁定库存（lockStock减少）
+     */
+    int releaseStock(Long skuId, Integer quantity);
+
+    /**
+     * 根据商品ID查询SKU库存列表
+     */
+    List<PmsSkuStock> getSkuStockByProductId(Long productId);
+
+    /**
+     * 支付成功扣减库存（减stock + 减lockStock + 增sale）
+     */
+    int paySuccessDeductStock(Long skuId, Integer quantity);
 }

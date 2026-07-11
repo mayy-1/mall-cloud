@@ -1,9 +1,9 @@
-package com.mall.member.domain.dto;
+package com.mall.marketing.domain.dto;
 
-import com.mall.member.model.SmsCoupon;
-import com.mall.member.model.SmsCouponHistory;
-import com.mall.member.model.SmsCouponProductCategoryRelation;
-import com.mall.member.model.SmsCouponProductRelation;
+import com.mall.marketing.model.SmsCoupon;
+import com.mall.marketing.model.SmsCouponHistory;
+import com.mall.marketing.model.SmsCouponProductCategoryRelation;
+import com.mall.marketing.model.SmsCouponProductRelation;
 
 import java.util.List;
 

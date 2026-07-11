@@ -1,14 +1,14 @@
 package com.mall.trade.service.impl;
 
-import com.mall.api.client.MemberClient;
+import com.mall.api.client.member.MemberClient;
+import com.mall.api.client.product.ProductClient;
 import com.mall.api.dto.MemberDTO;
+import com.mall.api.dto.SkuStockDTO;
 import com.mall.trade.domain.dto.SeckillOrderMessage;
 import com.mall.trade.mapper.OmsOrderItemMapper;
 import com.mall.trade.mapper.OmsOrderMapper;
-import com.mall.trade.mapper.PmsSkuStockMapper;
 import com.mall.trade.model.OmsOrder;
 import com.mall.trade.model.OmsOrderItem;
-import com.mall.trade.model.PmsSkuStock;
 import com.mall.trade.service.ISeckillOrderService;
 import com.mym.mall.common.service.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     private final RedissonClient redissonClient;
     private final OmsOrderMapper orderMapper;
     private final OmsOrderItemMapper orderItemMapper;
-    private final PmsSkuStockMapper skuStockMapper;
+    private final ProductClient productClient;
     private final MemberClient memberClient;
     private final RedisService redisService;
 
@@ -70,17 +70,14 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             MemberDTO member = memberClient.getById(memberId).getData();
 
             // 3. 查找商品 SKU（取第一个 SKU）
-            PmsSkuStock skuExample = new PmsSkuStock();
-            skuExample.setProductId(productId);
-            List<PmsSkuStock> skuList = skuStockMapper.selectByCondition(skuExample);
-            if (skuList.isEmpty()) {
+            List<SkuStockDTO> skuList = productClient.getSkuStockByProductId(productId).getData();
+            if (skuList == null || skuList.isEmpty()) {
                 throw new RuntimeException("商品SKU不存在, productId=" + productId);
             }
-            PmsSkuStock skuStock = skuList.get(0);
+            SkuStockDTO skuStock = skuList.get(0);
 
             // 4. 锁定库存（lock_stock + 1）
-            skuStock.setLockStock((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) + message.getQuantity());
-            skuStockMapper.updateByPrimaryKeySelective(skuStock);
+            productClient.lockStock(skuStock.getId(), message.getQuantity());
 
             // 5. 构建订单对象
             OmsOrder order = new OmsOrder();

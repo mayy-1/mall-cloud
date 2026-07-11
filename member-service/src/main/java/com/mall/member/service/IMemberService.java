@@ -20,7 +20,7 @@ public interface IMemberService {
     void register(String username, String password, String telephone, String authCode);
 
     /** 生成验证码 */
-    String generateAuthCode(String telephone);
+    void generateAuthCode(String telephone);
 
     /** 修改密码 */
     @Transactional

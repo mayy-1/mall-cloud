@@ -1,4 +1,4 @@
-package com.mall.api.client;
+package com.mall.api.client.user;
 
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;

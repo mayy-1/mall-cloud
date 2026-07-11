@@ -3,22 +3,17 @@ package com.mall.trade.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
-import com.mall.api.client.CartClient;
-import com.mall.api.client.MemberAddressClient;
-import com.mall.api.client.MemberClient;
-import com.mall.api.client.MemberCouponClient;
+import com.mall.api.client.cart.CartClient;
+import com.mall.api.client.member.MemberAddressClient;
+import com.mall.api.client.member.MemberClient;
+import com.mall.api.client.member.MemberCouponClient;
+import com.mall.api.client.product.ProductClient;
 import com.mall.api.dto.*;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.exception.Asserts;
 import com.mym.mall.common.service.RedisService;
-import com.mall.trade.mapper.UmsIntegrationConsumeSettingMapper;
-import com.mall.trade.mapper.PmsSkuStockMapper;
-import com.mall.trade.mapper.SmsCouponHistoryMapper;
 import com.mall.trade.mapper.OmsOrderSettingMapper;
 import com.mall.trade.mapper.PortalOrderItemMapper;
-import com.mall.trade.model.UmsIntegrationConsumeSetting;
-import com.mall.trade.model.PmsSkuStock;
-import com.mall.trade.model.SmsCouponHistory;
 import com.mall.trade.model.OmsOrderSetting;
 import com.mall.trade.model.OmsOrder;
 import com.mall.trade.model.OmsOrderItem;
@@ -51,22 +46,18 @@ public class OrderServiceImpl implements IOrderService {
 
     /** 会员服务Feign客户端 */
     private final MemberClient memberClient;
+    /** 商品服务Feign客户端 */
+    private final ProductClient productClient;
     /** 购物车服务Feign客户端 */
     private final CartClient cartClient;
     /** 收货地址服务Feign客户端 */
     private final MemberAddressClient memberAddressClient;
     /** 会员优惠券服务Feign客户端 */
     private final MemberCouponClient memberCouponClient;
-    /** 积分消费设置Mapper */
-    private final UmsIntegrationConsumeSettingMapper integrationConsumeSettingMapper;
-    /** SKU库存Mapper */
-    private final PmsSkuStockMapper skuStockMapper;
     /** 订单Mapper */
     private final OmsOrderMapper orderMapper;
     /** 前台订单商品项Mapper */
     private final PortalOrderItemMapper portalOrderItemMapper;
-    /** 优惠券历史Mapper */
-    private final SmsCouponHistoryMapper couponHistoryMapper;
     /** Redis缓存服务 */
     private final RedisService redisService;
     /** Redis订单ID前缀 */
@@ -97,7 +88,7 @@ public class OrderServiceImpl implements IOrderService {
         List<CouponHistoryDetailDTO> couponHistoryDetailList = memberCouponClient.listCart(cartPromotionItemList, 1).getData();
         result.setCouponHistoryDetailList(couponHistoryDetailList);
         result.setMemberIntegration(currentMember.getIntegration());
-        UmsIntegrationConsumeSetting integrationConsumeSetting = integrationConsumeSettingMapper.selectByPrimaryKey(1L);
+        IntegrationConsumeSettingDTO integrationConsumeSetting = memberClient.getIntegrationConsumeSetting().getData();
         result.setIntegrationConsumeSetting(integrationConsumeSetting);
         ConfirmOrderResult.CalcAmount calcAmount = calcCartAmount(cartPromotionItemList);
         result.setCalcAmount(calcAmount);
@@ -240,8 +231,10 @@ public class OrderServiceImpl implements IOrderService {
         order.setPayType(payType);
         orderMapper.updateByPrimaryKeySelective(order);
         OmsOrderDetail orderDetail = portalOrderMapper.getDetail(orderId);
-        int count = portalOrderMapper.updateSkuStock(orderDetail.getOrderItemList());
-        return count;
+        for (OmsOrderItem orderItem : orderDetail.getOrderItemList()) {
+            productClient.paySuccessDeductStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+        }
+        return orderDetail.getOrderItemList().size();
     }
 
     @Override
@@ -258,7 +251,9 @@ public class OrderServiceImpl implements IOrderService {
         }
         portalOrderMapper.updateOrderStatus(ids, 4);
         for (OmsOrderDetail timeOutOrder : timeOutOrders) {
-            portalOrderMapper.releaseSkuStockLock(timeOutOrder.getOrderItemList());
+            for (OmsOrderItem orderItem : timeOutOrder.getOrderItemList()) {
+                productClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+            }
             updateCouponStatus(timeOutOrder.getCouponId(), timeOutOrder.getMemberId(), 0);
             if (timeOutOrder.getUseIntegration() != null) {
                 MemberDTO member = memberClient.getById(timeOutOrder.getMemberId()).getData();
@@ -284,7 +279,9 @@ public class OrderServiceImpl implements IOrderService {
             itemCondition.setOrderId(orderId);
             List<OmsOrderItem> orderItemList = orderItemMapper.selectByCondition(itemCondition);
             if (!CollectionUtils.isEmpty(orderItemList)) {
-                portalOrderMapper.releaseSkuStockLock(orderItemList);
+                for (OmsOrderItem orderItem : orderItemList) {
+                    productClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+                }
             }
             // 秒杀订单回滚 Redis 库存
             if (cancelOrder.getOrderType() != null && cancelOrder.getOrderType() == 1) {
@@ -459,17 +456,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private void updateCouponStatus(Long couponId, Long memberId, Integer useStatus) {
         if (couponId == null) return;
-        SmsCouponHistory condition = new SmsCouponHistory();
-        condition.setMemberId(memberId);
-        condition.setCouponId(couponId);
-        condition.setUseStatus(useStatus == 0 ? 1 : 0);
-        List<SmsCouponHistory> couponHistoryList = couponHistoryMapper.selectByCondition(condition);
-        if (!CollectionUtils.isEmpty(couponHistoryList)) {
-            SmsCouponHistory couponHistory = couponHistoryList.get(0);
-            couponHistory.setUseTime(new Date());
-            couponHistory.setUseStatus(useStatus);
-            couponHistoryMapper.updateByPrimaryKeySelective(couponHistory);
-        }
+        memberCouponClient.updateCouponStatus(couponId, memberId, useStatus);
     }
 
     private void handleRealAmount(List<OmsOrderItem> orderItemList) {
@@ -539,7 +526,7 @@ public class OrderServiceImpl implements IOrderService {
         if (useIntegration.compareTo(currentMember.getIntegration()) > 0) {
             return zeroAmount;
         }
-        UmsIntegrationConsumeSetting integrationConsumeSetting = integrationConsumeSettingMapper.selectByPrimaryKey(1L);
+        IntegrationConsumeSettingDTO integrationConsumeSetting = memberClient.getIntegrationConsumeSetting().getData();
         if (hasCoupon && integrationConsumeSetting.getCouponStatus().equals(0)) {
             return zeroAmount;
         }
@@ -625,9 +612,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private void lockStock(List<CartPromotionItemDTO> cartPromotionItemList) {
         for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
-            PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(cartPromotionItem.getProductSkuId());
-            skuStock.setLockStock(skuStock.getLockStock() + cartPromotionItem.getQuantity());
-            skuStockMapper.updateByPrimaryKeySelective(skuStock);
+            productClient.lockStock(cartPromotionItem.getProductSkuId(), cartPromotionItem.getQuantity());
         }
     }
 

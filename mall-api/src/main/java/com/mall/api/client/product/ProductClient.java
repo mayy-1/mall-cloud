@@ -1,7 +1,8 @@
-package com.mall.api.client;
+package com.mall.api.client.product;
 
 import com.mall.api.dto.BrandDTO;
 import com.mall.api.dto.ProductDTO;
+import com.mall.api.dto.SkuStockDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,22 @@ public interface ProductClient {
     /** 扣减SKU库存 */
     @PostMapping("/sku/{skuId}/stock/deduct")
     CommonResult<Void> deductStock(@PathVariable Long skuId, @RequestParam Integer quantity);
+
+    /** 支付成功扣减库存（减stock + 减lockStock + 增sale） */
+    @PostMapping("/sku/{skuId}/stock/paySuccess")
+    CommonResult<Void> paySuccessDeductStock(@PathVariable Long skuId, @RequestParam Integer quantity);
+
+    /** 锁定SKU库存（lockStock增加） */
+    @PostMapping("/sku/{skuId}/stock/lock")
+    CommonResult<Void> lockStock(@PathVariable Long skuId, @RequestParam Integer quantity);
+
+    /** 释放SKU锁定库存（lockStock减少） */
+    @PostMapping("/sku/{skuId}/stock/release")
+    CommonResult<Void> releaseStock(@PathVariable Long skuId, @RequestParam Integer quantity);
+
+    /** 根据商品ID查询SKU库存列表 */
+    @GetMapping("/sku/{productId}/list")
+    CommonResult<List<SkuStockDTO>> getSkuStockByProductId(@PathVariable Long productId);
 
     /** 综合搜索商品 */
     @GetMapping("/search")

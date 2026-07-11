@@ -1,6 +1,6 @@
 package com.mall.cart.controller;
 
-import com.mall.api.client.MemberClient;
+import com.mall.api.client.member.MemberClient;
 import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.cart.domain.dto.CartProduct;
 import com.mall.cart.model.OmsCartItem;

@@ -1,4 +1,4 @@
-package com.mall.api.client;
+package com.mall.api.client.marketing;
 
 import com.mall.api.dto.CartItemDTO;
 import com.mall.api.dto.CartPromotionItemDTO;

@@ -1,4 +1,4 @@
-package com.mall.api.client;
+package com.mall.api.client.member;
 
 import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.api.dto.CouponHistoryDetailDTO;
@@ -11,12 +11,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * 会员优惠券服务 Feign 接口
+ * 优惠券服务 Feign 接口（调用 marketing-service）
  */
-@FeignClient(name = "member-service", path = "/member/coupon")
+@FeignClient(name = "marketing-service", path = "/coupon/member")
 public interface MemberCouponClient {
 
     /** 获取购物车可用优惠券列表 */
-    @PostMapping("/list/cart")
+    @PostMapping("/list/cart/{type}")
     CommonResult<List<CouponHistoryDetailDTO>> listCart(@RequestBody List<CartPromotionItemDTO> items, @RequestParam Integer type);
+
+    /** 更新优惠券使用状态 */
+    @PostMapping("/updateStatus")
+    void updateCouponStatus(@RequestParam Long couponId,
+                            @RequestParam Long memberId,
+                            @RequestParam Integer useStatus);
 }

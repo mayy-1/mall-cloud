@@ -2,8 +2,8 @@ package com.mall.cart.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import com.mall.api.client.MemberClient;
-import com.mall.api.client.PromotionClient;
+import com.mall.api.client.member.MemberClient;
+import com.mall.api.client.marketing.PromotionClient;
 import com.mall.api.dto.CartItemDTO;
 import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.api.dto.MemberDTO;

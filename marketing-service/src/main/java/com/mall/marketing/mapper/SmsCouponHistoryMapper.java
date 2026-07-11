@@ -1,5 +1,7 @@
 package com.mall.marketing.mapper;
 
+import com.mall.marketing.domain.dto.SmsCouponHistoryDetail;
+import com.mall.marketing.model.SmsCoupon;
 import com.mall.marketing.model.SmsCouponHistory;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -26,4 +28,8 @@ public interface SmsCouponHistoryMapper {
     int updateByPrimaryKeySelective(SmsCouponHistory row);
 
     int updateByPrimaryKey(SmsCouponHistory row);
+
+    List<SmsCouponHistoryDetail> getDetailList(@Param("memberId") Long memberId);
+
+    List<SmsCoupon> getCouponList(@Param("memberId") Long memberId, @Param("useStatus") Integer useStatus);
 }

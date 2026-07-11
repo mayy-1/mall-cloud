@@ -204,4 +204,92 @@ CREATE TABLE `ums_member_task`  (
 -- Records of ums_member_task
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for ums_member_level
+-- ----------------------------
+DROP TABLE IF EXISTS `ums_member_level`;
+CREATE TABLE `ums_member_level`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `growth_point` int(11) NULL DEFAULT NULL,
+  `default_status` int(1) NULL DEFAULT NULL COMMENT '是否为默认等级：0->不是；1->是',
+  `free_freight_point` decimal(10, 2) NULL DEFAULT NULL COMMENT '免运费标准',
+  `comment_growth_point` int(11) NULL DEFAULT NULL COMMENT '每次评价获取的成长值',
+  `priviledge_free_freight` int(1) NULL DEFAULT NULL COMMENT '是否有免邮特权',
+  `priviledge_sign_in` int(1) NULL DEFAULT NULL COMMENT '是否有签到特权',
+  `priviledge_comment` int(1) NULL DEFAULT NULL COMMENT '是否有评论获奖励特权',
+  `priviledge_promotion` int(1) NULL DEFAULT NULL COMMENT '是否有专享活动特权',
+  `priviledge_member_price` int(1) NULL DEFAULT NULL COMMENT '是否有会员价格特权',
+  `priviledge_birthday` int(1) NULL DEFAULT NULL COMMENT '是否有生日特权',
+  `note` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '会员等级表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of ums_member_level
+-- ----------------------------
+INSERT INTO `ums_member_level` VALUES (1, '黄金会员', 1000, 0, 199.00, 5, 1, 1, 1, 1, 1, 1, NULL);
+INSERT INTO `ums_member_level` VALUES (2, '白金会员', 5000, 0, 99.00, 10, 1, 1, 1, 1, 1, 1, NULL);
+INSERT INTO `ums_member_level` VALUES (3, '钻石会员', 15000, 0, 69.00, 15, 1, 1, 1, 1, 1, 1, NULL);
+INSERT INTO `ums_member_level` VALUES (4, '普通会员', 1, 1, 199.00, 20, 1, 1, 1, 1, 0, 0, NULL);
+
+-- ----------------------------
+-- Table structure for ums_growth_change_history
+-- ----------------------------
+DROP TABLE IF EXISTS `ums_growth_change_history`;
+CREATE TABLE `ums_growth_change_history`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `member_id` bigint(20) NULL DEFAULT NULL,
+  `create_time` datetime NULL DEFAULT NULL,
+  `change_type` int(1) NULL DEFAULT NULL COMMENT '改变类型：0->增加；1->减少',
+  `change_count` int(11) NULL DEFAULT NULL COMMENT '积分改变数量',
+  `operate_man` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作人员',
+  `operate_note` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作备注',
+  `source_type` int(1) NULL DEFAULT NULL COMMENT '积分来源：0->购物；1->管理员修改',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '成长值变化历史记录表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of ums_growth_change_history
+-- ----------------------------
+INSERT INTO `ums_growth_change_history` VALUES (1, 1, '2018-08-29 17:16:35', 0, 1000, 'test', '测试使用', 1);
+
+-- ----------------------------
+-- Table structure for ums_integration_change_history
+-- ----------------------------
+DROP TABLE IF EXISTS `ums_integration_change_history`;
+CREATE TABLE `ums_integration_change_history`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `member_id` bigint(20) NULL DEFAULT NULL,
+  `create_time` datetime NULL DEFAULT NULL,
+  `change_type` int(1) NULL DEFAULT NULL COMMENT '改变类型：0->增加；1->减少',
+  `change_count` int(11) NULL DEFAULT NULL COMMENT '积分改变数量',
+  `operate_man` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作人员',
+  `operate_note` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作备注',
+  `source_type` int(1) NULL DEFAULT NULL COMMENT '积分来源：0->购物；1->管理员修改',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '积分变化历史记录表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of ums_integration_change_history
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for ums_integration_consume_setting
+-- ----------------------------
+DROP TABLE IF EXISTS `ums_integration_consume_setting`;
+CREATE TABLE `ums_integration_consume_setting`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `deduction_per_amount` int(11) NULL DEFAULT NULL COMMENT '每一元需要抵扣的积分数量',
+  `max_percent_per_order` int(11) NULL DEFAULT NULL COMMENT '每笔订单最高抵用百分比',
+  `use_unit` int(11) NULL DEFAULT NULL COMMENT '每次使用积分最小单位100',
+  `coupon_status` int(1) NULL DEFAULT NULL COMMENT '是否可以和优惠券同用；0->不可以；1->可以',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '积分消费设置' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of ums_integration_consume_setting
+-- ----------------------------
+INSERT INTO `ums_integration_consume_setting` VALUES (1, 100, 50, 100, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -1,4 +1,4 @@
-package com.mall.api.client;
+package com.mall.api.client.product;
 
 import com.mall.api.dto.BrandDTO;
 import com.mym.mall.common.api.CommonResult;

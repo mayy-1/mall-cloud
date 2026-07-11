@@ -43,4 +43,43 @@ public class ISkuServiceImpl implements ISkuService {
         skuStock.setStock(skuStock.getStock() - quantity);
         return skuStockMapper.updateByPrimaryKeySelective(skuStock);
     }
+
+    @Override
+    public int lockStock(Long skuId, Integer quantity) {
+        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
+        if (skuStock == null) {
+            throw new RuntimeException("SKU库存不存在");
+        }
+        skuStock.setLockStock((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) + quantity);
+        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+    }
+
+    @Override
+    public int releaseStock(Long skuId, Integer quantity) {
+        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
+        if (skuStock == null) {
+            throw new RuntimeException("SKU库存不存在");
+        }
+        skuStock.setLockStock(Math.max((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) - quantity, 0));
+        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+    }
+
+    @Override
+    public List<PmsSkuStock> getSkuStockByProductId(Long productId) {
+        PmsSkuStock condition = new PmsSkuStock();
+        condition.setProductId(productId);
+        return skuStockMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public int paySuccessDeductStock(Long skuId, Integer quantity) {
+        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
+        if (skuStock == null) {
+            throw new RuntimeException("SKU库存不存在");
+        }
+        skuStock.setStock(skuStock.getStock() - quantity);
+        skuStock.setLockStock(Math.max((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) - quantity, 0));
+        skuStock.setSale((skuStock.getSale() == null ? 0 : skuStock.getSale()) + quantity);
+        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+    }
 }

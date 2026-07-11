@@ -33,7 +33,8 @@ public class AddressServiceImpl implements IAddressService {
     public int delete(Long id) {
         UmsMember currentMember = memberService.getCurrentMember();
         UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
-        condition.setMemberId(currentMember.getId()).setId(id);
+        condition.setMemberId(currentMember.getId());
+        condition.setId(id);
         return addressMapper.deleteByCondition(condition);
     }
 
@@ -68,7 +69,8 @@ public class AddressServiceImpl implements IAddressService {
     public UmsMemberReceiveAddress getItem(Long id) {
         UmsMember currentMember = memberService.getCurrentMember();
         UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
-        condition.setMemberId(currentMember.getId()).setId(id);
+        condition.setMemberId(currentMember.getId());
+        condition.setId(id);
         List<UmsMemberReceiveAddress> addressList = addressMapper.selectByCondition(condition);
         if(!CollectionUtils.isEmpty(addressList)){
             return addressList.get(0);

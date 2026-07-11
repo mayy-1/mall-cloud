@@ -1,4 +1,4 @@
-package com.mall.api.client;
+package com.mall.api.client.member;
 
 import com.mall.api.dto.MemberAddressDTO;
 import com.mym.mall.common.api.CommonResult;

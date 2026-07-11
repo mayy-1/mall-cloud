@@ -3,7 +3,7 @@ package com.mall.trade.domain.dto;
 import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.api.dto.CouponHistoryDetailDTO;
 import com.mall.api.dto.MemberAddressDTO;
-import com.mall.trade.model.UmsIntegrationConsumeSetting;
+import com.mall.api.dto.IntegrationConsumeSettingDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,7 +20,7 @@ public class ConfirmOrderResult {
     //用户可用优惠券列表
     private List<CouponHistoryDetailDTO> couponHistoryDetailList;
     //积分使用规则
-    private UmsIntegrationConsumeSetting integrationConsumeSetting;
+    private IntegrationConsumeSettingDTO integrationConsumeSetting;
     //会员持有的积分
     private Integer memberIntegration;
     //计算的金额
@@ -50,11 +50,11 @@ public class ConfirmOrderResult {
         this.couponHistoryDetailList = couponHistoryDetailList;
     }
 
-    public UmsIntegrationConsumeSetting getIntegrationConsumeSetting() {
+    public IntegrationConsumeSettingDTO getIntegrationConsumeSetting() {
         return integrationConsumeSetting;
     }
 
-    public void setIntegrationConsumeSetting(UmsIntegrationConsumeSetting integrationConsumeSetting) {
+    public void setIntegrationConsumeSetting(IntegrationConsumeSettingDTO integrationConsumeSetting) {
         this.integrationConsumeSetting = integrationConsumeSetting;
     }
 
