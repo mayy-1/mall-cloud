@@ -1,7 +1,6 @@
 package com.mall.member.mapper;
 
 import com.mall.member.model.SmsCoupon;
-import com.mall.member.model.SmsCouponExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,9 +8,6 @@ import org.apache.ibatis.annotations.Param;
  * 优惠券数据访问接口
  */
 public interface SmsCouponMapper {
-    long countByExample(SmsCouponExample example);
-
-    int deleteByExample(SmsCouponExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -19,13 +15,13 @@ public interface SmsCouponMapper {
 
     int insertSelective(SmsCoupon row);
 
-    List<SmsCoupon> selectByExample(SmsCouponExample example);
-
     SmsCoupon selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsCoupon row, @Param("example") SmsCouponExample example);
+    List<SmsCoupon> selectByCondition(SmsCoupon record);
 
-    int updateByExample(@Param("row") SmsCoupon row, @Param("example") SmsCouponExample example);
+    int deleteByCondition(SmsCoupon record);
+
+    int updateSelectiveByCondition(@Param("record") SmsCoupon record, @Param("condition") SmsCoupon condition);
 
     int updateByPrimaryKeySelective(SmsCoupon row);
 

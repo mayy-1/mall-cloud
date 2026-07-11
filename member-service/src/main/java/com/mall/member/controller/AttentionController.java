@@ -8,14 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * 会员关注品牌管理Controller
- * Created by macro on 2018/8/2.
  */
-@Controller
+@RestController
 @Tag(name = "AttentionController", description = "会员关注品牌管理")
 @RequestMapping("/member/attention")
 @RequiredArgsConstructor
@@ -24,8 +22,7 @@ public class AttentionController {
     private final IAttentionService attentionService;
 
     @Operation(summary = "添加品牌关注")
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/add")
     public CommonResult add(@RequestBody MemberBrandAttention memberBrandAttention) {
         int count = attentionService.add(memberBrandAttention);
         if(count>0){
@@ -36,8 +33,7 @@ public class AttentionController {
     }
 
     @Operation(summary = "取消关注")
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/delete")
     public CommonResult delete(Long brandId) {
         int count = attentionService.delete(brandId);
         if(count>0){
@@ -48,8 +44,7 @@ public class AttentionController {
     }
 
     @Operation(summary = "显示关注列表")
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/list")
     public CommonResult<CommonPage<MemberBrandAttention>> list(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                                                @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize) {
         Page<MemberBrandAttention> page = attentionService.list(pageNum,pageSize);
@@ -57,16 +52,14 @@ public class AttentionController {
     }
 
     @Operation(summary = "显示关注品牌详情")
-    @RequestMapping(value = "/detail", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/detail")
     public CommonResult<MemberBrandAttention> detail(@RequestParam Long brandId) {
         MemberBrandAttention memberBrandAttention = attentionService.detail(brandId);
         return CommonResult.success(memberBrandAttention);
     }
 
     @Operation(summary = "清空关注列表")
-    @RequestMapping(value = "/clear", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/clear")
     public CommonResult clear() {
         attentionService.clear();
         return CommonResult.success(null);

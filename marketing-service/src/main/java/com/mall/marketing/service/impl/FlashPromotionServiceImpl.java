@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
-import com.mall.marketing.model.SmsFlashPromotion;
-import com.mall.marketing.model.SmsFlashPromotionExample;
-import com.mall.marketing.service.IFlashPromotionService;
+import com.mall.marketing.model.SmsFlashPromotion;import com.mall.marketing.service.IFlashPromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -55,24 +53,26 @@ public class FlashPromotionServiceImpl implements IFlashPromotionService {
     @Override
     public List<SmsFlashPromotion> list(String keyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        SmsFlashPromotionExample example = new SmsFlashPromotionExample();
+        SmsFlashPromotion condition = new SmsFlashPromotion();
         if (!StringUtils.isEmpty(keyword)) {
-            example.createCriteria().andTitleLike("%" + keyword + "%");
+            condition.setTitle("%" + keyword + "%");
         }
-        return flashPromotionMapper.selectByExample(example);
+        return flashPromotionMapper.selectByCondition(condition);
     }
 
     @Override
     public SmsFlashPromotion getCurrentFlashPromotion() {
         Date now = new Date();
-        SmsFlashPromotionExample example = new SmsFlashPromotionExample();
-        example.createCriteria()
-                .andStartDateLessThanOrEqualTo(now)
-                .andEndDateGreaterThanOrEqualTo(now)
-                .andStatusEqualTo(1);
-        List<SmsFlashPromotion> flashPromotionList = flashPromotionMapper.selectByExample(example);
+        SmsFlashPromotion condition = new SmsFlashPromotion();
+        condition.setStatus(1);
+        List<SmsFlashPromotion> flashPromotionList = flashPromotionMapper.selectByCondition(condition);
         if (flashPromotionList != null && !flashPromotionList.isEmpty()) {
-            return flashPromotionList.get(0);
+            for (SmsFlashPromotion p : flashPromotionList) {
+                if (p.getStartDate() != null && !now.before(p.getStartDate())
+                        && p.getEndDate() != null && !now.after(p.getEndDate())) {
+                    return p;
+                }
+            }
         }
         return null;
     }

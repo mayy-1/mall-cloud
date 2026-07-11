@@ -16,83 +16,11 @@
     <result column="priviledge_birthday" jdbcType="INTEGER" property="priviledgeBirthday" />
     <result column="note" jdbcType="VARCHAR" property="note" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, name, growth_point, default_status, free_freight_point, comment_growth_point, 
     priviledge_free_freight, priviledge_sign_in, priviledge_comment, priviledge_promotion, 
     priviledge_member_price, priviledge_birthday, note
   </sql>
-  <select id="selectByExample" parameterType="com.mall.member.model.UmsMemberLevelExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from ums_member_level
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -102,12 +30,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from ums_member_level
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.member.model.UmsMemberLevelExample">
-    delete from ums_member_level
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.member.model.UmsMemberLevel">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -206,78 +128,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.member.model.UmsMemberLevelExample" resultType="java.lang.Long">
-    select count(*) from ums_member_level
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update ums_member_level
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.name != null">
-        name = #{row.name,jdbcType=VARCHAR},
-      </if>
-      <if test="row.growthPoint != null">
-        growth_point = #{row.growthPoint,jdbcType=INTEGER},
-      </if>
-      <if test="row.defaultStatus != null">
-        default_status = #{row.defaultStatus,jdbcType=INTEGER},
-      </if>
-      <if test="row.freeFreightPoint != null">
-        free_freight_point = #{row.freeFreightPoint,jdbcType=DECIMAL},
-      </if>
-      <if test="row.commentGrowthPoint != null">
-        comment_growth_point = #{row.commentGrowthPoint,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgeFreeFreight != null">
-        priviledge_free_freight = #{row.priviledgeFreeFreight,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgeSignIn != null">
-        priviledge_sign_in = #{row.priviledgeSignIn,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgeComment != null">
-        priviledge_comment = #{row.priviledgeComment,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgePromotion != null">
-        priviledge_promotion = #{row.priviledgePromotion,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgeMemberPrice != null">
-        priviledge_member_price = #{row.priviledgeMemberPrice,jdbcType=INTEGER},
-      </if>
-      <if test="row.priviledgeBirthday != null">
-        priviledge_birthday = #{row.priviledgeBirthday,jdbcType=INTEGER},
-      </if>
-      <if test="row.note != null">
-        note = #{row.note,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update ums_member_level
-    set id = #{row.id,jdbcType=BIGINT},
-      name = #{row.name,jdbcType=VARCHAR},
-      growth_point = #{row.growthPoint,jdbcType=INTEGER},
-      default_status = #{row.defaultStatus,jdbcType=INTEGER},
-      free_freight_point = #{row.freeFreightPoint,jdbcType=DECIMAL},
-      comment_growth_point = #{row.commentGrowthPoint,jdbcType=INTEGER},
-      priviledge_free_freight = #{row.priviledgeFreeFreight,jdbcType=INTEGER},
-      priviledge_sign_in = #{row.priviledgeSignIn,jdbcType=INTEGER},
-      priviledge_comment = #{row.priviledgeComment,jdbcType=INTEGER},
-      priviledge_promotion = #{row.priviledgePromotion,jdbcType=INTEGER},
-      priviledge_member_price = #{row.priviledgeMemberPrice,jdbcType=INTEGER},
-      priviledge_birthday = #{row.priviledgeBirthday,jdbcType=INTEGER},
-      note = #{row.note,jdbcType=VARCHAR}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.member.model.UmsMemberLevel">
     update ums_member_level
     <set>
@@ -336,4 +186,76 @@
       note = #{note,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.member.model.UmsMemberLevel">
+    SELECT <include refid="Base_Column_List"/> FROM ums_member_level
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="growthPoint != null">AND growth_point = #{growthPoint}</if>
+      <if test="defaultStatus != null">AND default_status = #{defaultStatus}</if>
+      <if test="freeFreightPoint != null">AND free_freight_point = #{freeFreightPoint}</if>
+      <if test="commentGrowthPoint != null">AND comment_growth_point = #{commentGrowthPoint}</if>
+      <if test="priviledgeFreeFreight != null">AND priviledge_free_freight = #{priviledgeFreeFreight}</if>
+      <if test="priviledgeSignIn != null">AND priviledge_sign_in = #{priviledgeSignIn}</if>
+      <if test="priviledgeComment != null">AND priviledge_comment = #{priviledgeComment}</if>
+      <if test="priviledgePromotion != null">AND priviledge_promotion = #{priviledgePromotion}</if>
+      <if test="priviledgeMemberPrice != null">AND priviledge_member_price = #{priviledgeMemberPrice}</if>
+      <if test="priviledgeBirthday != null">AND priviledge_birthday = #{priviledgeBirthday}</if>
+      <if test="note != null">AND note = #{note}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.member.model.UmsMemberLevel">
+    DELETE FROM ums_member_level
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="growthPoint != null">AND growth_point = #{growthPoint}</if>
+      <if test="defaultStatus != null">AND default_status = #{defaultStatus}</if>
+      <if test="freeFreightPoint != null">AND free_freight_point = #{freeFreightPoint}</if>
+      <if test="commentGrowthPoint != null">AND comment_growth_point = #{commentGrowthPoint}</if>
+      <if test="priviledgeFreeFreight != null">AND priviledge_free_freight = #{priviledgeFreeFreight}</if>
+      <if test="priviledgeSignIn != null">AND priviledge_sign_in = #{priviledgeSignIn}</if>
+      <if test="priviledgeComment != null">AND priviledge_comment = #{priviledgeComment}</if>
+      <if test="priviledgePromotion != null">AND priviledge_promotion = #{priviledgePromotion}</if>
+      <if test="priviledgeMemberPrice != null">AND priviledge_member_price = #{priviledgeMemberPrice}</if>
+      <if test="priviledgeBirthday != null">AND priviledge_birthday = #{priviledgeBirthday}</if>
+      <if test="note != null">AND note = #{note}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update ums_member_level
+    <set>
+      <if test="record.name != null">name = #{record.name},</if>
+      <if test="record.growthPoint != null">growth_point = #{record.growthPoint},</if>
+      <if test="record.defaultStatus != null">default_status = #{record.defaultStatus},</if>
+      <if test="record.freeFreightPoint != null">free_freight_point = #{record.freeFreightPoint},</if>
+      <if test="record.commentGrowthPoint != null">comment_growth_point = #{record.commentGrowthPoint},</if>
+      <if test="record.priviledgeFreeFreight != null">priviledge_free_freight = #{record.priviledgeFreeFreight},</if>
+      <if test="record.priviledgeSignIn != null">priviledge_sign_in = #{record.priviledgeSignIn},</if>
+      <if test="record.priviledgeComment != null">priviledge_comment = #{record.priviledgeComment},</if>
+      <if test="record.priviledgePromotion != null">priviledge_promotion = #{record.priviledgePromotion},</if>
+      <if test="record.priviledgeMemberPrice != null">priviledge_member_price = #{record.priviledgeMemberPrice},</if>
+      <if test="record.priviledgeBirthday != null">priviledge_birthday = #{record.priviledgeBirthday},</if>
+      <if test="record.note != null">note = #{record.note},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.name != null">AND name = #{condition.name}</if>
+      <if test="condition.growthPoint != null">AND growth_point = #{condition.growthPoint}</if>
+      <if test="condition.defaultStatus != null">AND default_status = #{condition.defaultStatus}</if>
+      <if test="condition.freeFreightPoint != null">AND free_freight_point = #{condition.freeFreightPoint}</if>
+      <if test="condition.commentGrowthPoint != null">AND comment_growth_point = #{condition.commentGrowthPoint}</if>
+      <if test="condition.priviledgeFreeFreight != null">AND priviledge_free_freight = #{condition.priviledgeFreeFreight}</if>
+      <if test="condition.priviledgeSignIn != null">AND priviledge_sign_in = #{condition.priviledgeSignIn}</if>
+      <if test="condition.priviledgeComment != null">AND priviledge_comment = #{condition.priviledgeComment}</if>
+      <if test="condition.priviledgePromotion != null">AND priviledge_promotion = #{condition.priviledgePromotion}</if>
+      <if test="condition.priviledgeMemberPrice != null">AND priviledge_member_price = #{condition.priviledgeMemberPrice}</if>
+      <if test="condition.priviledgeBirthday != null">AND priviledge_birthday = #{condition.priviledgeBirthday}</if>
+      <if test="condition.note != null">AND note = #{condition.note}</if>
+    </where>
+  </update>
+
 </mapper>

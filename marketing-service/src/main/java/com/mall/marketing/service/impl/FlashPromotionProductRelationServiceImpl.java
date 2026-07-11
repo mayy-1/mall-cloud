@@ -1,11 +1,7 @@
 package com.mall.marketing.service.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapperCustom;
-import com.mall.marketing.domain.dto.SmsFlashPromotionProduct;
-import com.mall.marketing.model.SmsFlashPromotionProductRelation;
-import com.mall.marketing.model.SmsFlashPromotionProductRelationExample;
-import com.mall.marketing.service.IFlashPromotionProductRelationService;
+import com.github.pagehelper.PageHelper;import com.mall.marketing.domain.dto.SmsFlashPromotionProduct;
+import com.mall.marketing.model.SmsFlashPromotionProductRelation;import com.mall.marketing.service.IFlashPromotionProductRelationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FlashPromotionProductRelationServiceImpl implements IFlashPromotionProductRelationService {
     /** 限时购商品关联自定义Mapper */
-    private final SmsFlashPromotionProductRelationMapperCustom relationMapper;
+    private final SmsFlashPromotionProductRelationMapper relationMapper;
     @Override
     public int create(List<SmsFlashPromotionProductRelation> relationList) {
         for (SmsFlashPromotionProductRelation relation : relationList) {
@@ -52,10 +48,9 @@ public class FlashPromotionProductRelationServiceImpl implements IFlashPromotion
 
     @Override
     public long getCount(Long flashPromotionId, Long flashPromotionSessionId) {
-        SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-        example.createCriteria()
-                .andFlashPromotionIdEqualTo(flashPromotionId)
-                .andFlashPromotionSessionIdEqualTo(flashPromotionSessionId);
-        return relationMapper.countByExample(example);
+        SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+        condition.setFlashPromotionId(flashPromotionId);
+        condition.setFlashPromotionSessionId(flashPromotionSessionId);
+        return relationMapper.selectByCondition(condition).size();
     }
 }

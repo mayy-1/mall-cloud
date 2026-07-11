@@ -1,7 +1,6 @@
 package com.mall.member.mapper;
 
 import com.mall.member.model.SmsCouponProductCategoryRelation;
-import com.mall.member.model.SmsCouponProductCategoryRelationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,9 +8,6 @@ import org.apache.ibatis.annotations.Param;
  * 优惠券与商品分类关联数据访问接口
  */
 public interface SmsCouponProductCategoryRelationMapper {
-    long countByExample(SmsCouponProductCategoryRelationExample example);
-
-    int deleteByExample(SmsCouponProductCategoryRelationExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -19,13 +15,13 @@ public interface SmsCouponProductCategoryRelationMapper {
 
     int insertSelective(SmsCouponProductCategoryRelation row);
 
-    List<SmsCouponProductCategoryRelation> selectByExample(SmsCouponProductCategoryRelationExample example);
-
     SmsCouponProductCategoryRelation selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsCouponProductCategoryRelation row, @Param("example") SmsCouponProductCategoryRelationExample example);
+    List<SmsCouponProductCategoryRelation> selectByCondition(SmsCouponProductCategoryRelation record);
 
-    int updateByExample(@Param("row") SmsCouponProductCategoryRelation row, @Param("example") SmsCouponProductCategoryRelationExample example);
+    int deleteByCondition(SmsCouponProductCategoryRelation record);
+
+    int updateSelectiveByCondition(@Param("record") SmsCouponProductCategoryRelation record, @Param("condition") SmsCouponProductCategoryRelation condition);
 
     int updateByPrimaryKeySelective(SmsCouponProductCategoryRelation row);
 

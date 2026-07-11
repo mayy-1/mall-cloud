@@ -3,84 +3,12 @@
 <mapper namespace="com.mall.user.mapper.UmsAdminRoleRelationMapper">
   <resultMap id="BaseResultMap" type="com.mall.user.model.UmsAdminRoleRelation">
     <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="admin_id" jdbcType="BIGINT" property="adminId" />
+  <result column="admin_id" jdbcType="BIGINT" property="adminId" />
     <result column="role_id" jdbcType="BIGINT" property="roleId" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, admin_id, role_id
   </sql>
-  <select id="selectByExample" parameterType="com.mall.user.model.UmsAdminRoleRelationExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from ums_admin_role_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -91,26 +19,20 @@
     delete from ums_admin_role_relation
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="com.mall.user.model.UmsAdminRoleRelationExample">
-    delete from ums_admin_role_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
   <insert id="insert" parameterType="com.mall.user.model.UmsAdminRoleRelation">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+  <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into ums_admin_role_relation (admin_id, role_id)
     values (#{adminId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="com.mall.user.model.UmsAdminRoleRelation">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+  <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into ums_admin_role_relation
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="adminId != null">
+  <if test="adminId != null">
         admin_id,
       </if>
       <if test="roleId != null">
@@ -118,7 +40,7 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="adminId != null">
+  <if test="adminId != null">
         #{adminId,jdbcType=BIGINT},
       </if>
       <if test="roleId != null">
@@ -126,38 +48,10 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.user.model.UmsAdminRoleRelationExample" resultType="java.lang.Long">
-    select count(*) from ums_admin_role_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update ums_admin_role_relation
-    <set>
-      <if test="row.adminId != null">
-        admin_id = #{row.adminId,jdbcType=BIGINT},
-      </if>
-      <if test="row.roleId != null">
-        role_id = #{row.roleId,jdbcType=BIGINT},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update ums_admin_role_relation
-    set admin_id = #{row.adminId,jdbcType=BIGINT},
-      role_id = #{row.roleId,jdbcType=BIGINT}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.user.model.UmsAdminRoleRelation">
     update ums_admin_role_relation
     <set>
-      <if test="adminId != null">
+  <if test="adminId != null">
         admin_id = #{adminId,jdbcType=BIGINT},
       </if>
       <if test="roleId != null">
@@ -172,4 +66,59 @@
       role_id = #{roleId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.user.model.UmsAdminRoleRelation">
+    SELECT <include refid="Base_Column_List"/> FROM ums_admin_role_relation
+    <where>
+  <if test="id != null">AND id = #{id}</if>
+      <if test="adminId != null">AND admin_id = #{adminId}</if>
+      <if test="roleId != null">AND role_id = #{roleId}</if>
+    </where>
+  </select>
+  <delete id="deleteByCondition" parameterType="com.mall.user.model.UmsAdminRoleRelation">
+    DELETE FROM ums_admin_role_relation
+    <where>
+  <if test="id != null">AND id = #{id}</if>
+      <if test="adminId != null">AND admin_id = #{adminId}</if>
+      <if test="roleId != null">AND role_id = #{roleId}</if>
+    </where>
+  </delete>
+  <insert id="insertList">
+    INSERT INTO ums_admin_role_relation (admin_id, role_id) VALUES
+    <foreach collection="list" separator="," item="item" index="index">
+      (#{item.adminId,jdbcType=BIGINT},
+      #{item.roleId,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <select id="getRoleList" resultMap="com.mall.user.mapper.UmsRoleMapper.BaseResultMap">
+    select r.*
+    from ums_admin_role_relation ar left join ums_role r on ar.role_id = r.id
+    where ar.admin_id = #{adminId}
+  </select>
+  <select id="getResourceList" resultType="com.mall.user.model.UmsResource">
+    SELECT
+        ur.id id,
+        ur.create_time createTime,
+        ur.`name` `name`,
+        ur.url url,
+        ur.description description,
+        ur.category_id categoryId
+    FROM
+        ums_admin_role_relation ar
+    LEFT JOIN ums_role r ON ar.role_id = r.id
+    LEFT JOIN ums_role_resource_relation rrr ON r.id = rrr.role_id
+    LEFT JOIN ums_resource ur ON ur.id = rrr.resource_id
+    WHERE
+        ar.admin_id = #{adminId}
+    AND ur.id IS NOT NULL
+    GROUP BY
+        ur.id
+  </select>
+  <select id="getAdminIdList" resultType="java.lang.Long">
+    SELECT
+        DISTINCT ar.admin_id
+    FROM
+        ums_role_resource_relation rr
+            LEFT JOIN ums_admin_role_relation ar ON rr.role_id = ar.role_id
+    WHERE rr.resource_id=#{resourceId}
+  </select>
 </mapper>

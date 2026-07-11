@@ -20,3 +20,10 @@ public interface UmsIntegrationConsumeSettingMapper {
 
     int updateByPrimaryKey(UmsIntegrationConsumeSetting row);
 }
+    List<UmsIntegrationConsumeSetting> selectByCondition(UmsIntegrationConsumeSetting record);
+
+    int deleteByCondition(UmsIntegrationConsumeSetting record);
+
+    int updateSelectiveByCondition(@Param("record") UmsIntegrationConsumeSetting record, @Param("condition") UmsIntegrationConsumeSetting condition);
+
+}

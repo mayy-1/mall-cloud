@@ -21,81 +21,9 @@
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="member_level" jdbcType="INTEGER" property="memberLevel" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, type, name, platform, count, amount, per_limit, min_point, start_time, end_time, use_type, note, publish_count, use_count, receive_count, enable_time, code, member_level
   </sql>
-  <select id="selectByExample" parameterType="com.mall.marketing.model.SmsCouponExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from sms_coupon
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -105,12 +33,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sms_coupon
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.marketing.model.SmsCouponExample">
-    delete from sms_coupon
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.marketing.model.SmsCoupon">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -231,94 +153,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.marketing.model.SmsCouponExample" resultType="java.lang.Long">
-    select count(*) from sms_coupon
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update sms_coupon
-    <set>
-      <if test="row.type != null">
-        type = #{row.type,jdbcType=INTEGER},
-      </if>
-      <if test="row.name != null">
-        name = #{row.name,jdbcType=VARCHAR},
-      </if>
-      <if test="row.platform != null">
-        platform = #{row.platform,jdbcType=INTEGER},
-      </if>
-      <if test="row.count != null">
-        count = #{row.count,jdbcType=INTEGER},
-      </if>
-      <if test="row.amount != null">
-        amount = #{row.amount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.perLimit != null">
-        per_limit = #{row.perLimit,jdbcType=INTEGER},
-      </if>
-      <if test="row.minPoint != null">
-        min_point = #{row.minPoint,jdbcType=DECIMAL},
-      </if>
-      <if test="row.startTime != null">
-        start_time = #{row.startTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.endTime != null">
-        end_time = #{row.endTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.useType != null">
-        use_type = #{row.useType,jdbcType=INTEGER},
-      </if>
-      <if test="row.note != null">
-        note = #{row.note,jdbcType=VARCHAR},
-      </if>
-      <if test="row.publishCount != null">
-        publish_count = #{row.publishCount,jdbcType=INTEGER},
-      </if>
-      <if test="row.useCount != null">
-        use_count = #{row.useCount,jdbcType=INTEGER},
-      </if>
-      <if test="row.receiveCount != null">
-        receive_count = #{row.receiveCount,jdbcType=INTEGER},
-      </if>
-      <if test="row.enableTime != null">
-        enable_time = #{row.enableTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.code != null">
-        code = #{row.code,jdbcType=VARCHAR},
-      </if>
-      <if test="row.memberLevel != null">
-        member_level = #{row.memberLevel,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update sms_coupon
-    set type = #{row.type,jdbcType=INTEGER},
-      name = #{row.name,jdbcType=VARCHAR},
-      platform = #{row.platform,jdbcType=INTEGER},
-      count = #{row.count,jdbcType=INTEGER},
-      amount = #{row.amount,jdbcType=DECIMAL},
-      per_limit = #{row.perLimit,jdbcType=INTEGER},
-      min_point = #{row.minPoint,jdbcType=DECIMAL},
-      start_time = #{row.startTime,jdbcType=TIMESTAMP},
-      end_time = #{row.endTime,jdbcType=TIMESTAMP},
-      use_type = #{row.useType,jdbcType=INTEGER},
-      note = #{row.note,jdbcType=VARCHAR},
-      publish_count = #{row.publishCount,jdbcType=INTEGER},
-      use_count = #{row.useCount,jdbcType=INTEGER},
-      receive_count = #{row.receiveCount,jdbcType=INTEGER},
-      enable_time = #{row.enableTime,jdbcType=TIMESTAMP},
-      code = #{row.code,jdbcType=VARCHAR},
-      member_level = #{row.memberLevel,jdbcType=INTEGER}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.marketing.model.SmsCoupon">
     update sms_coupon
     <set>
@@ -397,4 +231,121 @@
       member_level = #{memberLevel,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+<resultMap id="couponItemParam" type="com.mall.marketing.domain.dto.SmsCouponParam" extends="com.mall.marketing.mapper.SmsCouponMapper.BaseResultMap">
+        <collection property="productRelationList" columnPrefix="cpr_" resultMap="com.mall.marketing.mapper.SmsCouponProductRelationMapper.BaseResultMap">
+        </collection>
+        <collection property="productCategoryRelationList" columnPrefix="cpcr_" resultMap="com.mall.marketing.mapper.SmsCouponProductCategoryRelationMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+    <select id="getItem" resultMap="couponItemParam">
+        SELECT
+            c.*,
+            cpr.id                   cpr_id,
+            cpr.product_id           cpr_product_id,
+            cpr.product_name         cpr_product_name,
+            cpr.product_sn           cpr_product_sn,
+            cpcr.id                  cpcr_id,
+            cpcr.product_category_id cpcr_product_category_id,
+            cpcr.product_category_name cpcr_product_category_name,
+            cpcr.parent_category_name cpcr_parent_category_name
+        FROM
+            sms_coupon c
+            LEFT JOIN sms_coupon_product_relation cpr ON c.id = cpr.coupon_id
+            LEFT JOIN sms_coupon_product_category_relation cpcr ON c.id = cpcr.coupon_id
+        WHERE
+            c.id = #{id}
+    </select>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.marketing.model.SmsCoupon">
+    SELECT <include refid="Base_Column_List"/> FROM sms_coupon
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="type != null">AND type = #{type}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="platform != null">AND platform = #{platform}</if>
+      <if test="count != null">AND count = #{count}</if>
+      <if test="amount != null">AND amount = #{amount}</if>
+      <if test="perLimit != null">AND per_limit = #{perLimit}</if>
+      <if test="minPoint != null">AND min_point = #{minPoint}</if>
+      <if test="startTime != null">AND start_time = #{startTime}</if>
+      <if test="endTime != null">AND end_time = #{endTime}</if>
+      <if test="useType != null">AND use_type = #{useType}</if>
+      <if test="note != null">AND note = #{note}</if>
+      <if test="publishCount != null">AND publish_count = #{publishCount}</if>
+      <if test="useCount != null">AND use_count = #{useCount}</if>
+      <if test="receiveCount != null">AND receive_count = #{receiveCount}</if>
+      <if test="enableTime != null">AND enable_time = #{enableTime}</if>
+      <if test="code != null">AND code = #{code}</if>
+      <if test="memberLevel != null">AND member_level = #{memberLevel}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.marketing.model.SmsCoupon">
+    DELETE FROM sms_coupon
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="type != null">AND type = #{type}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="platform != null">AND platform = #{platform}</if>
+      <if test="count != null">AND count = #{count}</if>
+      <if test="amount != null">AND amount = #{amount}</if>
+      <if test="perLimit != null">AND per_limit = #{perLimit}</if>
+      <if test="minPoint != null">AND min_point = #{minPoint}</if>
+      <if test="startTime != null">AND start_time = #{startTime}</if>
+      <if test="endTime != null">AND end_time = #{endTime}</if>
+      <if test="useType != null">AND use_type = #{useType}</if>
+      <if test="note != null">AND note = #{note}</if>
+      <if test="publishCount != null">AND publish_count = #{publishCount}</if>
+      <if test="useCount != null">AND use_count = #{useCount}</if>
+      <if test="receiveCount != null">AND receive_count = #{receiveCount}</if>
+      <if test="enableTime != null">AND enable_time = #{enableTime}</if>
+      <if test="code != null">AND code = #{code}</if>
+      <if test="memberLevel != null">AND member_level = #{memberLevel}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update sms_coupon
+    <set>
+      <if test="record.type != null">type = #{record.type},</if>
+      <if test="record.name != null">name = #{record.name},</if>
+      <if test="record.platform != null">platform = #{record.platform},</if>
+      <if test="record.count != null">count = #{record.count},</if>
+      <if test="record.amount != null">amount = #{record.amount},</if>
+      <if test="record.perLimit != null">per_limit = #{record.perLimit},</if>
+      <if test="record.minPoint != null">min_point = #{record.minPoint},</if>
+      <if test="record.startTime != null">start_time = #{record.startTime},</if>
+      <if test="record.endTime != null">end_time = #{record.endTime},</if>
+      <if test="record.useType != null">use_type = #{record.useType},</if>
+      <if test="record.note != null">note = #{record.note},</if>
+      <if test="record.publishCount != null">publish_count = #{record.publishCount},</if>
+      <if test="record.useCount != null">use_count = #{record.useCount},</if>
+      <if test="record.receiveCount != null">receive_count = #{record.receiveCount},</if>
+      <if test="record.enableTime != null">enable_time = #{record.enableTime},</if>
+      <if test="record.code != null">code = #{record.code},</if>
+      <if test="record.memberLevel != null">member_level = #{record.memberLevel},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.type != null">AND type = #{condition.type}</if>
+      <if test="condition.name != null">AND name = #{condition.name}</if>
+      <if test="condition.platform != null">AND platform = #{condition.platform}</if>
+      <if test="condition.count != null">AND count = #{condition.count}</if>
+      <if test="condition.amount != null">AND amount = #{condition.amount}</if>
+      <if test="condition.perLimit != null">AND per_limit = #{condition.perLimit}</if>
+      <if test="condition.minPoint != null">AND min_point = #{condition.minPoint}</if>
+      <if test="condition.startTime != null">AND start_time = #{condition.startTime}</if>
+      <if test="condition.endTime != null">AND end_time = #{condition.endTime}</if>
+      <if test="condition.useType != null">AND use_type = #{condition.useType}</if>
+      <if test="condition.note != null">AND note = #{condition.note}</if>
+      <if test="condition.publishCount != null">AND publish_count = #{condition.publishCount}</if>
+      <if test="condition.useCount != null">AND use_count = #{condition.useCount}</if>
+      <if test="condition.receiveCount != null">AND receive_count = #{condition.receiveCount}</if>
+      <if test="condition.enableTime != null">AND enable_time = #{condition.enableTime}</if>
+      <if test="condition.code != null">AND code = #{condition.code}</if>
+      <if test="condition.memberLevel != null">AND member_level = #{condition.memberLevel}</if>
+    </where>
+  </update>
+
 </mapper>

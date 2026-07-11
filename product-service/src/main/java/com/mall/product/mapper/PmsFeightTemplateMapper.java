@@ -1,29 +1,24 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsFeightTemplate;
-import com.mall.product.model.PmsFeightTemplateExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**运费模板Mapper */
 public interface PmsFeightTemplateMapper {
-    long countByExample(PmsFeightTemplateExample example);
-
-    int deleteByExample(PmsFeightTemplateExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsFeightTemplate row);
 
     int insertSelective(PmsFeightTemplate row);
-
-    List<PmsFeightTemplate> selectByExample(PmsFeightTemplateExample example);
-
     PmsFeightTemplate selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsFeightTemplate row, @Param("example") PmsFeightTemplateExample example);
+    List<PmsFeightTemplate> selectByCondition(PmsFeightTemplate record);
 
-    int updateByExample(@Param("row") PmsFeightTemplate row, @Param("example") PmsFeightTemplateExample example);
+    int deleteByCondition(PmsFeightTemplate record);
+
+    int updateSelectiveByCondition(@Param("record") PmsFeightTemplate record, @Param("condition") PmsFeightTemplate condition);
 
     int updateByPrimaryKeySelective(PmsFeightTemplate row);
 

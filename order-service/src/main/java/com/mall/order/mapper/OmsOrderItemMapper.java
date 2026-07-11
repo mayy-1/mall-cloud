@@ -1,7 +1,6 @@
 package com.mall.order.mapper;
 
 import com.mall.order.model.OmsOrderItem;
-import com.mall.order.model.OmsOrderItemExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供订单商品项的增删改查操作
  */
 public interface OmsOrderItemMapper {
-    long countByExample(OmsOrderItemExample example);
-
-    int deleteByExample(OmsOrderItemExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(OmsOrderItem row);
 
     int insertSelective(OmsOrderItem row);
-
-    List<OmsOrderItem> selectByExample(OmsOrderItemExample example);
-
     OmsOrderItem selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") OmsOrderItem row, @Param("example") OmsOrderItemExample example);
+    List<OmsOrderItem> selectByCondition(OmsOrderItem record);
 
-    int updateByExample(@Param("row") OmsOrderItem row, @Param("example") OmsOrderItemExample example);
+    int deleteByCondition(OmsOrderItem record);
+
+    int updateSelectiveByCondition(@Param("record") OmsOrderItem record, @Param("condition") OmsOrderItem condition);
 
     int updateByPrimaryKeySelective(OmsOrderItem row);
 

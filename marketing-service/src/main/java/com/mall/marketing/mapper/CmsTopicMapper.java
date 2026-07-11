@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.CmsTopic;
-import com.mall.marketing.model.CmsTopicExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,27 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供话题的增删改查操作
  */
 public interface CmsTopicMapper {
-    long countByExample(CmsTopicExample example);
-
-    int deleteByExample(CmsTopicExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(CmsTopic row);
 
     int insertSelective(CmsTopic row);
-
-    List<CmsTopic> selectByExampleWithBLOBs(CmsTopicExample example);
-
-    List<CmsTopic> selectByExample(CmsTopicExample example);
-
     CmsTopic selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") CmsTopic row, @Param("example") CmsTopicExample example);
+    List<CmsTopic> selectByCondition(CmsTopic record);
 
-    int updateByExampleWithBLOBs(@Param("row") CmsTopic row, @Param("example") CmsTopicExample example);
+    int deleteByCondition(CmsTopic record);
 
-    int updateByExample(@Param("row") CmsTopic row, @Param("example") CmsTopicExample example);
+    int updateSelectiveByCondition(@Param("record") CmsTopic record, @Param("condition") CmsTopic condition);
 
     int updateByPrimaryKeySelective(CmsTopic row);
 

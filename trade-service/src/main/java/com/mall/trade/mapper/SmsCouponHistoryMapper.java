@@ -1,7 +1,6 @@
 package com.mall.trade.mapper;
 
 import com.mall.trade.model.SmsCouponHistory;
-import com.mall.trade.model.SmsCouponHistoryExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,23 +8,19 @@ import org.apache.ibatis.annotations.Param;
  * 优惠券领取历史数据访问接口
  */
 public interface SmsCouponHistoryMapper {
-    long countByExample(SmsCouponHistoryExample example);
-
-    int deleteByExample(SmsCouponHistoryExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(SmsCouponHistory row);
 
     int insertSelective(SmsCouponHistory row);
-
-    List<SmsCouponHistory> selectByExample(SmsCouponHistoryExample example);
-
     SmsCouponHistory selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsCouponHistory row, @Param("example") SmsCouponHistoryExample example);
+    List<SmsCouponHistory> selectByCondition(SmsCouponHistory record);
 
-    int updateByExample(@Param("row") SmsCouponHistory row, @Param("example") SmsCouponHistoryExample example);
+    int deleteByCondition(SmsCouponHistory record);
+
+    int updateSelectiveByCondition(@Param("record") SmsCouponHistory record, @Param("condition") SmsCouponHistory condition);
 
     int updateByPrimaryKeySelective(SmsCouponHistory row);
 

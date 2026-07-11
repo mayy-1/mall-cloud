@@ -3,6 +3,11 @@ package com.mall.trade.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
+import com.mall.api.client.CartClient;
+import com.mall.api.client.MemberAddressClient;
+import com.mall.api.client.MemberClient;
+import com.mall.api.client.MemberCouponClient;
+import com.mall.api.dto.*;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.exception.Asserts;
 import com.mym.mall.common.service.RedisService;
@@ -10,34 +15,18 @@ import com.mall.trade.mapper.UmsIntegrationConsumeSettingMapper;
 import com.mall.trade.mapper.PmsSkuStockMapper;
 import com.mall.trade.mapper.SmsCouponHistoryMapper;
 import com.mall.trade.mapper.OmsOrderSettingMapper;
-import com.mall.trade.mapper.PortalOrderMapperCustom;
-import com.mall.trade.mapper.PortalOrderItemMapperCustom;
-import com.mall.trade.feign.UmsMemberService;
-import com.mall.trade.feign.OmsCartItemService;
-import com.mall.trade.feign.UmsMemberReceiveAddressService;
-import com.mall.trade.feign.UmsMemberCouponService;
-import com.mall.trade.model.UmsMember;
-import com.mall.trade.model.UmsMemberReceiveAddress;
+import com.mall.trade.mapper.PortalOrderItemMapper;
 import com.mall.trade.model.UmsIntegrationConsumeSetting;
 import com.mall.trade.model.PmsSkuStock;
-import com.mall.trade.model.SmsCoupon;
 import com.mall.trade.model.SmsCouponHistory;
-import com.mall.trade.model.SmsCouponHistoryExample;
-import com.mall.trade.model.SmsCouponProductRelation;
-import com.mall.trade.model.SmsCouponProductCategoryRelation;
 import com.mall.trade.model.OmsOrderSetting;
-import com.mall.trade.model.OmsOrderSettingExample;
-import com.mall.trade.domain.dto.SmsCouponHistoryDetail;
-import com.mall.trade.domain.dto.CartPromotionItem;
+import com.mall.trade.model.OmsOrder;
+import com.mall.trade.model.OmsOrderItem;
 import com.mall.trade.domain.dto.ConfirmOrderResult;
 import com.mall.trade.domain.dto.OmsOrderDetail;
 import com.mall.trade.domain.dto.OrderParam;
 import com.mall.trade.mapper.OmsOrderMapper;
 import com.mall.trade.mapper.OmsOrderItemMapper;
-import com.mall.trade.model.OmsOrder;
-import com.mall.trade.model.OmsOrderExample;
-import com.mall.trade.model.OmsOrderItem;
-import com.mall.trade.model.OmsOrderItemExample;
 import com.mall.trade.service.IOrderService;
 import com.mall.trade.service.ISeckillOrderService;
 import com.mall.trade.mq.CancelOrderSender;
@@ -61,13 +50,13 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements IOrderService {
 
     /** 会员服务Feign客户端 */
-    private final UmsMemberService memberService;
+    private final MemberClient memberClient;
     /** 购物车服务Feign客户端 */
-    private final OmsCartItemService cartItemService;
+    private final CartClient cartClient;
     /** 收货地址服务Feign客户端 */
-    private final UmsMemberReceiveAddressService memberReceiveAddressService;
+    private final MemberAddressClient memberAddressClient;
     /** 会员优惠券服务Feign客户端 */
-    private final UmsMemberCouponService memberCouponService;
+    private final MemberCouponClient memberCouponClient;
     /** 积分消费设置Mapper */
     private final UmsIntegrationConsumeSettingMapper integrationConsumeSettingMapper;
     /** SKU库存Mapper */
@@ -75,7 +64,7 @@ public class OrderServiceImpl implements IOrderService {
     /** 订单Mapper */
     private final OmsOrderMapper orderMapper;
     /** 前台订单商品项Mapper */
-    private final PortalOrderItemMapperCustom portalOrderItemMapper;
+    private final PortalOrderItemMapper portalOrderItemMapper;
     /** 优惠券历史Mapper */
     private final SmsCouponHistoryMapper couponHistoryMapper;
     /** Redis缓存服务 */
@@ -87,7 +76,7 @@ public class OrderServiceImpl implements IOrderService {
     @Value("${redis.database}")
     private String REDIS_DATABASE;
     /** 前台订单Mapper */
-    private final PortalOrderMapperCustom portalOrderMapper;
+    private final PortalOrderMapper portalOrderMapper;
     /** 订单设置Mapper */
     private final OmsOrderSettingMapper orderSettingMapper;
     /** 订单商品项Mapper */
@@ -100,12 +89,12 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public ConfirmOrderResult generateConfirmOrder(List<Long> cartIds) {
         ConfirmOrderResult result = new ConfirmOrderResult();
-        UmsMember currentMember = memberService.getCurrentMember();
-        List<CartPromotionItem> cartPromotionItemList = cartItemService.listPromotion(currentMember.getId(), cartIds);
+        MemberDTO currentMember = memberClient.getCurrentMember().getData();
+        List<CartPromotionItemDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), cartIds).getData();
         result.setCartPromotionItemList(cartPromotionItemList);
-        List<UmsMemberReceiveAddress> memberReceiveAddressList = memberReceiveAddressService.list();
+        List<MemberAddressDTO> memberReceiveAddressList = memberAddressClient.list().getData();
         result.setMemberReceiveAddressList(memberReceiveAddressList);
-        List<SmsCouponHistoryDetail> couponHistoryDetailList = memberCouponService.listCart(cartPromotionItemList, 1);
+        List<CouponHistoryDetailDTO> couponHistoryDetailList = memberCouponClient.listCart(cartPromotionItemList, 1).getData();
         result.setCouponHistoryDetailList(couponHistoryDetailList);
         result.setMemberIntegration(currentMember.getIntegration());
         UmsIntegrationConsumeSetting integrationConsumeSetting = integrationConsumeSettingMapper.selectByPrimaryKey(1L);
@@ -121,9 +110,9 @@ public class OrderServiceImpl implements IOrderService {
         if(orderParam.getMemberReceiveAddressId()==null){
             Asserts.fail("请选择收货地址！");
         }
-        UmsMember currentMember = memberService.getCurrentMember();
-        List<CartPromotionItem> cartPromotionItemList = cartItemService.listPromotion(currentMember.getId(), orderParam.getCartIds());
-        for (CartPromotionItem cartPromotionItem : cartPromotionItemList) {
+        MemberDTO currentMember = memberClient.getCurrentMember().getData();
+        List<CartPromotionItemDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), orderParam.getCartIds()).getData();
+        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
             OmsOrderItem orderItem = new OmsOrderItem();
             orderItem.setProductId(cartPromotionItem.getProductId());
             orderItem.setProductName(cartPromotionItem.getProductName());
@@ -150,7 +139,7 @@ public class OrderServiceImpl implements IOrderService {
                 orderItem.setCouponAmount(new BigDecimal(0));
             }
         } else {
-            SmsCouponHistoryDetail couponHistoryDetail = getUseCoupon(cartPromotionItemList, orderParam.getCouponId());
+            CouponHistoryDetailDTO couponHistoryDetail = getUseCoupon(cartPromotionItemList, orderParam.getCouponId());
             if (couponHistoryDetail == null) {
                 Asserts.fail("该优惠券不可用");
             }
@@ -201,7 +190,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setSourceType(1);
         order.setStatus(0);
         order.setOrderType(0);
-        UmsMemberReceiveAddress address = memberReceiveAddressService.getItem(orderParam.getMemberReceiveAddressId());
+        MemberAddressDTO address = memberAddressClient.getItem(orderParam.getMemberReceiveAddressId()).getData();
         order.setReceiverName(address.getName());
         order.setReceiverPhone(address.getPhoneNumber());
         order.setReceiverPostCode(address.getPostCode());
@@ -214,7 +203,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setIntegration(calcGifIntegration(orderItemList));
         order.setGrowth(calcGiftGrowth(orderItemList));
         order.setOrderSn(generateOrderSn(order));
-        List<OmsOrderSetting> orderSettings = orderSettingMapper.selectByExample(new OmsOrderSettingExample());
+        List<OmsOrderSetting> orderSettings = orderSettingMapper.selectByCondition(new OmsOrderSetting());
         if(CollUtil.isNotEmpty(orderSettings)){
             order.setAutoConfirmDay(orderSettings.get(0).getConfirmOvertime());
         }
@@ -232,7 +221,7 @@ public class OrderServiceImpl implements IOrderService {
             if(currentMember.getIntegration()==null){
                 currentMember.setIntegration(0);
             }
-            memberService.updateIntegration(currentMember.getId(), currentMember.getIntegration() - orderParam.getUseIntegration());
+            memberClient.updateIntegration(currentMember.getId(), currentMember.getIntegration() - orderParam.getUseIntegration());
         }
         deleteCartItemList(cartPromotionItemList, currentMember);
         sendDelayMessageCancelOrder(order.getId());
@@ -272,8 +261,8 @@ public class OrderServiceImpl implements IOrderService {
             portalOrderMapper.releaseSkuStockLock(timeOutOrder.getOrderItemList());
             updateCouponStatus(timeOutOrder.getCouponId(), timeOutOrder.getMemberId(), 0);
             if (timeOutOrder.getUseIntegration() != null) {
-                UmsMember member = memberService.getById(timeOutOrder.getMemberId());
-                memberService.updateIntegration(timeOutOrder.getMemberId(), member.getIntegration() + timeOutOrder.getUseIntegration());
+                MemberDTO member = memberClient.getById(timeOutOrder.getMemberId()).getData();
+                memberClient.updateIntegration(timeOutOrder.getMemberId(), member.getIntegration() + timeOutOrder.getUseIntegration());
             }
         }
         return timeOutOrders.size();
@@ -281,9 +270,9 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public void cancelOrder(Long orderId) {
-        OmsOrderExample example = new OmsOrderExample();
-        example.createCriteria().andIdEqualTo(orderId).andStatusEqualTo(0).andDeleteStatusEqualTo(0);
-        List<OmsOrder> cancelOrderList = orderMapper.selectByExample(example);
+        OmsOrder condition = new OmsOrder();
+        condition.setId(orderId).setStatus(0).setDeleteStatus(0);
+        List<OmsOrder> cancelOrderList = orderMapper.selectByCondition(condition);
         if (CollectionUtils.isEmpty(cancelOrderList)) {
             return;
         }
@@ -291,9 +280,9 @@ public class OrderServiceImpl implements IOrderService {
         if (cancelOrder != null) {
             cancelOrder.setStatus(4);
             orderMapper.updateByPrimaryKeySelective(cancelOrder);
-            OmsOrderItemExample orderItemExample = new OmsOrderItemExample();
-            orderItemExample.createCriteria().andOrderIdEqualTo(orderId);
-            List<OmsOrderItem> orderItemList = orderItemMapper.selectByExample(orderItemExample);
+            OmsOrderItem itemCondition = new OmsOrderItem();
+            itemCondition.setOrderId(orderId);
+            List<OmsOrderItem> orderItemList = orderItemMapper.selectByCondition(itemCondition);
             if (!CollectionUtils.isEmpty(orderItemList)) {
                 portalOrderMapper.releaseSkuStockLock(orderItemList);
             }
@@ -316,8 +305,8 @@ public class OrderServiceImpl implements IOrderService {
             }
             updateCouponStatus(cancelOrder.getCouponId(), cancelOrder.getMemberId(), 0);
             if (cancelOrder.getUseIntegration() != null) {
-                UmsMember member = memberService.getById(cancelOrder.getMemberId());
-                memberService.updateIntegration(cancelOrder.getMemberId(), member.getIntegration() + cancelOrder.getUseIntegration());
+                MemberDTO member = memberClient.getById(cancelOrder.getMemberId()).getData();
+                memberClient.updateIntegration(cancelOrder.getMemberId(), member.getIntegration() + cancelOrder.getUseIntegration());
             }
         }
     }
@@ -331,7 +320,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public void confirmReceiveOrder(Long orderId) {
-        UmsMember member = memberService.getCurrentMember();
+        MemberDTO member = memberClient.getCurrentMember().getData();
         OmsOrder order = orderMapper.selectByPrimaryKey(orderId);
         if(!member.getId().equals(order.getMemberId())){
             Asserts.fail("不能确认他人订单！");
@@ -350,17 +339,15 @@ public class OrderServiceImpl implements IOrderService {
         if(status==-1){
             status = null;
         }
-        UmsMember member = memberService.getCurrentMember();
+        MemberDTO member = memberClient.getCurrentMember().getData();
         PageHelper.startPage(pageNum, pageSize);
-        OmsOrderExample orderExample = new OmsOrderExample();
-        OmsOrderExample.Criteria criteria = orderExample.createCriteria();
-        criteria.andDeleteStatusEqualTo(0)
-                .andMemberIdEqualTo(member.getId());
+        OmsOrder condition = new OmsOrder();
+        condition.setDeleteStatus(0);
+        condition.setMemberId(member.getId());
         if(status!=null){
-            criteria.andStatusEqualTo(status);
+            condition.setStatus(status);
         }
-        orderExample.setOrderByClause("create_time desc");
-        List<OmsOrder> orderList = orderMapper.selectByExample(orderExample);
+        List<OmsOrder> orderList = orderMapper.selectByCondition(condition);
         CommonPage<OmsOrder> orderPage = CommonPage.restPage(orderList);
         CommonPage<OmsOrderDetail> resultPage = new CommonPage<>();
         resultPage.setPageNum(orderPage.getPageNum());
@@ -371,9 +358,12 @@ public class OrderServiceImpl implements IOrderService {
             return resultPage;
         }
         List<Long> orderIds = orderList.stream().map(OmsOrder::getId).collect(Collectors.toList());
-        OmsOrderItemExample orderItemExample = new OmsOrderItemExample();
-        orderItemExample.createCriteria().andOrderIdIn(orderIds);
-        List<OmsOrderItem> orderItemList = orderItemMapper.selectByExample(orderItemExample);
+        List<OmsOrderItem> orderItemList = new ArrayList<>();
+        for (Long orderId : orderIds) {
+            OmsOrderItem itemCondition = new OmsOrderItem();
+            itemCondition.setOrderId(orderId);
+            orderItemList.addAll(orderItemMapper.selectByCondition(itemCondition));
+        }
         List<OmsOrderDetail> orderDetailList = new ArrayList<>();
         for (OmsOrder omsOrder : orderList) {
             OmsOrderDetail orderDetail = new OmsOrderDetail();
@@ -389,9 +379,9 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public OmsOrderDetail detail(Long orderId) {
         OmsOrder omsOrder = orderMapper.selectByPrimaryKey(orderId);
-        OmsOrderItemExample example = new OmsOrderItemExample();
-        example.createCriteria().andOrderIdEqualTo(orderId);
-        List<OmsOrderItem> orderItemList = orderItemMapper.selectByExample(example);
+        OmsOrderItem condition = new OmsOrderItem();
+        condition.setOrderId(orderId);
+        List<OmsOrderItem> orderItemList = orderItemMapper.selectByCondition(condition);
         OmsOrderDetail orderDetail = new OmsOrderDetail();
         BeanUtil.copyProperties(omsOrder, orderDetail);
         orderDetail.setOrderItemList(orderItemList);
@@ -400,7 +390,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public void deleteOrder(Long orderId) {
-        UmsMember member = memberService.getCurrentMember();
+        MemberDTO member = memberClient.getCurrentMember().getData();
         OmsOrder order = orderMapper.selectByPrimaryKey(orderId);
         if(!member.getId().equals(order.getMemberId())){
             Asserts.fail("不能删除他人订单！");
@@ -415,12 +405,11 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public void paySuccessByOrderSn(String orderSn, Integer payType) {
-        OmsOrderExample example = new OmsOrderExample();
-        example.createCriteria()
-                .andOrderSnEqualTo(orderSn)
-                .andStatusEqualTo(0)
-                .andDeleteStatusEqualTo(0);
-        List<OmsOrder> orderList = orderMapper.selectByExample(example);
+        OmsOrder condition = new OmsOrder();
+        condition.setOrderSn(orderSn);
+        condition.setStatus(0);
+        condition.setDeleteStatus(0);
+        List<OmsOrder> orderList = orderMapper.selectByCondition(condition);
         if(CollUtil.isNotEmpty(orderList)){
             OmsOrder order = orderList.get(0);
             paySuccess(order.getId(), payType);
@@ -444,12 +433,12 @@ public class OrderServiceImpl implements IOrderService {
         return sb.toString();
     }
 
-    private void deleteCartItemList(List<CartPromotionItem> cartPromotionItemList, UmsMember currentMember) {
+    private void deleteCartItemList(List<CartPromotionItemDTO> cartPromotionItemList, MemberDTO currentMember) {
         List<Long> ids = new ArrayList<>();
-        for (CartPromotionItem cartPromotionItem : cartPromotionItemList) {
+        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
             ids.add(cartPromotionItem.getId());
         }
-        cartItemService.delete(currentMember.getId(), ids);
+        cartClient.delete(currentMember.getId(), ids);
     }
 
     private Integer calcGiftGrowth(List<OmsOrderItem> orderItemList) {
@@ -470,10 +459,11 @@ public class OrderServiceImpl implements IOrderService {
 
     private void updateCouponStatus(Long couponId, Long memberId, Integer useStatus) {
         if (couponId == null) return;
-        SmsCouponHistoryExample example = new SmsCouponHistoryExample();
-        example.createCriteria().andMemberIdEqualTo(memberId)
-                .andCouponIdEqualTo(couponId).andUseStatusEqualTo(useStatus == 0 ? 1 : 0);
-        List<SmsCouponHistory> couponHistoryList = couponHistoryMapper.selectByExample(example);
+        SmsCouponHistory condition = new SmsCouponHistory();
+        condition.setMemberId(memberId);
+        condition.setCouponId(couponId);
+        condition.setUseStatus(useStatus == 0 ? 1 : 0);
+        List<SmsCouponHistory> couponHistoryList = couponHistoryMapper.selectByCondition(condition);
         if (!CollectionUtils.isEmpty(couponHistoryList)) {
             SmsCouponHistory couponHistory = couponHistoryList.get(0);
             couponHistory.setUseTime(new Date());
@@ -544,7 +534,7 @@ public class OrderServiceImpl implements IOrderService {
         return promotionAmount;
     }
 
-    private BigDecimal getUseIntegrationAmount(Integer useIntegration, BigDecimal totalAmount, UmsMember currentMember, boolean hasCoupon) {
+    private BigDecimal getUseIntegrationAmount(Integer useIntegration, BigDecimal totalAmount, MemberDTO currentMember, boolean hasCoupon) {
         BigDecimal zeroAmount = new BigDecimal(0);
         if (useIntegration.compareTo(currentMember.getIntegration()) > 0) {
             return zeroAmount;
@@ -564,8 +554,8 @@ public class OrderServiceImpl implements IOrderService {
         return integrationAmount;
     }
 
-    private void handleCouponAmount(List<OmsOrderItem> orderItemList, SmsCouponHistoryDetail couponHistoryDetail) {
-        SmsCoupon coupon = couponHistoryDetail.getCoupon();
+    private void handleCouponAmount(List<OmsOrderItem> orderItemList, CouponHistoryDetailDTO couponHistoryDetail) {
+        CouponDTO coupon = couponHistoryDetail.getCoupon();
         if (coupon.getUseType().equals(0)) {
             calcPerCouponAmount(orderItemList, coupon);
         } else if (coupon.getUseType().equals(1)) {
@@ -577,7 +567,7 @@ public class OrderServiceImpl implements IOrderService {
         }
     }
 
-    private void calcPerCouponAmount(List<OmsOrderItem> orderItemList, SmsCoupon coupon) {
+    private void calcPerCouponAmount(List<OmsOrderItem> orderItemList, CouponDTO coupon) {
         BigDecimal totalAmount = calcTotalAmount(orderItemList);
         for (OmsOrderItem orderItem : orderItemList) {
             BigDecimal couponAmount = orderItem.getProductPrice().divide(totalAmount, 3, RoundingMode.HALF_EVEN).multiply(coupon.getAmount());
@@ -585,11 +575,11 @@ public class OrderServiceImpl implements IOrderService {
         }
     }
 
-    private List<OmsOrderItem> getCouponOrderItemByRelation(SmsCouponHistoryDetail couponHistoryDetail, List<OmsOrderItem> orderItemList, int type) {
+    private List<OmsOrderItem> getCouponOrderItemByRelation(CouponHistoryDetailDTO couponHistoryDetail, List<OmsOrderItem> orderItemList, int type) {
         List<OmsOrderItem> result = new ArrayList<>();
         if (type == 0) {
             List<Long> categoryIdList = new ArrayList<>();
-            for (SmsCouponProductCategoryRelation productCategoryRelation : couponHistoryDetail.getCategoryRelationList()) {
+            for (CouponProductCategoryRelationDTO productCategoryRelation : couponHistoryDetail.getCategoryRelationList()) {
                 categoryIdList.add(productCategoryRelation.getProductCategoryId());
             }
             for (OmsOrderItem orderItem : orderItemList) {
@@ -601,7 +591,7 @@ public class OrderServiceImpl implements IOrderService {
             }
         } else if (type == 1) {
             List<Long> productIdList = new ArrayList<>();
-            for (SmsCouponProductRelation productRelation : couponHistoryDetail.getProductRelationList()) {
+            for (CouponProductRelationDTO productRelation : couponHistoryDetail.getProductRelationList()) {
                 productIdList.add(productRelation.getProductId());
             }
             for (OmsOrderItem orderItem : orderItemList) {
@@ -615,9 +605,9 @@ public class OrderServiceImpl implements IOrderService {
         return result;
     }
 
-    private SmsCouponHistoryDetail getUseCoupon(List<CartPromotionItem> cartPromotionItemList, Long couponId) {
-        List<SmsCouponHistoryDetail> couponHistoryDetailList = memberCouponService.listCart(cartPromotionItemList, 1);
-        for (SmsCouponHistoryDetail couponHistoryDetail : couponHistoryDetailList) {
+    private CouponHistoryDetailDTO getUseCoupon(List<CartPromotionItemDTO> cartPromotionItemList, Long couponId) {
+        List<CouponHistoryDetailDTO> couponHistoryDetailList = memberCouponClient.listCart(cartPromotionItemList, 1).getData();
+        for (CouponHistoryDetailDTO couponHistoryDetail : couponHistoryDetailList) {
             if (couponHistoryDetail.getCoupon().getId().equals(couponId)) {
                 return couponHistoryDetail;
             }
@@ -633,16 +623,16 @@ public class OrderServiceImpl implements IOrderService {
         return totalAmount;
     }
 
-    private void lockStock(List<CartPromotionItem> cartPromotionItemList) {
-        for (CartPromotionItem cartPromotionItem : cartPromotionItemList) {
+    private void lockStock(List<CartPromotionItemDTO> cartPromotionItemList) {
+        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
             PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(cartPromotionItem.getProductSkuId());
             skuStock.setLockStock(skuStock.getLockStock() + cartPromotionItem.getQuantity());
             skuStockMapper.updateByPrimaryKeySelective(skuStock);
         }
     }
 
-    private boolean hasStock(List<CartPromotionItem> cartPromotionItemList) {
-        for (CartPromotionItem cartPromotionItem : cartPromotionItemList) {
+    private boolean hasStock(List<CartPromotionItemDTO> cartPromotionItemList) {
+        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
             if (cartPromotionItem.getRealStock()==null
                     ||cartPromotionItem.getRealStock() <= 0
                     || cartPromotionItem.getRealStock() < cartPromotionItem.getQuantity())
@@ -653,12 +643,12 @@ public class OrderServiceImpl implements IOrderService {
         return true;
     }
 
-    private ConfirmOrderResult.CalcAmount calcCartAmount(List<CartPromotionItem> cartPromotionItemList) {
+    private ConfirmOrderResult.CalcAmount calcCartAmount(List<CartPromotionItemDTO> cartPromotionItemList) {
         ConfirmOrderResult.CalcAmount calcAmount = new ConfirmOrderResult.CalcAmount();
         calcAmount.setFreightAmount(new BigDecimal(0));
         BigDecimal totalAmount = new BigDecimal("0");
         BigDecimal promotionAmount = new BigDecimal("0");
-        for (CartPromotionItem cartPromotionItem : cartPromotionItemList) {
+        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
             totalAmount = totalAmount.add(cartPromotionItem.getPrice().multiply(new BigDecimal(cartPromotionItem.getQuantity())));
             promotionAmount = promotionAmount.add(cartPromotionItem.getReduceAmount().multiply(new BigDecimal(cartPromotionItem.getQuantity())));
         }

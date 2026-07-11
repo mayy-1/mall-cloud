@@ -2,7 +2,6 @@ package com.mall.marketing.task;
 
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
 import com.mall.marketing.model.SmsFlashPromotion;
-import com.mall.marketing.model.SmsFlashPromotionExample;
 import com.mall.marketing.service.SeckillService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -40,9 +39,9 @@ public class SeckillStockCheckTask {
         LOGGER.info("开始执行秒杀库存对账任务");
 
         try {
-            SmsFlashPromotionExample example = new SmsFlashPromotionExample();
-            example.createCriteria().andStatusEqualTo(1);
-            List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByExample(example);
+            SmsFlashPromotion example = new SmsFlashPromotion();
+            example.setStatus(1);
+            List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByCondition(example);
 
             LocalDate today = LocalDate.now();
 

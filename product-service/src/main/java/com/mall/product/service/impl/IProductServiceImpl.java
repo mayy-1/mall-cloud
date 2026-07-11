@@ -32,31 +32,31 @@ public class IProductServiceImpl implements IProductService {
     private static final Logger LOGGER = LoggerFactory.getLogger(IProductServiceImpl.class);
 
     /** 商品Mapper */
-    private final PmsProductMapperCustom productMapper;
+    private final PmsProductMapper productMapper;
 
     /** 会员价格Mapper */
-    private final PmsMemberPriceMapperCustom memberPriceMapper;
+    private final PmsMemberPriceMapper memberPriceMapper;
 
     /** 商品阶梯价格Mapper */
-    private final PmsProductLadderMapperCustom productLadderMapper;
+    private final PmsProductLadderMapper productLadderMapper;
 
     /** 满减Mapper */
-    private final PmsProductFullReductionMapperCustom productFullReductionMapper;
+    private final PmsProductFullReductionMapper productFullReductionMapper;
 
     /** SKU库存Mapper */
-    private final PmsSkuStockMapperCustom skuStockMapper;
+    private final PmsSkuStockMapper skuStockMapper;
 
     /** 商品属性值Mapper */
-    private final PmsProductAttributeValueMapperCustom productAttributeValueMapper;
+    private final PmsProductAttributeValueMapper productAttributeValueMapper;
 
     /** 专题商品关系Mapper */
-    private final CmsSubjectProductRelationMapperCustom subjectProductRelationMapper;
+    private final CmsSubjectProductRelationMapper subjectProductRelationMapper;
 
     /** 优选商品关系Mapper */
-    private final CmsPrefrenceAreaProductRelationMapperCustom prefrenceAreaProductRelationMapper;
+    private final CmsPrefrenceAreaProductRelationMapper prefrenceAreaProductRelationMapper;
 
     /** 商品审核记录Mapper */
-    private final PmsProductVertifyRecordMapperCustom productVertifyRecordMapper;
+    private final PmsProductVertifyRecordMapper productVertifyRecordMapper;
 
     @Override
     public int create(PmsProductParam productParam) {
@@ -118,36 +118,36 @@ public class IProductServiceImpl implements IProductService {
         product.setId(id);
         productMapper.updateByPrimaryKeySelective(product);
         //会员价格
-        PmsMemberPriceExample pmsMemberPriceExample = new PmsMemberPriceExample();
-        pmsMemberPriceExample.createCriteria().andProductIdEqualTo(id);
-        memberPriceMapper.deleteByExample(pmsMemberPriceExample);
+        PmsMemberPrice memberPriceCondition = new PmsMemberPrice();
+        memberPriceCondition.setProductId(id);
+        memberPriceMapper.deleteByCondition(memberPriceCondition);
         relateAndInsertList(memberPriceMapper, productParam.getMemberPriceList(), id);
         //阶梯价格
-        PmsProductLadderExample ladderExample = new PmsProductLadderExample();
-        ladderExample.createCriteria().andProductIdEqualTo(id);
-        productLadderMapper.deleteByExample(ladderExample);
+        PmsProductLadder ladderCondition = new PmsProductLadder();
+        ladderCondition.setProductId(id);
+        productLadderMapper.deleteByCondition(ladderCondition);
         relateAndInsertList(productLadderMapper, productParam.getProductLadderList(), id);
         //满减价格
-        PmsProductFullReductionExample fullReductionExample = new PmsProductFullReductionExample();
-        fullReductionExample.createCriteria().andProductIdEqualTo(id);
-        productFullReductionMapper.deleteByExample(fullReductionExample);
+        PmsProductFullReduction fullReductionCondition = new PmsProductFullReduction();
+        fullReductionCondition.setProductId(id);
+        productFullReductionMapper.deleteByCondition(fullReductionCondition);
         relateAndInsertList(productFullReductionMapper, productParam.getProductFullReductionList(), id);
         //修改sku库存信息
         handleUpdateSkuStockList(id, productParam);
         //修改商品参数,添加自定义商品规格
-        PmsProductAttributeValueExample productAttributeValueExample = new PmsProductAttributeValueExample();
-        productAttributeValueExample.createCriteria().andProductIdEqualTo(id);
-        productAttributeValueMapper.deleteByExample(productAttributeValueExample);
+        PmsProductAttributeValue productAttributeValueCondition = new PmsProductAttributeValue();
+        productAttributeValueCondition.setProductId(id);
+        productAttributeValueMapper.deleteByCondition(productAttributeValueCondition);
         relateAndInsertList(productAttributeValueMapper, productParam.getProductAttributeValueList(), id);
         //关联专题
-        CmsSubjectProductRelationExample subjectProductRelationExample = new CmsSubjectProductRelationExample();
-        subjectProductRelationExample.createCriteria().andProductIdEqualTo(id);
-        subjectProductRelationMapper.deleteByExample(subjectProductRelationExample);
+        CmsSubjectProductRelation subjectProductRelationCondition = new CmsSubjectProductRelation();
+        subjectProductRelationCondition.setProductId(id);
+        subjectProductRelationMapper.deleteByCondition(subjectProductRelationCondition);
         relateAndInsertList(subjectProductRelationMapper, productParam.getSubjectProductRelationList(), id);
         //关联优选
-        CmsPrefrenceAreaProductRelationExample prefrenceAreaExample = new CmsPrefrenceAreaProductRelationExample();
-        prefrenceAreaExample.createCriteria().andProductIdEqualTo(id);
-        prefrenceAreaProductRelationMapper.deleteByExample(prefrenceAreaExample);
+        CmsPrefrenceAreaProductRelation prefrenceAreaCondition = new CmsPrefrenceAreaProductRelation();
+        prefrenceAreaCondition.setProductId(id);
+        prefrenceAreaProductRelationMapper.deleteByCondition(prefrenceAreaCondition);
         relateAndInsertList(prefrenceAreaProductRelationMapper, productParam.getPrefrenceAreaProductRelationList(), id);
         count = 1;
         return count;
@@ -158,15 +158,15 @@ public class IProductServiceImpl implements IProductService {
         List<PmsSkuStock> currSkuList = productParam.getSkuStockList();
         //当前没有sku直接删除
         if (CollUtil.isEmpty(currSkuList)) {
-            PmsSkuStockExample skuStockExample = new PmsSkuStockExample();
-            skuStockExample.createCriteria().andProductIdEqualTo(id);
-            skuStockMapper.deleteByExample(skuStockExample);
+            PmsSkuStock skuStockCondition = new PmsSkuStock();
+            skuStockCondition.setProductId(id);
+            skuStockMapper.deleteByCondition(skuStockCondition);
             return;
         }
         //获取初始sku信息
-        PmsSkuStockExample skuStockExample = new PmsSkuStockExample();
-        skuStockExample.createCriteria().andProductIdEqualTo(id);
-        List<PmsSkuStock> oriStuList = skuStockMapper.selectByExample(skuStockExample);
+        PmsSkuStock skuStockCondition = new PmsSkuStock();
+        skuStockCondition.setProductId(id);
+        List<PmsSkuStock> oriStuList = skuStockMapper.selectByCondition(skuStockCondition);
         //获取新增sku信息
         List<PmsSkuStock> insertSkuList = currSkuList.stream().filter(item -> item.getId() == null).collect(Collectors.toList());
         //获取需要更新的sku信息
@@ -183,9 +183,9 @@ public class IProductServiceImpl implements IProductService {
         //删除sku
         if (CollUtil.isNotEmpty(removeSkuList)) {
             List<Long> removeSkuIds = removeSkuList.stream().map(PmsSkuStock::getId).collect(Collectors.toList());
-            PmsSkuStockExample removeExample = new PmsSkuStockExample();
-            removeExample.createCriteria().andIdIn(removeSkuIds);
-            skuStockMapper.deleteByExample(removeExample);
+            for (Long skuId : removeSkuIds) {
+                skuStockMapper.deleteByPrimaryKey(skuId);
+            }
         }
         //修改sku
         if (CollUtil.isNotEmpty(updateSkuList)) {
@@ -199,44 +199,45 @@ public class IProductServiceImpl implements IProductService {
     @Override
     public List<PmsProduct> list(PmsProductQueryParam productQueryParam, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        PmsProductExample productExample = new PmsProductExample();
-        PmsProductExample.Criteria criteria = productExample.createCriteria();
-        criteria.andDeleteStatusEqualTo(0);
+        PmsProduct condition = new PmsProduct();
+        condition.setDeleteStatus(0);
         if (productQueryParam.getPublishStatus() != null) {
-            criteria.andPublishStatusEqualTo(productQueryParam.getPublishStatus());
+            condition.setPublishStatus(productQueryParam.getPublishStatus());
         }
         if (productQueryParam.getVerifyStatus() != null) {
-            criteria.andVerifyStatusEqualTo(productQueryParam.getVerifyStatus());
+            condition.setVerifyStatus(productQueryParam.getVerifyStatus());
         }
         if (!StringUtils.isEmpty(productQueryParam.getKeyword())) {
-            criteria.andNameLike("%" + productQueryParam.getKeyword() + "%");
+            condition.setName("%" + productQueryParam.getKeyword() + "%");
         }
         if (!StringUtils.isEmpty(productQueryParam.getProductSn())) {
-            criteria.andProductSnEqualTo(productQueryParam.getProductSn());
+            condition.setProductSn(productQueryParam.getProductSn());
         }
         if (productQueryParam.getBrandId() != null) {
-            criteria.andBrandIdEqualTo(productQueryParam.getBrandId());
+            condition.setBrandId(productQueryParam.getBrandId());
         }
         if (productQueryParam.getProductCategoryId() != null) {
-            criteria.andProductCategoryIdEqualTo(productQueryParam.getProductCategoryId());
+            condition.setProductCategoryId(productQueryParam.getProductCategoryId());
         }
         if (productQueryParam.getNewStatus() != null) {
-            criteria.andNewStatusEqualTo(productQueryParam.getNewStatus());
+            condition.setNewStatus(productQueryParam.getNewStatus());
         }
         if (productQueryParam.getRecommandStatus() != null) {
-            criteria.andRecommandStatusEqualTo(productQueryParam.getRecommandStatus());
+            condition.setRecommandStatus(productQueryParam.getRecommandStatus());
         }
-        return productMapper.selectByExample(productExample);
+        return productMapper.selectByCondition(condition);
     }
 
     @Override
     public int updateVerifyStatus(List<Long> ids, Integer verifyStatus, String detail) {
-        PmsProduct product = new PmsProduct();
-        product.setVerifyStatus(verifyStatus);
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids);
         List<PmsProductVertifyRecord> list = new ArrayList<>();
-        int count = productMapper.updateByExampleSelective(product, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProduct product = new PmsProduct();
+            product.setId(id);
+            product.setVerifyStatus(verifyStatus);
+            count += productMapper.updateByPrimaryKeySelective(product);
+        }
         //修改完审核状态后插入审核记录
         for (Long id : ids) {
             PmsProductVertifyRecord record = new PmsProductVertifyRecord();
@@ -253,50 +254,60 @@ public class IProductServiceImpl implements IProductService {
 
     @Override
     public int updatePublishStatus(List<Long> ids, Integer publishStatus) {
-        PmsProduct record = new PmsProduct();
-        record.setPublishStatus(publishStatus);
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids);
-        return productMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProduct product = new PmsProduct();
+            product.setId(id);
+            product.setPublishStatus(publishStatus);
+            count += productMapper.updateByPrimaryKeySelective(product);
+        }
+        return count;
     }
 
     @Override
     public int updateRecommendStatus(List<Long> ids, Integer recommendStatus) {
-        PmsProduct record = new PmsProduct();
-        record.setRecommandStatus(recommendStatus);
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids);
-        return productMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProduct product = new PmsProduct();
+            product.setId(id);
+            product.setRecommandStatus(recommendStatus);
+            count += productMapper.updateByPrimaryKeySelective(product);
+        }
+        return count;
     }
 
     @Override
     public int updateNewStatus(List<Long> ids, Integer newStatus) {
-        PmsProduct record = new PmsProduct();
-        record.setNewStatus(newStatus);
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids);
-        return productMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProduct product = new PmsProduct();
+            product.setId(id);
+            product.setNewStatus(newStatus);
+            count += productMapper.updateByPrimaryKeySelective(product);
+        }
+        return count;
     }
 
     @Override
     public int updateDeleteStatus(List<Long> ids, Integer deleteStatus) {
-        PmsProduct record = new PmsProduct();
-        record.setDeleteStatus(deleteStatus);
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids);
-        return productMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProduct product = new PmsProduct();
+            product.setId(id);
+            product.setDeleteStatus(deleteStatus);
+            count += productMapper.updateByPrimaryKeySelective(product);
+        }
+        return count;
     }
 
     @Override
     public List<PmsProduct> list(String keyword) {
-        PmsProductExample productExample = new PmsProductExample();
-        PmsProductExample.Criteria criteria = productExample.createCriteria();
-        criteria.andDeleteStatusEqualTo(0);
+        PmsProduct condition = new PmsProduct();
+        condition.setDeleteStatus(0);
         if (!StringUtils.isEmpty(keyword)) {
-            criteria.andNameLike("%" + keyword + "%");
-            productExample.or().andDeleteStatusEqualTo(0).andProductSnLike("%" + keyword + "%");
+            condition.setName("%" + keyword + "%");
         }
-        return productMapper.selectByExample(productExample);
+        return productMapper.selectByCondition(condition);
     }
 
     @Override
@@ -309,9 +320,14 @@ public class IProductServiceImpl implements IProductService {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andIdIn(ids).andDeleteStatusEqualTo(0);
-        return productMapper.selectByExample(example);
+        List<PmsProduct> result = new ArrayList<>();
+        for (Long id : ids) {
+            PmsProduct product = productMapper.selectByPrimaryKey(id);
+            if (product != null && product.getDeleteStatus() != null && product.getDeleteStatus() == 0) {
+                result.add(product);
+            }
+        }
+        return result;
     }
 
     /**

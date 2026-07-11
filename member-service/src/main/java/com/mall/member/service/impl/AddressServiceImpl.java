@@ -2,9 +2,7 @@ package com.mall.member.service.impl;
 
 import com.mall.member.mapper.UmsMemberReceiveAddressMapper;
 import com.mall.member.model.UmsMember;
-import com.mall.member.model.UmsMemberReceiveAddress;
-import com.mall.member.model.UmsMemberReceiveAddressExample;
-import com.mall.member.service.IAddressService;
+import com.mall.member.model.UmsMemberReceiveAddress;import com.mall.member.service.IAddressService;
 import com.mall.member.service.IMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,44 +32,44 @@ public class AddressServiceImpl implements IAddressService {
     @Override
     public int delete(Long id) {
         UmsMember currentMember = memberService.getCurrentMember();
-        UmsMemberReceiveAddressExample example = new UmsMemberReceiveAddressExample();
-        example.createCriteria().andMemberIdEqualTo(currentMember.getId()).andIdEqualTo(id);
-        return addressMapper.deleteByExample(example);
+        UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
+        condition.setMemberId(currentMember.getId()).setId(id);
+        return addressMapper.deleteByCondition(condition);
     }
 
     @Override
     public int update(Long id, UmsMemberReceiveAddress address) {
         address.setId(null);
         UmsMember currentMember = memberService.getCurrentMember();
-        UmsMemberReceiveAddressExample example = new UmsMemberReceiveAddressExample();
-        example.createCriteria().andMemberIdEqualTo(currentMember.getId()).andIdEqualTo(id);
+        UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
+        condition.setMemberId(currentMember.getId());
+        condition.setId(id);
         if(address.getDefaultStatus()==1){
             //先将原来的默认地址去除
             UmsMemberReceiveAddress record= new UmsMemberReceiveAddress();
             record.setDefaultStatus(0);
-            UmsMemberReceiveAddressExample updateExample = new UmsMemberReceiveAddressExample();
-            updateExample.createCriteria()
-                    .andMemberIdEqualTo(currentMember.getId())
-                    .andDefaultStatusEqualTo(1);
-            addressMapper.updateByExampleSelective(record,updateExample);
+            UmsMemberReceiveAddress updateCondition = new UmsMemberReceiveAddress();
+            updateCondition.setMemberId(currentMember.getId());
+            updateCondition.setDefaultStatus(1);
+            addressMapper.updateSelectiveByCondition(record,updateCondition);
         }
-        return addressMapper.updateByExampleSelective(address,example);
+        return addressMapper.updateSelectiveByCondition(address,condition);
     }
 
     @Override
     public List<UmsMemberReceiveAddress> list() {
         UmsMember currentMember = memberService.getCurrentMember();
-        UmsMemberReceiveAddressExample example = new UmsMemberReceiveAddressExample();
-        example.createCriteria().andMemberIdEqualTo(currentMember.getId());
-        return addressMapper.selectByExample(example);
+        UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
+        condition.setMemberId(currentMember.getId());
+        return addressMapper.selectByCondition(condition);
     }
 
     @Override
     public UmsMemberReceiveAddress getItem(Long id) {
         UmsMember currentMember = memberService.getCurrentMember();
-        UmsMemberReceiveAddressExample example = new UmsMemberReceiveAddressExample();
-        example.createCriteria().andMemberIdEqualTo(currentMember.getId()).andIdEqualTo(id);
-        List<UmsMemberReceiveAddress> addressList = addressMapper.selectByExample(example);
+        UmsMemberReceiveAddress condition = new UmsMemberReceiveAddress();
+        condition.setMemberId(currentMember.getId()).setId(id);
+        List<UmsMemberReceiveAddress> addressList = addressMapper.selectByCondition(condition);
         if(!CollectionUtils.isEmpty(addressList)){
             return addressList.get(0);
         }

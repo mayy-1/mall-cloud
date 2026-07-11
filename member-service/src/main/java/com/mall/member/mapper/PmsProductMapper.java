@@ -1,7 +1,6 @@
 package com.mall.member.mapper;
 
 import com.mall.member.model.PmsProduct;
-import com.mall.member.model.PmsProductExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,9 +8,6 @@ import org.apache.ibatis.annotations.Param;
  * 商品信息数据访问接口
  */
 public interface PmsProductMapper {
-    long countByExample(PmsProductExample example);
-
-    int deleteByExample(PmsProductExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -19,17 +15,13 @@ public interface PmsProductMapper {
 
     int insertSelective(PmsProduct row);
 
-    List<PmsProduct> selectByExampleWithBLOBs(PmsProductExample example);
-
-    List<PmsProduct> selectByExample(PmsProductExample example);
-
     PmsProduct selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsProduct row, @Param("example") PmsProductExample example);
+    List<PmsProduct> selectByCondition(PmsProduct record);
 
-    int updateByExampleWithBLOBs(@Param("row") PmsProduct row, @Param("example") PmsProductExample example);
+    int deleteByCondition(PmsProduct record);
 
-    int updateByExample(@Param("row") PmsProduct row, @Param("example") PmsProductExample example);
+    int updateSelectiveByCondition(@Param("record") PmsProduct record, @Param("condition") PmsProduct condition);
 
     int updateByPrimaryKeySelective(PmsProduct row);
 

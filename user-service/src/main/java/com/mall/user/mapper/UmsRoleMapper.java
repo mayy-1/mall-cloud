@@ -1,7 +1,8 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsRole;
-import com.mall.user.model.UmsRoleExample;
+import com.mall.user.model.UmsMenu;
+import com.mall.user.model.UmsResource;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,9 +11,6 @@ import org.springframework.context.annotation.Primary;
 /**后台角色Mapper */
 @Primary
 public interface UmsRoleMapper {
-    long countByExample(UmsRoleExample example);
-
-    int deleteByExample(UmsRoleExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -20,15 +18,19 @@ public interface UmsRoleMapper {
 
     int insertSelective(UmsRole row);
 
-    List<UmsRole> selectByExample(UmsRoleExample example);
-
     UmsRole selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsRole row, @Param("example") UmsRoleExample example);
+    List<UmsRole> selectByCondition(UmsRole record);
 
-    int updateByExample(@Param("row") UmsRole row, @Param("example") UmsRoleExample example);
+    int deleteByCondition(UmsRole record);
 
     int updateByPrimaryKeySelective(UmsRole row);
 
     int updateByPrimaryKey(UmsRole row);
+
+    List<UmsMenu> getMenuList(@Param("adminId") Long adminId);
+
+    List<UmsMenu> getMenuListByRoleId(@Param("roleId") Long roleId);
+
+    List<UmsResource> getResourceListByRoleId(@Param("roleId") Long roleId);
 }

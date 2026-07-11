@@ -1,33 +1,24 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsBrand;
-import com.mall.product.model.PmsBrandExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**品牌Mapper */
 public interface PmsBrandMapper {
-    long countByExample(PmsBrandExample example);
-
-    int deleteByExample(PmsBrandExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsBrand row);
 
     int insertSelective(PmsBrand row);
-
-    List<PmsBrand> selectByExampleWithBLOBs(PmsBrandExample example);
-
-    List<PmsBrand> selectByExample(PmsBrandExample example);
-
     PmsBrand selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsBrand row, @Param("example") PmsBrandExample example);
+    List<PmsBrand> selectByCondition(PmsBrand record);
 
-    int updateByExampleWithBLOBs(@Param("row") PmsBrand row, @Param("example") PmsBrandExample example);
+    int deleteByCondition(PmsBrand record);
 
-    int updateByExample(@Param("row") PmsBrand row, @Param("example") PmsBrandExample example);
+    int updateSelectiveByCondition(@Param("record") PmsBrand record, @Param("condition") PmsBrand condition);
 
     int updateByPrimaryKeySelective(PmsBrand row);
 

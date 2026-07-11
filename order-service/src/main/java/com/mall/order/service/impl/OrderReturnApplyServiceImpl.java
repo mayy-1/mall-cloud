@@ -1,13 +1,9 @@
 package com.mall.order.service.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.mall.order.mapper.OmsOrderReturnApplyMapperCustom;
-import com.mall.order.domain.dto.OmsOrderReturnApplyResult;
+import com.github.pagehelper.PageHelper;import com.mall.order.domain.dto.OmsOrderReturnApplyResult;
 import com.mall.order.domain.dto.OmsReturnApplyQueryParam;
 import com.mall.order.domain.dto.OmsUpdateStatusParam;
-import com.mall.order.model.OmsOrderReturnApply;
-import com.mall.order.model.OmsOrderReturnApplyExample;
-import com.mall.order.service.IOrderReturnApplyService;
+import com.mall.order.model.OmsOrderReturnApply;import com.mall.order.service.IOrderReturnApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderReturnApplyServiceImpl implements IOrderReturnApplyService {
     /** 退货申请自定义Mapper */
-    private final OmsOrderReturnApplyMapperCustom returnApplyMapper;
+    private final OmsOrderReturnApplyMapper returnApplyMapper;
     @Override
     public List<OmsOrderReturnApply> list(OmsReturnApplyQueryParam queryParam, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
@@ -31,9 +27,14 @@ public class OrderReturnApplyServiceImpl implements IOrderReturnApplyService {
 
     @Override
     public int delete(List<Long> ids) {
-        OmsOrderReturnApplyExample example = new OmsOrderReturnApplyExample();
-        example.createCriteria().andIdIn(ids).andStatusEqualTo(3);
-        return returnApplyMapper.deleteByExample(example);
+        int count = 0;
+        for (Long id : ids) {
+            OmsOrderReturnApply condition = new OmsOrderReturnApply();
+            condition.setId(id);
+            condition.setStatus(3);
+            count += returnApplyMapper.deleteByCondition(condition);
+        }
+        return count;
     }
 
     @Override

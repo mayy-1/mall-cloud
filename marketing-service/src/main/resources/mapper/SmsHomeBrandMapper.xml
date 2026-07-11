@@ -8,81 +8,9 @@
     <result column="recommend_status" jdbcType="INTEGER" property="recommendStatus" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, brand_id, brand_name, recommend_status, sort
   </sql>
-  <select id="selectByExample" parameterType="com.mall.marketing.model.SmsHomeBrandExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from sms_home_brand
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -92,12 +20,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sms_home_brand
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.marketing.model.SmsHomeBrandExample">
-    delete from sms_home_brand
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.marketing.model.SmsHomeBrand">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -142,46 +64,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.marketing.model.SmsHomeBrandExample" resultType="java.lang.Long">
-    select count(*) from sms_home_brand
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update sms_home_brand
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.brandId != null">
-        brand_id = #{row.brandId,jdbcType=BIGINT},
-      </if>
-      <if test="row.brandName != null">
-        brand_name = #{row.brandName,jdbcType=VARCHAR},
-      </if>
-      <if test="row.recommendStatus != null">
-        recommend_status = #{row.recommendStatus,jdbcType=INTEGER},
-      </if>
-      <if test="row.sort != null">
-        sort = #{row.sort,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update sms_home_brand
-    set id = #{row.id,jdbcType=BIGINT},
-      brand_id = #{row.brandId,jdbcType=BIGINT},
-      brand_name = #{row.brandName,jdbcType=VARCHAR},
-      recommend_status = #{row.recommendStatus,jdbcType=INTEGER},
-      sort = #{row.sort,jdbcType=INTEGER}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.marketing.model.SmsHomeBrand">
     update sms_home_brand
     <set>
@@ -208,4 +90,44 @@
       sort = #{sort,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.marketing.model.SmsHomeBrand">
+    SELECT <include refid="Base_Column_List"/> FROM sms_home_brand
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="brandId != null">AND brand_id = #{brandId}</if>
+      <if test="brandName != null">AND brand_name = #{brandName}</if>
+      <if test="recommendStatus != null">AND recommend_status = #{recommendStatus}</if>
+      <if test="sort != null">AND sort = #{sort}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.marketing.model.SmsHomeBrand">
+    DELETE FROM sms_home_brand
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="brandId != null">AND brand_id = #{brandId}</if>
+      <if test="brandName != null">AND brand_name = #{brandName}</if>
+      <if test="recommendStatus != null">AND recommend_status = #{recommendStatus}</if>
+      <if test="sort != null">AND sort = #{sort}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update sms_home_brand
+    <set>
+      <if test="record.brandId != null">brand_id = #{record.brandId},</if>
+      <if test="record.brandName != null">brand_name = #{record.brandName},</if>
+      <if test="record.recommendStatus != null">recommend_status = #{record.recommendStatus},</if>
+      <if test="record.sort != null">sort = #{record.sort},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.brandId != null">AND brand_id = #{condition.brandId}</if>
+      <if test="condition.brandName != null">AND brand_name = #{condition.brandName}</if>
+      <if test="condition.recommendStatus != null">AND recommend_status = #{condition.recommendStatus}</if>
+      <if test="condition.sort != null">AND sort = #{condition.sort}</if>
+    </where>
+  </update>
+
 </mapper>

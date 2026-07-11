@@ -9,9 +9,7 @@ import com.mall.marketing.mapper.SmsFlashPromotionMapper;
 import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper;
 import com.mall.marketing.model.PmsProduct;
 import com.mall.marketing.model.SmsFlashPromotion;
-import com.mall.marketing.model.SmsFlashPromotionProductRelation;
-import com.mall.marketing.model.SmsFlashPromotionProductRelationExample;
-import com.mall.marketing.service.SeckillService;
+import com.mall.marketing.model.SmsFlashPromotionProductRelation;import com.mall.marketing.service.SeckillService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,11 +74,10 @@ public class SeckillServiceImpl implements SeckillService {
         }
 
         // 2. 校验秒杀商品关联
-        SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-        example.createCriteria()
-                .andFlashPromotionIdEqualTo(promotionId)
-                .andProductIdEqualTo(productId);
-        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByExample(example);
+        SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+        condition.setFlashPromotionId(promotionId);
+        condition.setProductId(productId);
+        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
         if (relations.isEmpty()) {
             LOGGER.warn("秒杀商品关联不存在, promotionId={}, productId={}", promotionId, productId);
             return SECKILL_STOCK_EMPTY;
@@ -132,9 +129,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void warmUpStock(Long promotionId) {
-        SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-        example.createCriteria().andFlashPromotionIdEqualTo(promotionId);
-        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByExample(example);
+        SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+        condition.setFlashPromotionId(promotionId);
+        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
 
         for (SmsFlashPromotionProductRelation relation : relations) {
             String stockKey = String.format(SECKILL_STOCK_KEY, promotionId, relation.getProductId());
@@ -159,9 +156,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void reconcileStock(Long promotionId) {
-        SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-        example.createCriteria().andFlashPromotionIdEqualTo(promotionId);
-        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByExample(example);
+        SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+        condition.setFlashPromotionId(promotionId);
+        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
 
         for (SmsFlashPromotionProductRelation relation : relations) {
             String stockKey = String.format(SECKILL_STOCK_KEY, promotionId, relation.getProductId());
@@ -192,16 +189,16 @@ public class SeckillServiceImpl implements SeckillService {
         Date now = new Date();
 
         // 查询所有启用状态的秒杀活动
-        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByExample(null);
+        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByCondition(null);
         for (SmsFlashPromotion promotion : promotions) {
             if (promotion.getStatus() != 1) continue;
             if (promotion.getStartDate() == null || promotion.getEndDate() == null) continue;
             if (now.before(promotion.getStartDate()) || now.after(promotion.getEndDate())) continue;
 
             // 查询活动下的商品
-            SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-            example.createCriteria().andFlashPromotionIdEqualTo(promotion.getId());
-            List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByExample(example);
+            SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+            condition.setFlashPromotionId(promotion.getId());
+            List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
 
             for (SmsFlashPromotionProductRelation relation : relations) {
                 PmsProduct product = productMapper.selectByPrimaryKey(relation.getProductId());
@@ -228,11 +225,10 @@ public class SeckillServiceImpl implements SeckillService {
         SmsFlashPromotion promotion = flashPromotionMapper.selectByPrimaryKey(promotionId);
         if (promotion == null) return null;
 
-        SmsFlashPromotionProductRelationExample example = new SmsFlashPromotionProductRelationExample();
-        example.createCriteria()
-                .andFlashPromotionIdEqualTo(promotionId)
-                .andProductIdEqualTo(productId);
-        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByExample(example);
+        SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
+        condition.setFlashPromotionId(promotionId);
+        condition.setProductId(productId);
+        List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
         if (relations.isEmpty()) return null;
 
         SmsFlashPromotionProductRelation relation = relations.get(0);
@@ -257,7 +253,7 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public void autoStartStopPromotions() {
         Date now = new Date();
-        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByExample(null);
+        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByCondition(null);
 
         for (SmsFlashPromotion promotion : promotions) {
             if (promotion.getStartDate() == null || promotion.getEndDate() == null) continue;

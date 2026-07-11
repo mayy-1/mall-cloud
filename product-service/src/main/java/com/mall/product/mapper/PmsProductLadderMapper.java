@@ -1,7 +1,6 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsProductLadder;
-import com.mall.product.model.PmsProductLadderExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.springframework.context.annotation.Primary;
 /**商品阶梯价格Mapper */
 @Primary
 public interface PmsProductLadderMapper {
-    long countByExample(PmsProductLadderExample example);
-
-    int deleteByExample(PmsProductLadderExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsProductLadder row);
 
     int insertSelective(PmsProductLadder row);
-
-    List<PmsProductLadder> selectByExample(PmsProductLadderExample example);
-
     PmsProductLadder selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsProductLadder row, @Param("example") PmsProductLadderExample example);
+    List<PmsProductLadder> selectByCondition(PmsProductLadder record);
 
-    int updateByExample(@Param("row") PmsProductLadder row, @Param("example") PmsProductLadderExample example);
+    int deleteByCondition(PmsProductLadder record);
+
+    int updateSelectiveByCondition(@Param("record") PmsProductLadder record, @Param("condition") PmsProductLadder condition);
 
     int updateByPrimaryKeySelective(PmsProductLadder row);
 

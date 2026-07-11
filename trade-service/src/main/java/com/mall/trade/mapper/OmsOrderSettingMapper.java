@@ -1,7 +1,6 @@
 package com.mall.trade.mapper;
 
 import com.mall.trade.model.OmsOrderSetting;
-import com.mall.trade.model.OmsOrderSettingExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,23 +8,19 @@ import org.apache.ibatis.annotations.Param;
  * 订单设置数据访问接口
  */
 public interface OmsOrderSettingMapper {
-    long countByExample(OmsOrderSettingExample example);
-
-    int deleteByExample(OmsOrderSettingExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(OmsOrderSetting row);
 
     int insertSelective(OmsOrderSetting row);
-
-    List<OmsOrderSetting> selectByExample(OmsOrderSettingExample example);
-
     OmsOrderSetting selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") OmsOrderSetting row, @Param("example") OmsOrderSettingExample example);
+    List<OmsOrderSetting> selectByCondition(OmsOrderSetting record);
 
-    int updateByExample(@Param("row") OmsOrderSetting row, @Param("example") OmsOrderSettingExample example);
+    int deleteByCondition(OmsOrderSetting record);
+
+    int updateSelectiveByCondition(@Param("record") OmsOrderSetting record, @Param("condition") OmsOrderSetting condition);
 
     int updateByPrimaryKeySelective(OmsOrderSetting row);
 

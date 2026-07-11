@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * 后台用户管理
  */
-@Controller
+@RestController
 @Tag(name = "AdminController", description = "后台用户管理")
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -44,7 +43,6 @@ public class AdminController {
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")
-    @ResponseBody
     public CommonResult<UmsAdmin> register(@Validated @RequestBody AdminSaveDTO dto) {
         UmsAdmin umsAdmin = adminService.register(dto);
         if (umsAdmin == null) {
@@ -55,7 +53,6 @@ public class AdminController {
 
     @Operation(summary = "登录以后返回token")
     @PostMapping("/login")
-    @ResponseBody
     public CommonResult<Map<String, String>> login(@Validated @RequestBody AdminLoginDTO dto) {
         SaTokenInfo saTokenInfo = adminService.login(dto.getUsername(), dto.getPassword());
         if (saTokenInfo == null) {
@@ -69,7 +66,6 @@ public class AdminController {
 
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/info")
-    @ResponseBody
     public CommonResult<Map<String, Object>> getAdminInfo() {
         UmsAdmin umsAdmin = adminService.getCurrentAdmin();
         Map<String, Object> data = new HashMap<>();
@@ -88,7 +84,6 @@ public class AdminController {
 
     @Operation(summary = "登出功能")
     @PostMapping("/logout")
-    @ResponseBody
     public CommonResult<Void> logout() {
         adminService.logout();
         return CommonResult.success(null);
@@ -96,7 +91,6 @@ public class AdminController {
 
     @Operation(summary = "根据用户名或姓名分页获取用户列表")
     @GetMapping("/list")
-    @ResponseBody
     public CommonResult<CommonPage<UmsAdmin>> list(
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
@@ -107,7 +101,6 @@ public class AdminController {
 
     @Operation(summary = "获取指定用户信息")
     @GetMapping("/{id}")
-    @ResponseBody
     public CommonResult<UmsAdmin> getItem(@PathVariable Long id) {
         UmsAdmin admin = adminService.getItem(id);
         return CommonResult.success(admin);
@@ -115,7 +108,6 @@ public class AdminController {
 
     @Operation(summary = "修改指定用户信息")
     @PostMapping("/update/{id}")
-    @ResponseBody
     public CommonResult<Integer> update(@PathVariable Long id, @RequestBody UmsAdmin admin) {
         int count = adminService.update(id, admin);
         if (count > 0) {
@@ -126,7 +118,6 @@ public class AdminController {
 
     @Operation(summary = "修改指定用户密码")
     @PostMapping("/updatePassword")
-    @ResponseBody
     public CommonResult<Integer> updatePassword(@RequestBody UpdatePasswordDTO dto) {
         int status = adminService.updatePassword(dto);
         if (status > 0) {
@@ -143,7 +134,6 @@ public class AdminController {
 
     @Operation(summary = "删除指定用户信息")
     @PostMapping("/delete/{id}")
-    @ResponseBody
     public CommonResult<Integer> delete(@PathVariable Long id) {
         int count = adminService.delete(id);
         if (count > 0) {
@@ -154,7 +144,6 @@ public class AdminController {
 
     @Operation(summary = "修改帐号状态")
     @PostMapping("/updateStatus/{id}")
-    @ResponseBody
     public CommonResult<Integer> updateStatus(@PathVariable Long id,
                                               @RequestParam(value = "status") Integer status) {
         UmsAdmin umsAdmin = new UmsAdmin();
@@ -168,7 +157,6 @@ public class AdminController {
 
     @Operation(summary = "给用户分配角色")
     @PostMapping("/role/update")
-    @ResponseBody
     public CommonResult<Integer> updateRole(@RequestParam("adminId") Long adminId,
                                             @RequestParam("roleIds") List<Long> roleIds) {
         int count = adminService.updateRole(adminId, roleIds);
@@ -180,7 +168,6 @@ public class AdminController {
 
     @Operation(summary = "获取指定用户的角色")
     @GetMapping("/role/{adminId}")
-    @ResponseBody
     public CommonResult<List<UmsRole>> getRoleList(@PathVariable Long adminId) {
         List<UmsRole> roleList = adminService.getRoleList(adminId);
         return CommonResult.success(roleList);

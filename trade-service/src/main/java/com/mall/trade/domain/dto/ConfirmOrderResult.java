@@ -1,7 +1,9 @@
 package com.mall.trade.domain.dto;
 
+import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CouponHistoryDetailDTO;
+import com.mall.api.dto.MemberAddressDTO;
 import com.mall.trade.model.UmsIntegrationConsumeSetting;
-import com.mall.trade.model.UmsMemberReceiveAddress;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,11 +14,11 @@ import java.util.List;
  */
 public class ConfirmOrderResult {
     //包含优惠信息的购物车信息
-    private List<CartPromotionItem> cartPromotionItemList;
+    private List<CartPromotionItemDTO> cartPromotionItemList;
     //用户收货地址列表
-    private List<UmsMemberReceiveAddress> memberReceiveAddressList;
+    private List<MemberAddressDTO> memberReceiveAddressList;
     //用户可用优惠券列表
-    private List<SmsCouponHistoryDetail> couponHistoryDetailList;
+    private List<CouponHistoryDetailDTO> couponHistoryDetailList;
     //积分使用规则
     private UmsIntegrationConsumeSetting integrationConsumeSetting;
     //会员持有的积分
@@ -24,27 +26,27 @@ public class ConfirmOrderResult {
     //计算的金额
     private CalcAmount calcAmount;
 
-    public List<CartPromotionItem> getCartPromotionItemList() {
+    public List<CartPromotionItemDTO> getCartPromotionItemList() {
         return cartPromotionItemList;
     }
 
-    public void setCartPromotionItemList(List<CartPromotionItem> cartPromotionItemList) {
+    public void setCartPromotionItemList(List<CartPromotionItemDTO> cartPromotionItemList) {
         this.cartPromotionItemList = cartPromotionItemList;
     }
 
-    public List<UmsMemberReceiveAddress> getMemberReceiveAddressList() {
+    public List<MemberAddressDTO> getMemberReceiveAddressList() {
         return memberReceiveAddressList;
     }
 
-    public void setMemberReceiveAddressList(List<UmsMemberReceiveAddress> memberReceiveAddressList) {
+    public void setMemberReceiveAddressList(List<MemberAddressDTO> memberReceiveAddressList) {
         this.memberReceiveAddressList = memberReceiveAddressList;
     }
 
-    public List<SmsCouponHistoryDetail> getCouponHistoryDetailList() {
+    public List<CouponHistoryDetailDTO> getCouponHistoryDetailList() {
         return couponHistoryDetailList;
     }
 
-    public void setCouponHistoryDetailList(List<SmsCouponHistoryDetail> couponHistoryDetailList) {
+    public void setCouponHistoryDetailList(List<CouponHistoryDetailDTO> couponHistoryDetailList) {
         this.couponHistoryDetailList = couponHistoryDetailList;
     }
 

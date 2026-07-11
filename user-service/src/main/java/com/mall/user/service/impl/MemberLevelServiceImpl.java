@@ -2,7 +2,6 @@ package com.mall.user.service.impl;
 
 import com.mall.user.mapper.UmsMemberLevelMapper;
 import com.mall.user.model.UmsMemberLevel;
-import com.mall.user.model.UmsMemberLevelExample;
 import com.mall.user.service.IMemberLevelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,8 +21,8 @@ public class MemberLevelServiceImpl implements IMemberLevelService {
 
     @Override
     public List<UmsMemberLevel> list(Integer defaultStatus) {
-        UmsMemberLevelExample example = new UmsMemberLevelExample();
-        example.createCriteria().andDefaultStatusEqualTo(defaultStatus);
-        return memberLevelMapper.selectByExample(example);
+        UmsMemberLevel query = new UmsMemberLevel();
+        query.setDefaultStatus(defaultStatus);
+        return memberLevelMapper.selectByCondition(query);
     }
 }

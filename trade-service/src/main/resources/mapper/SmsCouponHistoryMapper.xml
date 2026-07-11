@@ -14,82 +14,10 @@
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="order_sn" jdbcType="VARCHAR" property="orderSn" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, coupon_id, member_id, coupon_code, member_nickname, get_type, create_time, use_status, 
     use_time, order_id, order_sn
   </sql>
-  <select id="selectByExample" parameterType="com.mall.trade.model.SmsCouponHistoryExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from sms_coupon_history
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -99,12 +27,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sms_coupon_history
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.trade.model.SmsCouponHistoryExample">
-    delete from sms_coupon_history
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.trade.model.SmsCouponHistory">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -189,70 +111,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.trade.model.SmsCouponHistoryExample" resultType="java.lang.Long">
-    select count(*) from sms_coupon_history
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update sms_coupon_history
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.couponId != null">
-        coupon_id = #{row.couponId,jdbcType=BIGINT},
-      </if>
-      <if test="row.memberId != null">
-        member_id = #{row.memberId,jdbcType=BIGINT},
-      </if>
-      <if test="row.couponCode != null">
-        coupon_code = #{row.couponCode,jdbcType=VARCHAR},
-      </if>
-      <if test="row.memberNickname != null">
-        member_nickname = #{row.memberNickname,jdbcType=VARCHAR},
-      </if>
-      <if test="row.getType != null">
-        get_type = #{row.getType,jdbcType=INTEGER},
-      </if>
-      <if test="row.createTime != null">
-        create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.useStatus != null">
-        use_status = #{row.useStatus,jdbcType=INTEGER},
-      </if>
-      <if test="row.useTime != null">
-        use_time = #{row.useTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.orderId != null">
-        order_id = #{row.orderId,jdbcType=BIGINT},
-      </if>
-      <if test="row.orderSn != null">
-        order_sn = #{row.orderSn,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update sms_coupon_history
-    set id = #{row.id,jdbcType=BIGINT},
-      coupon_id = #{row.couponId,jdbcType=BIGINT},
-      member_id = #{row.memberId,jdbcType=BIGINT},
-      coupon_code = #{row.couponCode,jdbcType=VARCHAR},
-      member_nickname = #{row.memberNickname,jdbcType=VARCHAR},
-      get_type = #{row.getType,jdbcType=INTEGER},
-      create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      use_status = #{row.useStatus,jdbcType=INTEGER},
-      use_time = #{row.useTime,jdbcType=TIMESTAMP},
-      order_id = #{row.orderId,jdbcType=BIGINT},
-      order_sn = #{row.orderSn,jdbcType=VARCHAR}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.trade.model.SmsCouponHistory">
     update sms_coupon_history
     <set>
@@ -303,4 +161,68 @@
       order_sn = #{orderSn,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.trade.model.SmsCouponHistory">
+    SELECT <include refid="Base_Column_List"/> FROM sms_coupon_history
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="couponId != null">AND coupon_id = #{couponId}</if>
+      <if test="memberId != null">AND member_id = #{memberId}</if>
+      <if test="couponCode != null">AND coupon_code = #{couponCode}</if>
+      <if test="memberNickname != null">AND member_nickname = #{memberNickname}</if>
+      <if test="getType != null">AND get_type = #{getType}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="useStatus != null">AND use_status = #{useStatus}</if>
+      <if test="useTime != null">AND use_time = #{useTime}</if>
+      <if test="orderId != null">AND order_id = #{orderId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.trade.model.SmsCouponHistory">
+    DELETE FROM sms_coupon_history
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="couponId != null">AND coupon_id = #{couponId}</if>
+      <if test="memberId != null">AND member_id = #{memberId}</if>
+      <if test="couponCode != null">AND coupon_code = #{couponCode}</if>
+      <if test="memberNickname != null">AND member_nickname = #{memberNickname}</if>
+      <if test="getType != null">AND get_type = #{getType}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="useStatus != null">AND use_status = #{useStatus}</if>
+      <if test="useTime != null">AND use_time = #{useTime}</if>
+      <if test="orderId != null">AND order_id = #{orderId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update sms_coupon_history
+    <set>
+      <if test="record.couponId != null">coupon_id = #{record.couponId},</if>
+      <if test="record.memberId != null">member_id = #{record.memberId},</if>
+      <if test="record.couponCode != null">coupon_code = #{record.couponCode},</if>
+      <if test="record.memberNickname != null">member_nickname = #{record.memberNickname},</if>
+      <if test="record.getType != null">get_type = #{record.getType},</if>
+      <if test="record.createTime != null">create_time = #{record.createTime},</if>
+      <if test="record.useStatus != null">use_status = #{record.useStatus},</if>
+      <if test="record.useTime != null">use_time = #{record.useTime},</if>
+      <if test="record.orderId != null">order_id = #{record.orderId},</if>
+      <if test="record.orderSn != null">order_sn = #{record.orderSn},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.couponId != null">AND coupon_id = #{condition.couponId}</if>
+      <if test="condition.memberId != null">AND member_id = #{condition.memberId}</if>
+      <if test="condition.couponCode != null">AND coupon_code = #{condition.couponCode}</if>
+      <if test="condition.memberNickname != null">AND member_nickname = #{condition.memberNickname}</if>
+      <if test="condition.getType != null">AND get_type = #{condition.getType}</if>
+      <if test="condition.createTime != null">AND create_time = #{condition.createTime}</if>
+      <if test="condition.useStatus != null">AND use_status = #{condition.useStatus}</if>
+      <if test="condition.useTime != null">AND use_time = #{condition.useTime}</if>
+      <if test="condition.orderId != null">AND order_id = #{condition.orderId}</if>
+      <if test="condition.orderSn != null">AND order_sn = #{condition.orderSn}</if>
+    </where>
+  </update>
+
 </mapper>

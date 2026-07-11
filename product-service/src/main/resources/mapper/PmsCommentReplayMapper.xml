@@ -10,81 +10,9 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="type" jdbcType="INTEGER" property="type" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, comment_id, member_nick_name, member_icon, content, create_time, type
   </sql>
-  <select id="selectByExample" parameterType="com.mall.product.model.PmsCommentReplayExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from pms_comment_replay
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -94,12 +22,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from pms_comment_replay
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.product.model.PmsCommentReplayExample">
-    delete from pms_comment_replay
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.product.model.PmsCommentReplay">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -158,54 +80,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.product.model.PmsCommentReplayExample" resultType="java.lang.Long">
-    select count(*) from pms_comment_replay
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update pms_comment_replay
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.commentId != null">
-        comment_id = #{row.commentId,jdbcType=BIGINT},
-      </if>
-      <if test="row.memberNickName != null">
-        member_nick_name = #{row.memberNickName,jdbcType=VARCHAR},
-      </if>
-      <if test="row.memberIcon != null">
-        member_icon = #{row.memberIcon,jdbcType=VARCHAR},
-      </if>
-      <if test="row.content != null">
-        content = #{row.content,jdbcType=VARCHAR},
-      </if>
-      <if test="row.createTime != null">
-        create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.type != null">
-        type = #{row.type,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update pms_comment_replay
-    set id = #{row.id,jdbcType=BIGINT},
-      comment_id = #{row.commentId,jdbcType=BIGINT},
-      member_nick_name = #{row.memberNickName,jdbcType=VARCHAR},
-      member_icon = #{row.memberIcon,jdbcType=VARCHAR},
-      content = #{row.content,jdbcType=VARCHAR},
-      create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      type = #{row.type,jdbcType=INTEGER}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.product.model.PmsCommentReplay">
     update pms_comment_replay
     <set>
@@ -240,4 +114,52 @@
       type = #{type,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.product.model.PmsCommentReplay">
+    SELECT <include refid="Base_Column_List"/> FROM pms_comment_replay
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="commentId != null">AND comment_id = #{commentId}</if>
+      <if test="memberNickName != null">AND member_nick_name = #{memberNickName}</if>
+      <if test="memberIcon != null">AND member_icon = #{memberIcon}</if>
+      <if test="content != null">AND content = #{content}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="type != null">AND type = #{type}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.product.model.PmsCommentReplay">
+    DELETE FROM pms_comment_replay
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="commentId != null">AND comment_id = #{commentId}</if>
+      <if test="memberNickName != null">AND member_nick_name = #{memberNickName}</if>
+      <if test="memberIcon != null">AND member_icon = #{memberIcon}</if>
+      <if test="content != null">AND content = #{content}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="type != null">AND type = #{type}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update pms_comment_replay
+    <set>
+      <if test="record.commentId != null">comment_id = #{record.commentId},</if>
+      <if test="record.memberNickName != null">member_nick_name = #{record.memberNickName},</if>
+      <if test="record.memberIcon != null">member_icon = #{record.memberIcon},</if>
+      <if test="record.content != null">content = #{record.content},</if>
+      <if test="record.createTime != null">create_time = #{record.createTime},</if>
+      <if test="record.type != null">type = #{record.type},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.commentId != null">AND comment_id = #{condition.commentId}</if>
+      <if test="condition.memberNickName != null">AND member_nick_name = #{condition.memberNickName}</if>
+      <if test="condition.memberIcon != null">AND member_icon = #{condition.memberIcon}</if>
+      <if test="condition.content != null">AND content = #{condition.content}</if>
+      <if test="condition.createTime != null">AND create_time = #{condition.createTime}</if>
+      <if test="condition.type != null">AND type = #{condition.type}</if>
+    </where>
+  </update>
+
 </mapper>

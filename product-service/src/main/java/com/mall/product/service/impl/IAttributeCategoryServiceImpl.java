@@ -1,11 +1,7 @@
 package com.mall.product.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.mall.product.domain.dto.PmsProductAttributeCategoryItem;
-import com.mall.product.mapper.PmsProductAttributeCategoryMapperCustom;
-import com.mall.product.model.PmsProductAttributeCategory;
-import com.mall.product.model.PmsProductAttributeCategoryExample;
-import com.mall.product.service.IAttributeCategoryService;
+import com.mall.product.domain.dto.PmsProductAttributeCategoryItem;import com.mall.product.model.PmsProductAttributeCategory;import com.mall.product.service.IAttributeCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IAttributeCategoryServiceImpl implements IAttributeCategoryService {    
     /** 商品属性分类Mapper */
-    private final PmsProductAttributeCategoryMapperCustom productAttributeCategoryMapper;
+    private final PmsProductAttributeCategoryMapper productAttributeCategoryMapper;
 
     @Override
     public int create(String name) {
@@ -48,7 +44,7 @@ public class IAttributeCategoryServiceImpl implements IAttributeCategoryService 
     @Override
     public List<PmsProductAttributeCategory> getList(Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        return productAttributeCategoryMapper.selectByExample(new PmsProductAttributeCategoryExample());
+        return productAttributeCategoryMapper.selectByCondition(new PmsProductAttributeCategory());
     }
 
     @Override

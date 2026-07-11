@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsHomeRecommendSubject;
-import com.mall.marketing.model.SmsHomeRecommendSubjectExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供首页专题推荐的增删改查操作
  */
 public interface SmsHomeRecommendSubjectMapper {
-    long countByExample(SmsHomeRecommendSubjectExample example);
-
-    int deleteByExample(SmsHomeRecommendSubjectExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(SmsHomeRecommendSubject row);
 
     int insertSelective(SmsHomeRecommendSubject row);
-
-    List<SmsHomeRecommendSubject> selectByExample(SmsHomeRecommendSubjectExample example);
-
     SmsHomeRecommendSubject selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsHomeRecommendSubject row, @Param("example") SmsHomeRecommendSubjectExample example);
+    List<SmsHomeRecommendSubject> selectByCondition(SmsHomeRecommendSubject record);
 
-    int updateByExample(@Param("row") SmsHomeRecommendSubject row, @Param("example") SmsHomeRecommendSubjectExample example);
+    int deleteByCondition(SmsHomeRecommendSubject record);
+
+    int updateSelectiveByCondition(@Param("record") SmsHomeRecommendSubject record, @Param("condition") SmsHomeRecommendSubject condition);
 
     int updateByPrimaryKeySelective(SmsHomeRecommendSubject row);
 

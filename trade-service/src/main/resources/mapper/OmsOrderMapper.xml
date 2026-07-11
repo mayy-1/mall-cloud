@@ -47,64 +47,6 @@
     <result column="comment_time" jdbcType="TIMESTAMP" property="commentTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, member_id, coupon_id, order_sn, create_time, member_username, total_amount, pay_amount, 
     freight_amount, promotion_amount, integration_amount, coupon_amount, discount_amount, 
@@ -114,20 +56,6 @@
     receiver_city, receiver_region, receiver_detail_address, note, confirm_status, delete_status, 
     use_integration, payment_time, delivery_time, receive_time, comment_time, modify_time
   </sql>
-  <select id="selectByExample" parameterType="com.mall.trade.model.OmsOrderExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from oms_order
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -137,12 +65,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from oms_order
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.trade.model.OmsOrderExample">
-    delete from oms_order
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.trade.model.OmsOrder">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -447,202 +369,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.trade.model.OmsOrderExample" resultType="java.lang.Long">
-    select count(*) from oms_order
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update oms_order
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.memberId != null">
-        member_id = #{row.memberId,jdbcType=BIGINT},
-      </if>
-      <if test="row.couponId != null">
-        coupon_id = #{row.couponId,jdbcType=BIGINT},
-      </if>
-      <if test="row.orderSn != null">
-        order_sn = #{row.orderSn,jdbcType=VARCHAR},
-      </if>
-      <if test="row.createTime != null">
-        create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.memberUsername != null">
-        member_username = #{row.memberUsername,jdbcType=VARCHAR},
-      </if>
-      <if test="row.totalAmount != null">
-        total_amount = #{row.totalAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.payAmount != null">
-        pay_amount = #{row.payAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.freightAmount != null">
-        freight_amount = #{row.freightAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.promotionAmount != null">
-        promotion_amount = #{row.promotionAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.integrationAmount != null">
-        integration_amount = #{row.integrationAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.couponAmount != null">
-        coupon_amount = #{row.couponAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.discountAmount != null">
-        discount_amount = #{row.discountAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.payType != null">
-        pay_type = #{row.payType,jdbcType=INTEGER},
-      </if>
-      <if test="row.sourceType != null">
-        source_type = #{row.sourceType,jdbcType=INTEGER},
-      </if>
-      <if test="row.status != null">
-        status = #{row.status,jdbcType=INTEGER},
-      </if>
-      <if test="row.orderType != null">
-        order_type = #{row.orderType,jdbcType=INTEGER},
-      </if>
-      <if test="row.deliveryCompany != null">
-        delivery_company = #{row.deliveryCompany,jdbcType=VARCHAR},
-      </if>
-      <if test="row.deliverySn != null">
-        delivery_sn = #{row.deliverySn,jdbcType=VARCHAR},
-      </if>
-      <if test="row.autoConfirmDay != null">
-        auto_confirm_day = #{row.autoConfirmDay,jdbcType=INTEGER},
-      </if>
-      <if test="row.integration != null">
-        integration = #{row.integration,jdbcType=INTEGER},
-      </if>
-      <if test="row.growth != null">
-        growth = #{row.growth,jdbcType=INTEGER},
-      </if>
-      <if test="row.promotionInfo != null">
-        promotion_info = #{row.promotionInfo,jdbcType=VARCHAR},
-      </if>
-      <if test="row.billType != null">
-        bill_type = #{row.billType,jdbcType=INTEGER},
-      </if>
-      <if test="row.billHeader != null">
-        bill_header = #{row.billHeader,jdbcType=VARCHAR},
-      </if>
-      <if test="row.billContent != null">
-        bill_content = #{row.billContent,jdbcType=VARCHAR},
-      </if>
-      <if test="row.billReceiverPhone != null">
-        bill_receiver_phone = #{row.billReceiverPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="row.billReceiverEmail != null">
-        bill_receiver_email = #{row.billReceiverEmail,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverName != null">
-        receiver_name = #{row.receiverName,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverPhone != null">
-        receiver_phone = #{row.receiverPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverPostCode != null">
-        receiver_post_code = #{row.receiverPostCode,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverProvince != null">
-        receiver_province = #{row.receiverProvince,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverCity != null">
-        receiver_city = #{row.receiverCity,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverRegion != null">
-        receiver_region = #{row.receiverRegion,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiverDetailAddress != null">
-        receiver_detail_address = #{row.receiverDetailAddress,jdbcType=VARCHAR},
-      </if>
-      <if test="row.note != null">
-        note = #{row.note,jdbcType=VARCHAR},
-      </if>
-      <if test="row.confirmStatus != null">
-        confirm_status = #{row.confirmStatus,jdbcType=INTEGER},
-      </if>
-      <if test="row.deleteStatus != null">
-        delete_status = #{row.deleteStatus,jdbcType=INTEGER},
-      </if>
-      <if test="row.useIntegration != null">
-        use_integration = #{row.useIntegration,jdbcType=INTEGER},
-      </if>
-      <if test="row.paymentTime != null">
-        payment_time = #{row.paymentTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.deliveryTime != null">
-        delivery_time = #{row.deliveryTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.receiveTime != null">
-        receive_time = #{row.receiveTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.commentTime != null">
-        comment_time = #{row.commentTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.modifyTime != null">
-        modify_time = #{row.modifyTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update oms_order
-    set id = #{row.id,jdbcType=BIGINT},
-      member_id = #{row.memberId,jdbcType=BIGINT},
-      coupon_id = #{row.couponId,jdbcType=BIGINT},
-      order_sn = #{row.orderSn,jdbcType=VARCHAR},
-      create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      member_username = #{row.memberUsername,jdbcType=VARCHAR},
-      total_amount = #{row.totalAmount,jdbcType=DECIMAL},
-      pay_amount = #{row.payAmount,jdbcType=DECIMAL},
-      freight_amount = #{row.freightAmount,jdbcType=DECIMAL},
-      promotion_amount = #{row.promotionAmount,jdbcType=DECIMAL},
-      integration_amount = #{row.integrationAmount,jdbcType=DECIMAL},
-      coupon_amount = #{row.couponAmount,jdbcType=DECIMAL},
-      discount_amount = #{row.discountAmount,jdbcType=DECIMAL},
-      pay_type = #{row.payType,jdbcType=INTEGER},
-      source_type = #{row.sourceType,jdbcType=INTEGER},
-      status = #{row.status,jdbcType=INTEGER},
-      order_type = #{row.orderType,jdbcType=INTEGER},
-      delivery_company = #{row.deliveryCompany,jdbcType=VARCHAR},
-      delivery_sn = #{row.deliverySn,jdbcType=VARCHAR},
-      auto_confirm_day = #{row.autoConfirmDay,jdbcType=INTEGER},
-      integration = #{row.integration,jdbcType=INTEGER},
-      growth = #{row.growth,jdbcType=INTEGER},
-      promotion_info = #{row.promotionInfo,jdbcType=VARCHAR},
-      bill_type = #{row.billType,jdbcType=INTEGER},
-      bill_header = #{row.billHeader,jdbcType=VARCHAR},
-      bill_content = #{row.billContent,jdbcType=VARCHAR},
-      bill_receiver_phone = #{row.billReceiverPhone,jdbcType=VARCHAR},
-      bill_receiver_email = #{row.billReceiverEmail,jdbcType=VARCHAR},
-      receiver_name = #{row.receiverName,jdbcType=VARCHAR},
-      receiver_phone = #{row.receiverPhone,jdbcType=VARCHAR},
-      receiver_post_code = #{row.receiverPostCode,jdbcType=VARCHAR},
-      receiver_province = #{row.receiverProvince,jdbcType=VARCHAR},
-      receiver_city = #{row.receiverCity,jdbcType=VARCHAR},
-      receiver_region = #{row.receiverRegion,jdbcType=VARCHAR},
-      receiver_detail_address = #{row.receiverDetailAddress,jdbcType=VARCHAR},
-      note = #{row.note,jdbcType=VARCHAR},
-      confirm_status = #{row.confirmStatus,jdbcType=INTEGER},
-      delete_status = #{row.deleteStatus,jdbcType=INTEGER},
-      use_integration = #{row.useIntegration,jdbcType=INTEGER},
-      payment_time = #{row.paymentTime,jdbcType=TIMESTAMP},
-      delivery_time = #{row.deliveryTime,jdbcType=TIMESTAMP},
-      receive_time = #{row.receiveTime,jdbcType=TIMESTAMP},
-      comment_time = #{row.commentTime,jdbcType=TIMESTAMP},
-      modify_time = #{row.modifyTime,jdbcType=TIMESTAMP}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.trade.model.OmsOrder">
     update oms_order
     <set>
@@ -825,4 +551,200 @@
       modify_time = #{modifyTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.trade.model.OmsOrder">
+    SELECT <include refid="Base_Column_List"/> FROM oms_order
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="memberId != null">AND member_id = #{memberId}</if>
+      <if test="couponId != null">AND coupon_id = #{couponId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="memberUsername != null">AND member_username = #{memberUsername}</if>
+      <if test="totalAmount != null">AND total_amount = #{totalAmount}</if>
+      <if test="payAmount != null">AND pay_amount = #{payAmount}</if>
+      <if test="freightAmount != null">AND freight_amount = #{freightAmount}</if>
+      <if test="promotionAmount != null">AND promotion_amount = #{promotionAmount}</if>
+      <if test="integrationAmount != null">AND integration_amount = #{integrationAmount}</if>
+      <if test="couponAmount != null">AND coupon_amount = #{couponAmount}</if>
+      <if test="discountAmount != null">AND discount_amount = #{discountAmount}</if>
+      <if test="payType != null">AND pay_type = #{payType}</if>
+      <if test="sourceType != null">AND source_type = #{sourceType}</if>
+      <if test="status != null">AND status = #{status}</if>
+      <if test="orderType != null">AND order_type = #{orderType}</if>
+      <if test="deliveryCompany != null">AND delivery_company = #{deliveryCompany}</if>
+      <if test="deliverySn != null">AND delivery_sn = #{deliverySn}</if>
+      <if test="autoConfirmDay != null">AND auto_confirm_day = #{autoConfirmDay}</if>
+      <if test="integration != null">AND integration = #{integration}</if>
+      <if test="growth != null">AND growth = #{growth}</if>
+      <if test="promotionInfo != null">AND promotion_info = #{promotionInfo}</if>
+      <if test="billType != null">AND bill_type = #{billType}</if>
+      <if test="billHeader != null">AND bill_header = #{billHeader}</if>
+      <if test="billContent != null">AND bill_content = #{billContent}</if>
+      <if test="billReceiverPhone != null">AND bill_receiver_phone = #{billReceiverPhone}</if>
+      <if test="billReceiverEmail != null">AND bill_receiver_email = #{billReceiverEmail}</if>
+      <if test="receiverName != null">AND receiver_name = #{receiverName}</if>
+      <if test="receiverPhone != null">AND receiver_phone = #{receiverPhone}</if>
+      <if test="receiverPostCode != null">AND receiver_post_code = #{receiverPostCode}</if>
+      <if test="receiverProvince != null">AND receiver_province = #{receiverProvince}</if>
+      <if test="receiverCity != null">AND receiver_city = #{receiverCity}</if>
+      <if test="receiverRegion != null">AND receiver_region = #{receiverRegion}</if>
+      <if test="receiverDetailAddress != null">AND receiver_detail_address = #{receiverDetailAddress}</if>
+      <if test="note != null">AND note = #{note}</if>
+      <if test="confirmStatus != null">AND confirm_status = #{confirmStatus}</if>
+      <if test="deleteStatus != null">AND delete_status = #{deleteStatus}</if>
+      <if test="useIntegration != null">AND use_integration = #{useIntegration}</if>
+      <if test="paymentTime != null">AND payment_time = #{paymentTime}</if>
+      <if test="deliveryTime != null">AND delivery_time = #{deliveryTime}</if>
+      <if test="receiveTime != null">AND receive_time = #{receiveTime}</if>
+      <if test="commentTime != null">AND comment_time = #{commentTime}</if>
+      <if test="modifyTime != null">AND modify_time = #{modifyTime}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.trade.model.OmsOrder">
+    DELETE FROM oms_order
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="memberId != null">AND member_id = #{memberId}</if>
+      <if test="couponId != null">AND coupon_id = #{couponId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="memberUsername != null">AND member_username = #{memberUsername}</if>
+      <if test="totalAmount != null">AND total_amount = #{totalAmount}</if>
+      <if test="payAmount != null">AND pay_amount = #{payAmount}</if>
+      <if test="freightAmount != null">AND freight_amount = #{freightAmount}</if>
+      <if test="promotionAmount != null">AND promotion_amount = #{promotionAmount}</if>
+      <if test="integrationAmount != null">AND integration_amount = #{integrationAmount}</if>
+      <if test="couponAmount != null">AND coupon_amount = #{couponAmount}</if>
+      <if test="discountAmount != null">AND discount_amount = #{discountAmount}</if>
+      <if test="payType != null">AND pay_type = #{payType}</if>
+      <if test="sourceType != null">AND source_type = #{sourceType}</if>
+      <if test="status != null">AND status = #{status}</if>
+      <if test="orderType != null">AND order_type = #{orderType}</if>
+      <if test="deliveryCompany != null">AND delivery_company = #{deliveryCompany}</if>
+      <if test="deliverySn != null">AND delivery_sn = #{deliverySn}</if>
+      <if test="autoConfirmDay != null">AND auto_confirm_day = #{autoConfirmDay}</if>
+      <if test="integration != null">AND integration = #{integration}</if>
+      <if test="growth != null">AND growth = #{growth}</if>
+      <if test="promotionInfo != null">AND promotion_info = #{promotionInfo}</if>
+      <if test="billType != null">AND bill_type = #{billType}</if>
+      <if test="billHeader != null">AND bill_header = #{billHeader}</if>
+      <if test="billContent != null">AND bill_content = #{billContent}</if>
+      <if test="billReceiverPhone != null">AND bill_receiver_phone = #{billReceiverPhone}</if>
+      <if test="billReceiverEmail != null">AND bill_receiver_email = #{billReceiverEmail}</if>
+      <if test="receiverName != null">AND receiver_name = #{receiverName}</if>
+      <if test="receiverPhone != null">AND receiver_phone = #{receiverPhone}</if>
+      <if test="receiverPostCode != null">AND receiver_post_code = #{receiverPostCode}</if>
+      <if test="receiverProvince != null">AND receiver_province = #{receiverProvince}</if>
+      <if test="receiverCity != null">AND receiver_city = #{receiverCity}</if>
+      <if test="receiverRegion != null">AND receiver_region = #{receiverRegion}</if>
+      <if test="receiverDetailAddress != null">AND receiver_detail_address = #{receiverDetailAddress}</if>
+      <if test="note != null">AND note = #{note}</if>
+      <if test="confirmStatus != null">AND confirm_status = #{confirmStatus}</if>
+      <if test="deleteStatus != null">AND delete_status = #{deleteStatus}</if>
+      <if test="useIntegration != null">AND use_integration = #{useIntegration}</if>
+      <if test="paymentTime != null">AND payment_time = #{paymentTime}</if>
+      <if test="deliveryTime != null">AND delivery_time = #{deliveryTime}</if>
+      <if test="receiveTime != null">AND receive_time = #{receiveTime}</if>
+      <if test="commentTime != null">AND comment_time = #{commentTime}</if>
+      <if test="modifyTime != null">AND modify_time = #{modifyTime}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update oms_order
+    <set>
+      <if test="record.memberId != null">member_id = #{record.memberId},</if>
+      <if test="record.couponId != null">coupon_id = #{record.couponId},</if>
+      <if test="record.orderSn != null">order_sn = #{record.orderSn},</if>
+      <if test="record.createTime != null">create_time = #{record.createTime},</if>
+      <if test="record.memberUsername != null">member_username = #{record.memberUsername},</if>
+      <if test="record.totalAmount != null">total_amount = #{record.totalAmount},</if>
+      <if test="record.payAmount != null">pay_amount = #{record.payAmount},</if>
+      <if test="record.freightAmount != null">freight_amount = #{record.freightAmount},</if>
+      <if test="record.promotionAmount != null">promotion_amount = #{record.promotionAmount},</if>
+      <if test="record.integrationAmount != null">integration_amount = #{record.integrationAmount},</if>
+      <if test="record.couponAmount != null">coupon_amount = #{record.couponAmount},</if>
+      <if test="record.discountAmount != null">discount_amount = #{record.discountAmount},</if>
+      <if test="record.payType != null">pay_type = #{record.payType},</if>
+      <if test="record.sourceType != null">source_type = #{record.sourceType},</if>
+      <if test="record.status != null">status = #{record.status},</if>
+      <if test="record.orderType != null">order_type = #{record.orderType},</if>
+      <if test="record.deliveryCompany != null">delivery_company = #{record.deliveryCompany},</if>
+      <if test="record.deliverySn != null">delivery_sn = #{record.deliverySn},</if>
+      <if test="record.autoConfirmDay != null">auto_confirm_day = #{record.autoConfirmDay},</if>
+      <if test="record.integration != null">integration = #{record.integration},</if>
+      <if test="record.growth != null">growth = #{record.growth},</if>
+      <if test="record.promotionInfo != null">promotion_info = #{record.promotionInfo},</if>
+      <if test="record.billType != null">bill_type = #{record.billType},</if>
+      <if test="record.billHeader != null">bill_header = #{record.billHeader},</if>
+      <if test="record.billContent != null">bill_content = #{record.billContent},</if>
+      <if test="record.billReceiverPhone != null">bill_receiver_phone = #{record.billReceiverPhone},</if>
+      <if test="record.billReceiverEmail != null">bill_receiver_email = #{record.billReceiverEmail},</if>
+      <if test="record.receiverName != null">receiver_name = #{record.receiverName},</if>
+      <if test="record.receiverPhone != null">receiver_phone = #{record.receiverPhone},</if>
+      <if test="record.receiverPostCode != null">receiver_post_code = #{record.receiverPostCode},</if>
+      <if test="record.receiverProvince != null">receiver_province = #{record.receiverProvince},</if>
+      <if test="record.receiverCity != null">receiver_city = #{record.receiverCity},</if>
+      <if test="record.receiverRegion != null">receiver_region = #{record.receiverRegion},</if>
+      <if test="record.receiverDetailAddress != null">receiver_detail_address = #{record.receiverDetailAddress},</if>
+      <if test="record.note != null">note = #{record.note},</if>
+      <if test="record.confirmStatus != null">confirm_status = #{record.confirmStatus},</if>
+      <if test="record.deleteStatus != null">delete_status = #{record.deleteStatus},</if>
+      <if test="record.useIntegration != null">use_integration = #{record.useIntegration},</if>
+      <if test="record.paymentTime != null">payment_time = #{record.paymentTime},</if>
+      <if test="record.deliveryTime != null">delivery_time = #{record.deliveryTime},</if>
+      <if test="record.receiveTime != null">receive_time = #{record.receiveTime},</if>
+      <if test="record.commentTime != null">comment_time = #{record.commentTime},</if>
+      <if test="record.modifyTime != null">modify_time = #{record.modifyTime},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.memberId != null">AND member_id = #{condition.memberId}</if>
+      <if test="condition.couponId != null">AND coupon_id = #{condition.couponId}</if>
+      <if test="condition.orderSn != null">AND order_sn = #{condition.orderSn}</if>
+      <if test="condition.createTime != null">AND create_time = #{condition.createTime}</if>
+      <if test="condition.memberUsername != null">AND member_username = #{condition.memberUsername}</if>
+      <if test="condition.totalAmount != null">AND total_amount = #{condition.totalAmount}</if>
+      <if test="condition.payAmount != null">AND pay_amount = #{condition.payAmount}</if>
+      <if test="condition.freightAmount != null">AND freight_amount = #{condition.freightAmount}</if>
+      <if test="condition.promotionAmount != null">AND promotion_amount = #{condition.promotionAmount}</if>
+      <if test="condition.integrationAmount != null">AND integration_amount = #{condition.integrationAmount}</if>
+      <if test="condition.couponAmount != null">AND coupon_amount = #{condition.couponAmount}</if>
+      <if test="condition.discountAmount != null">AND discount_amount = #{condition.discountAmount}</if>
+      <if test="condition.payType != null">AND pay_type = #{condition.payType}</if>
+      <if test="condition.sourceType != null">AND source_type = #{condition.sourceType}</if>
+      <if test="condition.status != null">AND status = #{condition.status}</if>
+      <if test="condition.orderType != null">AND order_type = #{condition.orderType}</if>
+      <if test="condition.deliveryCompany != null">AND delivery_company = #{condition.deliveryCompany}</if>
+      <if test="condition.deliverySn != null">AND delivery_sn = #{condition.deliverySn}</if>
+      <if test="condition.autoConfirmDay != null">AND auto_confirm_day = #{condition.autoConfirmDay}</if>
+      <if test="condition.integration != null">AND integration = #{condition.integration}</if>
+      <if test="condition.growth != null">AND growth = #{condition.growth}</if>
+      <if test="condition.promotionInfo != null">AND promotion_info = #{condition.promotionInfo}</if>
+      <if test="condition.billType != null">AND bill_type = #{condition.billType}</if>
+      <if test="condition.billHeader != null">AND bill_header = #{condition.billHeader}</if>
+      <if test="condition.billContent != null">AND bill_content = #{condition.billContent}</if>
+      <if test="condition.billReceiverPhone != null">AND bill_receiver_phone = #{condition.billReceiverPhone}</if>
+      <if test="condition.billReceiverEmail != null">AND bill_receiver_email = #{condition.billReceiverEmail}</if>
+      <if test="condition.receiverName != null">AND receiver_name = #{condition.receiverName}</if>
+      <if test="condition.receiverPhone != null">AND receiver_phone = #{condition.receiverPhone}</if>
+      <if test="condition.receiverPostCode != null">AND receiver_post_code = #{condition.receiverPostCode}</if>
+      <if test="condition.receiverProvince != null">AND receiver_province = #{condition.receiverProvince}</if>
+      <if test="condition.receiverCity != null">AND receiver_city = #{condition.receiverCity}</if>
+      <if test="condition.receiverRegion != null">AND receiver_region = #{condition.receiverRegion}</if>
+      <if test="condition.receiverDetailAddress != null">AND receiver_detail_address = #{condition.receiverDetailAddress}</if>
+      <if test="condition.note != null">AND note = #{condition.note}</if>
+      <if test="condition.confirmStatus != null">AND confirm_status = #{condition.confirmStatus}</if>
+      <if test="condition.deleteStatus != null">AND delete_status = #{condition.deleteStatus}</if>
+      <if test="condition.useIntegration != null">AND use_integration = #{condition.useIntegration}</if>
+      <if test="condition.paymentTime != null">AND payment_time = #{condition.paymentTime}</if>
+      <if test="condition.deliveryTime != null">AND delivery_time = #{condition.deliveryTime}</if>
+      <if test="condition.receiveTime != null">AND receive_time = #{condition.receiveTime}</if>
+      <if test="condition.commentTime != null">AND comment_time = #{condition.commentTime}</if>
+      <if test="condition.modifyTime != null">AND modify_time = #{condition.modifyTime}</if>
+    </where>
+  </update>
+
 </mapper>

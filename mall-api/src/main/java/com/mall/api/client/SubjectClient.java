@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 专题服务 Feign 接口
  */
-@FeignClient(name = "marketing-service", path = "/subject")
+@FeignClient(name = "marketing-service", path = "/subject", contextId = "marketing-subject")
 public interface SubjectClient {
 
     /** 获取全部专题 */

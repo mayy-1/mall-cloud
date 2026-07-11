@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsCouponProductRelation;
-import com.mall.marketing.model.SmsCouponProductRelationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,23 +12,19 @@ import org.springframework.context.annotation.Primary;
  */
 @Primary
 public interface SmsCouponProductRelationMapper {
-    long countByExample(SmsCouponProductRelationExample example);
-
-    int deleteByExample(SmsCouponProductRelationExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(SmsCouponProductRelation row);
 
     int insertSelective(SmsCouponProductRelation row);
-
-    List<SmsCouponProductRelation> selectByExample(SmsCouponProductRelationExample example);
-
     SmsCouponProductRelation selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsCouponProductRelation row, @Param("example") SmsCouponProductRelationExample example);
+    List<SmsCouponProductRelation> selectByCondition(SmsCouponProductRelation record);
 
-    int updateByExample(@Param("row") SmsCouponProductRelation row, @Param("example") SmsCouponProductRelationExample example);
+    int deleteByCondition(SmsCouponProductRelation record);
+
+    int updateSelectiveByCondition(@Param("record") SmsCouponProductRelation record, @Param("condition") SmsCouponProductRelation condition);
 
     int updateByPrimaryKeySelective(SmsCouponProductRelation row);
 

@@ -1,7 +1,6 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsProductAttribute;
-import com.mall.product.model.PmsProductAttributeExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.springframework.context.annotation.Primary;
 /**商品属性Mapper */
 @Primary
 public interface PmsProductAttributeMapper {
-    long countByExample(PmsProductAttributeExample example);
-
-    int deleteByExample(PmsProductAttributeExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsProductAttribute row);
 
     int insertSelective(PmsProductAttribute row);
-
-    List<PmsProductAttribute> selectByExample(PmsProductAttributeExample example);
-
     PmsProductAttribute selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsProductAttribute row, @Param("example") PmsProductAttributeExample example);
+    List<PmsProductAttribute> selectByCondition(PmsProductAttribute record);
 
-    int updateByExample(@Param("row") PmsProductAttribute row, @Param("example") PmsProductAttributeExample example);
+    int deleteByCondition(PmsProductAttribute record);
+
+    int updateSelectiveByCondition(@Param("record") PmsProductAttribute record, @Param("condition") PmsProductAttribute condition);
 
     int updateByPrimaryKeySelective(PmsProductAttribute row);
 

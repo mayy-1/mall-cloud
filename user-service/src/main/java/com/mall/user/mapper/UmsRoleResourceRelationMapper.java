@@ -1,15 +1,11 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsRoleResourceRelation;
-import com.mall.user.model.UmsRoleResourceRelationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**角色资源关系Mapper */
 public interface UmsRoleResourceRelationMapper {
-    long countByExample(UmsRoleResourceRelationExample example);
-
-    int deleteByExample(UmsRoleResourceRelationExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -17,13 +13,11 @@ public interface UmsRoleResourceRelationMapper {
 
     int insertSelective(UmsRoleResourceRelation row);
 
-    List<UmsRoleResourceRelation> selectByExample(UmsRoleResourceRelationExample example);
-
     UmsRoleResourceRelation selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsRoleResourceRelation row, @Param("example") UmsRoleResourceRelationExample example);
+    List<UmsRoleResourceRelation> selectByCondition(UmsRoleResourceRelation record);
 
-    int updateByExample(@Param("row") UmsRoleResourceRelation row, @Param("example") UmsRoleResourceRelationExample example);
+    int deleteByCondition(UmsRoleResourceRelation record);
 
     int updateByPrimaryKeySelective(UmsRoleResourceRelation row);
 

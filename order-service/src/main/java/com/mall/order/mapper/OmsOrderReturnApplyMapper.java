@@ -1,7 +1,6 @@
 package com.mall.order.mapper;
 
 import com.mall.order.model.OmsOrderReturnApply;
-import com.mall.order.model.OmsOrderReturnApplyExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,23 +12,19 @@ import org.springframework.context.annotation.Primary;
  */
 @Primary
 public interface OmsOrderReturnApplyMapper {
-    long countByExample(OmsOrderReturnApplyExample example);
-
-    int deleteByExample(OmsOrderReturnApplyExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(OmsOrderReturnApply row);
 
     int insertSelective(OmsOrderReturnApply row);
-
-    List<OmsOrderReturnApply> selectByExample(OmsOrderReturnApplyExample example);
-
     OmsOrderReturnApply selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") OmsOrderReturnApply row, @Param("example") OmsOrderReturnApplyExample example);
+    List<OmsOrderReturnApply> selectByCondition(OmsOrderReturnApply record);
 
-    int updateByExample(@Param("row") OmsOrderReturnApply row, @Param("example") OmsOrderReturnApplyExample example);
+    int deleteByCondition(OmsOrderReturnApply record);
+
+    int updateSelectiveByCondition(@Param("record") OmsOrderReturnApply record, @Param("condition") OmsOrderReturnApply condition);
 
     int updateByPrimaryKeySelective(OmsOrderReturnApply row);
 

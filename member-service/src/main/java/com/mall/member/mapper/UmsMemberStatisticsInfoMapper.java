@@ -1,7 +1,6 @@
 package com.mall.member.mapper;
 
 import com.mall.member.model.UmsMemberStatisticsInfo;
-import com.mall.member.model.UmsMemberStatisticsInfoExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,23 +8,19 @@ import org.apache.ibatis.annotations.Param;
  * 会员统计信息数据访问接口
  */
 public interface UmsMemberStatisticsInfoMapper {
-    long countByExample(UmsMemberStatisticsInfoExample example);
-
-    int deleteByExample(UmsMemberStatisticsInfoExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(UmsMemberStatisticsInfo row);
 
     int insertSelective(UmsMemberStatisticsInfo row);
-
-    List<UmsMemberStatisticsInfo> selectByExample(UmsMemberStatisticsInfoExample example);
-
     UmsMemberStatisticsInfo selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsMemberStatisticsInfo row, @Param("example") UmsMemberStatisticsInfoExample example);
+    List<UmsMemberStatisticsInfo> selectByCondition(UmsMemberStatisticsInfo record);
 
-    int updateByExample(@Param("row") UmsMemberStatisticsInfo row, @Param("example") UmsMemberStatisticsInfoExample example);
+    int deleteByCondition(UmsMemberStatisticsInfo record);
+
+    int updateSelectiveByCondition(@Param("record") UmsMemberStatisticsInfo record, @Param("condition") UmsMemberStatisticsInfo condition);
 
     int updateByPrimaryKeySelective(UmsMemberStatisticsInfo row);
 

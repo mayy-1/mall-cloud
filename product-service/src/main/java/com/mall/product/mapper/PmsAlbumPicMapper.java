@@ -1,29 +1,24 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsAlbumPic;
-import com.mall.product.model.PmsAlbumPicExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**相册图片Mapper */
 public interface PmsAlbumPicMapper {
-    long countByExample(PmsAlbumPicExample example);
-
-    int deleteByExample(PmsAlbumPicExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsAlbumPic row);
 
     int insertSelective(PmsAlbumPic row);
-
-    List<PmsAlbumPic> selectByExample(PmsAlbumPicExample example);
-
     PmsAlbumPic selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsAlbumPic row, @Param("example") PmsAlbumPicExample example);
+    List<PmsAlbumPic> selectByCondition(PmsAlbumPic record);
 
-    int updateByExample(@Param("row") PmsAlbumPic row, @Param("example") PmsAlbumPicExample example);
+    int deleteByCondition(PmsAlbumPic record);
+
+    int updateSelectiveByCondition(@Param("record") PmsAlbumPic record, @Param("condition") PmsAlbumPic condition);
 
     int updateByPrimaryKeySelective(PmsAlbumPic row);
 

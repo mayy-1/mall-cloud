@@ -1,10 +1,6 @@
 package com.mall.marketing.service.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.mall.marketing.mapper.SmsCouponMapperCustom;
-import com.mall.marketing.mapper.SmsCouponProductCategoryRelationMapperCustom;
-import com.mall.marketing.mapper.SmsCouponProductRelationMapperCustom;
-import com.mall.marketing.domain.dto.SmsCouponParam;
+import com.github.pagehelper.PageHelper;import com.mall.marketing.mapper.SmsCouponProductCategoryRelationMapper;import com.mall.marketing.domain.dto.SmsCouponParam;
 import com.mall.marketing.model.*;
 import com.mall.marketing.service.ICouponService;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CouponServiceImpl implements ICouponService {
     /** 优惠券Mapper */
-    private final SmsCouponMapperCustom couponMapper;
+    private final SmsCouponMapper couponMapper;
     /** 优惠券商品分类关联Mapper */
-    private final SmsCouponProductCategoryRelationMapperCustom productCategoryRelationMapper;
+    private final SmsCouponProductCategoryRelationMapper productCategoryRelationMapper;
     /** 优惠券商品关联Mapper */
-    private final SmsCouponProductRelationMapperCustom productRelationMapper;
+    private final SmsCouponProductRelationMapper productRelationMapper;
     @Override
     public int create(SmsCouponParam couponParam) {
         couponParam.setCount(couponParam.getPublishCount());
@@ -62,15 +58,15 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     private void deleteProductCategoryRelation(Long id) {
-        SmsCouponProductCategoryRelationExample productCategoryRelationExample = new SmsCouponProductCategoryRelationExample();
-        productCategoryRelationExample.createCriteria().andCouponIdEqualTo(id);
-        productCategoryRelationMapper.deleteByExample(productCategoryRelationExample);
+        SmsCouponProductCategoryRelation condition = new SmsCouponProductCategoryRelation();
+        condition.setCouponId(id);
+        productCategoryRelationMapper.deleteByCondition(condition);
     }
 
     private void deleteProductRelation(Long id) {
-        SmsCouponProductRelationExample productRelationExample = new SmsCouponProductRelationExample();
-        productRelationExample.createCriteria().andCouponIdEqualTo(id);
-        productRelationMapper.deleteByExample(productRelationExample);
+        SmsCouponProductRelation condition = new SmsCouponProductRelation();
+        condition.setCouponId(id);
+        productRelationMapper.deleteByCondition(condition);
     }
 
     @Override
@@ -98,16 +94,15 @@ public class CouponServiceImpl implements ICouponService {
 
     @Override
     public List<SmsCoupon> list(String name, Integer type, Integer pageSize, Integer pageNum) {
-        SmsCouponExample example = new SmsCouponExample();
-        SmsCouponExample.Criteria criteria = example.createCriteria();
+        PageHelper.startPage(pageNum,pageSize);
+        SmsCoupon condition = new SmsCoupon();
         if(!StringUtils.isEmpty(name)){
-            criteria.andNameLike("%"+name+"%");
+            condition.setName("%"+name+"%");
         }
         if(type!=null){
-            criteria.andTypeEqualTo(type);
+            condition.setType(type);
         }
-        PageHelper.startPage(pageNum,pageSize);
-        return couponMapper.selectByExample(example);
+        return couponMapper.selectByCondition(condition);
     }
 
     @Override

@@ -1,29 +1,24 @@
 package com.mall.product.mapper;
 
 import com.mall.product.model.PmsCommentReplay;
-import com.mall.product.model.PmsCommentReplayExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**评价回复Mapper */
 public interface PmsCommentReplayMapper {
-    long countByExample(PmsCommentReplayExample example);
-
-    int deleteByExample(PmsCommentReplayExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(PmsCommentReplay row);
 
     int insertSelective(PmsCommentReplay row);
-
-    List<PmsCommentReplay> selectByExample(PmsCommentReplayExample example);
-
     PmsCommentReplay selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") PmsCommentReplay row, @Param("example") PmsCommentReplayExample example);
+    List<PmsCommentReplay> selectByCondition(PmsCommentReplay record);
 
-    int updateByExample(@Param("row") PmsCommentReplay row, @Param("example") PmsCommentReplayExample example);
+    int deleteByCondition(PmsCommentReplay record);
+
+    int updateSelectiveByCondition(@Param("record") PmsCommentReplay record, @Param("condition") PmsCommentReplay condition);
 
     int updateByPrimaryKeySelective(PmsCommentReplay row);
 

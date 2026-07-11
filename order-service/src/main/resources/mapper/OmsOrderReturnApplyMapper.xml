@@ -33,85 +33,12 @@
   <resultMap id="ResultMapWithBLOBs" type="com.mall.order.model.OmsOrderReturnApply" extends="BaseResultMap">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, order_id, company_address_id, product_id, order_sn, create_time, member_username, return_amount, return_name, return_phone, status, handle_time, product_pic, product_name, product_brand, product_attr, product_count, product_price, product_real_price, reason, description, proof_pics, handle_note, handle_man, receive_man, receive_time, receive_note
   </sql>
   <sql id="Blob_Column_List">
     description
   </sql>
-  <select id="selectByExample" parameterType="com.mall.order.model.OmsOrderReturnApplyExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,<include refid="Blob_Column_List" />
-    from oms_order_return_apply
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
@@ -122,12 +49,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from oms_order_return_apply
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.order.model.OmsOrderReturnApplyExample">
-    delete from oms_order_return_apply
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.order.model.OmsOrderReturnApply">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -302,130 +223,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.order.model.OmsOrderReturnApplyExample" resultType="java.lang.Long">
-    select count(*) from oms_order_return_apply
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update oms_order_return_apply
-    <set>
-      <if test="row.orderId != null">
-        order_id = #{row.orderId,jdbcType=BIGINT},
-      </if>
-      <if test="row.companyAddressId != null">
-        company_address_id = #{row.companyAddressId,jdbcType=BIGINT},
-      </if>
-      <if test="row.productId != null">
-        product_id = #{row.productId,jdbcType=BIGINT},
-      </if>
-      <if test="row.orderSn != null">
-        order_sn = #{row.orderSn,jdbcType=VARCHAR},
-      </if>
-      <if test="row.createTime != null">
-        create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.memberUsername != null">
-        member_username = #{row.memberUsername,jdbcType=VARCHAR},
-      </if>
-      <if test="row.returnAmount != null">
-        return_amount = #{row.returnAmount,jdbcType=DECIMAL},
-      </if>
-      <if test="row.returnName != null">
-        return_name = #{row.returnName,jdbcType=VARCHAR},
-      </if>
-      <if test="row.returnPhone != null">
-        return_phone = #{row.returnPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="row.status != null">
-        status = #{row.status,jdbcType=INTEGER},
-      </if>
-      <if test="row.handleTime != null">
-        handle_time = #{row.handleTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.productPic != null">
-        product_pic = #{row.productPic,jdbcType=VARCHAR},
-      </if>
-      <if test="row.productName != null">
-        product_name = #{row.productName,jdbcType=VARCHAR},
-      </if>
-      <if test="row.productBrand != null">
-        product_brand = #{row.productBrand,jdbcType=VARCHAR},
-      </if>
-      <if test="row.productAttr != null">
-        product_attr = #{row.productAttr,jdbcType=VARCHAR},
-      </if>
-      <if test="row.productCount != null">
-        product_count = #{row.productCount,jdbcType=INTEGER},
-      </if>
-      <if test="row.productPrice != null">
-        product_price = #{row.productPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="row.productRealPrice != null">
-        product_real_price = #{row.productRealPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="row.reason != null">
-        reason = #{row.reason,jdbcType=VARCHAR},
-      </if>
-      <if test="row.description != null">
-        description = #{row.description,jdbcType=VARCHAR},
-      </if>
-      <if test="row.proofPics != null">
-        proof_pics = #{row.proofPics,jdbcType=VARCHAR},
-      </if>
-      <if test="row.handleNote != null">
-        handle_note = #{row.handleNote,jdbcType=VARCHAR},
-      </if>
-      <if test="row.handleMan != null">
-        handle_man = #{row.handleMan,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiveMan != null">
-        receive_man = #{row.receiveMan,jdbcType=VARCHAR},
-      </if>
-      <if test="row.receiveTime != null">
-        receive_time = #{row.receiveTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="row.receiveNote != null">
-        receive_note = #{row.receiveNote,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update oms_order_return_apply
-    set order_id = #{row.orderId,jdbcType=BIGINT},
-      company_address_id = #{row.companyAddressId,jdbcType=BIGINT},
-      product_id = #{row.productId,jdbcType=BIGINT},
-      order_sn = #{row.orderSn,jdbcType=VARCHAR},
-      create_time = #{row.createTime,jdbcType=TIMESTAMP},
-      member_username = #{row.memberUsername,jdbcType=VARCHAR},
-      return_amount = #{row.returnAmount,jdbcType=DECIMAL},
-      return_name = #{row.returnName,jdbcType=VARCHAR},
-      return_phone = #{row.returnPhone,jdbcType=VARCHAR},
-      status = #{row.status,jdbcType=INTEGER},
-      handle_time = #{row.handleTime,jdbcType=TIMESTAMP},
-      product_pic = #{row.productPic,jdbcType=VARCHAR},
-      product_name = #{row.productName,jdbcType=VARCHAR},
-      product_brand = #{row.productBrand,jdbcType=VARCHAR},
-      product_attr = #{row.productAttr,jdbcType=VARCHAR},
-      product_count = #{row.productCount,jdbcType=INTEGER},
-      product_price = #{row.productPrice,jdbcType=DECIMAL},
-      product_real_price = #{row.productRealPrice,jdbcType=DECIMAL},
-      reason = #{row.reason,jdbcType=VARCHAR},
-      description = #{row.description,jdbcType=VARCHAR},
-      proof_pics = #{row.proofPics,jdbcType=VARCHAR},
-      handle_note = #{row.handleNote,jdbcType=VARCHAR},
-      handle_man = #{row.handleMan,jdbcType=VARCHAR},
-      receive_man = #{row.receiveMan,jdbcType=VARCHAR},
-      receive_time = #{row.receiveTime,jdbcType=TIMESTAMP},
-      receive_note = #{row.receiveNote,jdbcType=VARCHAR}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.order.model.OmsOrderReturnApply">
     update oms_order_return_apply
     <set>
@@ -540,4 +337,188 @@
       receive_note = #{receiveNote,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+<resultMap id="returnApplyDetailResultMap" type="com.mall.order.domain.dto.OmsOrderReturnApplyResult" extends="com.mall.order.mapper.OmsOrderReturnApplyMapper.BaseResultMap">
+        <association property="companyAddress" resultMap="com.mall.order.mapper.OmsCompanyAddressMapper.BaseResultMap" columnPrefix="ca_"/>
+    </resultMap>
+    <select id="getList" resultMap="com.mall.order.mapper.OmsOrderReturnApplyMapper.BaseResultMap">
+        SELECT
+        id,
+        create_time,
+        member_username,
+        product_real_price,
+        product_count,
+        return_name,
+        status,
+        handle_time
+        FROM
+        oms_order_return_apply
+        WHERE
+        1 = 1
+        <if test="queryParam.id!=null">
+            AND id = #{queryParam.id}
+        </if>
+        <if test="queryParam.status!=null">
+            AND status = #{queryParam.status}
+        </if>
+        <if test="queryParam.status!=null">
+            AND status = #{queryParam.status}
+        </if>
+        <if test="queryParam.handleMan!=null and queryParam.handleMan!=''">
+            AND handle_man = #{queryParam.handleMan}
+        </if>
+        <if test="queryParam.createTime!=null and queryParam.createTime!=''">
+            AND create_time LIKE CONCAT(#{queryParam.createTime}, '%')
+        </if>
+        <if test="queryParam.handleTime!=null and queryParam.handleTime!=''">
+            AND handle_time LIKE CONCAT(#{queryParam.handleTime}, '%')
+        </if>
+        <if test="queryParam.receiverKeyword!=null and queryParam.receiverKeyword!=''">
+            AND (return_name LIKE concat("%",#{queryParam.receiverKeyword},"%")
+            OR return_phone LIKE concat("%",#{queryParam.receiverKeyword},"%"))
+        </if>
+    </select>
+    <select id="getDetail" resultMap="returnApplyDetailResultMap">
+        SELECT
+            ra.*, ca.id ca_id,
+                  ca.address_name ca_address_name,
+                  ca.`name` ca_name,
+                  ca.phone ca_phone,
+                  ca.province ca_province,
+                  ca.city ca_city,
+                  ca.region ca_region,
+                  ca.detail_address ca_detail_address
+        FROM
+            oms_order_return_apply ra
+            LEFT JOIN oms_company_address ca ON ra.company_address_id = ca.id
+        WHERE ra.id=#{id};
+    </select>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.order.model.OmsOrderReturnApply">
+    SELECT <include refid="Base_Column_List"/> FROM oms_order_return_apply
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="orderId != null">AND order_id = #{orderId}</if>
+      <if test="companyAddressId != null">AND company_address_id = #{companyAddressId}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="memberUsername != null">AND member_username = #{memberUsername}</if>
+      <if test="returnAmount != null">AND return_amount = #{returnAmount}</if>
+      <if test="returnName != null">AND return_name = #{returnName}</if>
+      <if test="returnPhone != null">AND return_phone = #{returnPhone}</if>
+      <if test="status != null">AND status = #{status}</if>
+      <if test="handleTime != null">AND handle_time = #{handleTime}</if>
+      <if test="productPic != null">AND product_pic = #{productPic}</if>
+      <if test="productName != null">AND product_name = #{productName}</if>
+      <if test="productBrand != null">AND product_brand = #{productBrand}</if>
+      <if test="productAttr != null">AND product_attr = #{productAttr}</if>
+      <if test="productCount != null">AND product_count = #{productCount}</if>
+      <if test="productPrice != null">AND product_price = #{productPrice}</if>
+      <if test="productRealPrice != null">AND product_real_price = #{productRealPrice}</if>
+      <if test="reason != null">AND reason = #{reason}</if>
+      <if test="description != null">AND description = #{description}</if>
+      <if test="proofPics != null">AND proof_pics = #{proofPics}</if>
+      <if test="handleNote != null">AND handle_note = #{handleNote}</if>
+      <if test="handleMan != null">AND handle_man = #{handleMan}</if>
+      <if test="receiveMan != null">AND receive_man = #{receiveMan}</if>
+      <if test="receiveTime != null">AND receive_time = #{receiveTime}</if>
+      <if test="receiveNote != null">AND receive_note = #{receiveNote}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.order.model.OmsOrderReturnApply">
+    DELETE FROM oms_order_return_apply
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="orderId != null">AND order_id = #{orderId}</if>
+      <if test="companyAddressId != null">AND company_address_id = #{companyAddressId}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="orderSn != null">AND order_sn = #{orderSn}</if>
+      <if test="createTime != null">AND create_time = #{createTime}</if>
+      <if test="memberUsername != null">AND member_username = #{memberUsername}</if>
+      <if test="returnAmount != null">AND return_amount = #{returnAmount}</if>
+      <if test="returnName != null">AND return_name = #{returnName}</if>
+      <if test="returnPhone != null">AND return_phone = #{returnPhone}</if>
+      <if test="status != null">AND status = #{status}</if>
+      <if test="handleTime != null">AND handle_time = #{handleTime}</if>
+      <if test="productPic != null">AND product_pic = #{productPic}</if>
+      <if test="productName != null">AND product_name = #{productName}</if>
+      <if test="productBrand != null">AND product_brand = #{productBrand}</if>
+      <if test="productAttr != null">AND product_attr = #{productAttr}</if>
+      <if test="productCount != null">AND product_count = #{productCount}</if>
+      <if test="productPrice != null">AND product_price = #{productPrice}</if>
+      <if test="productRealPrice != null">AND product_real_price = #{productRealPrice}</if>
+      <if test="reason != null">AND reason = #{reason}</if>
+      <if test="description != null">AND description = #{description}</if>
+      <if test="proofPics != null">AND proof_pics = #{proofPics}</if>
+      <if test="handleNote != null">AND handle_note = #{handleNote}</if>
+      <if test="handleMan != null">AND handle_man = #{handleMan}</if>
+      <if test="receiveMan != null">AND receive_man = #{receiveMan}</if>
+      <if test="receiveTime != null">AND receive_time = #{receiveTime}</if>
+      <if test="receiveNote != null">AND receive_note = #{receiveNote}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update oms_order_return_apply
+    <set>
+      <if test="record.orderId != null">order_id = #{record.orderId},</if>
+      <if test="record.companyAddressId != null">company_address_id = #{record.companyAddressId},</if>
+      <if test="record.productId != null">product_id = #{record.productId},</if>
+      <if test="record.orderSn != null">order_sn = #{record.orderSn},</if>
+      <if test="record.createTime != null">create_time = #{record.createTime},</if>
+      <if test="record.memberUsername != null">member_username = #{record.memberUsername},</if>
+      <if test="record.returnAmount != null">return_amount = #{record.returnAmount},</if>
+      <if test="record.returnName != null">return_name = #{record.returnName},</if>
+      <if test="record.returnPhone != null">return_phone = #{record.returnPhone},</if>
+      <if test="record.status != null">status = #{record.status},</if>
+      <if test="record.handleTime != null">handle_time = #{record.handleTime},</if>
+      <if test="record.productPic != null">product_pic = #{record.productPic},</if>
+      <if test="record.productName != null">product_name = #{record.productName},</if>
+      <if test="record.productBrand != null">product_brand = #{record.productBrand},</if>
+      <if test="record.productAttr != null">product_attr = #{record.productAttr},</if>
+      <if test="record.productCount != null">product_count = #{record.productCount},</if>
+      <if test="record.productPrice != null">product_price = #{record.productPrice},</if>
+      <if test="record.productRealPrice != null">product_real_price = #{record.productRealPrice},</if>
+      <if test="record.reason != null">reason = #{record.reason},</if>
+      <if test="record.description != null">description = #{record.description},</if>
+      <if test="record.proofPics != null">proof_pics = #{record.proofPics},</if>
+      <if test="record.handleNote != null">handle_note = #{record.handleNote},</if>
+      <if test="record.handleMan != null">handle_man = #{record.handleMan},</if>
+      <if test="record.receiveMan != null">receive_man = #{record.receiveMan},</if>
+      <if test="record.receiveTime != null">receive_time = #{record.receiveTime},</if>
+      <if test="record.receiveNote != null">receive_note = #{record.receiveNote},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.orderId != null">AND order_id = #{condition.orderId}</if>
+      <if test="condition.companyAddressId != null">AND company_address_id = #{condition.companyAddressId}</if>
+      <if test="condition.productId != null">AND product_id = #{condition.productId}</if>
+      <if test="condition.orderSn != null">AND order_sn = #{condition.orderSn}</if>
+      <if test="condition.createTime != null">AND create_time = #{condition.createTime}</if>
+      <if test="condition.memberUsername != null">AND member_username = #{condition.memberUsername}</if>
+      <if test="condition.returnAmount != null">AND return_amount = #{condition.returnAmount}</if>
+      <if test="condition.returnName != null">AND return_name = #{condition.returnName}</if>
+      <if test="condition.returnPhone != null">AND return_phone = #{condition.returnPhone}</if>
+      <if test="condition.status != null">AND status = #{condition.status}</if>
+      <if test="condition.handleTime != null">AND handle_time = #{condition.handleTime}</if>
+      <if test="condition.productPic != null">AND product_pic = #{condition.productPic}</if>
+      <if test="condition.productName != null">AND product_name = #{condition.productName}</if>
+      <if test="condition.productBrand != null">AND product_brand = #{condition.productBrand}</if>
+      <if test="condition.productAttr != null">AND product_attr = #{condition.productAttr}</if>
+      <if test="condition.productCount != null">AND product_count = #{condition.productCount}</if>
+      <if test="condition.productPrice != null">AND product_price = #{condition.productPrice}</if>
+      <if test="condition.productRealPrice != null">AND product_real_price = #{condition.productRealPrice}</if>
+      <if test="condition.reason != null">AND reason = #{condition.reason}</if>
+      <if test="condition.description != null">AND description = #{condition.description}</if>
+      <if test="condition.proofPics != null">AND proof_pics = #{condition.proofPics}</if>
+      <if test="condition.handleNote != null">AND handle_note = #{condition.handleNote}</if>
+      <if test="condition.handleMan != null">AND handle_man = #{condition.handleMan}</if>
+      <if test="condition.receiveMan != null">AND receive_man = #{condition.receiveMan}</if>
+      <if test="condition.receiveTime != null">AND receive_time = #{condition.receiveTime}</if>
+      <if test="condition.receiveNote != null">AND receive_note = #{condition.receiveNote}</if>
+    </where>
+  </update>
+
 </mapper>

@@ -1,15 +1,14 @@
 package com.mall.trade.service.impl;
 
+import com.mall.api.client.MemberClient;
+import com.mall.api.dto.MemberDTO;
 import com.mall.trade.domain.dto.SeckillOrderMessage;
-import com.mall.trade.feign.UmsMemberService;
 import com.mall.trade.mapper.OmsOrderItemMapper;
 import com.mall.trade.mapper.OmsOrderMapper;
 import com.mall.trade.mapper.PmsSkuStockMapper;
 import com.mall.trade.model.OmsOrder;
 import com.mall.trade.model.OmsOrderItem;
 import com.mall.trade.model.PmsSkuStock;
-import com.mall.trade.model.PmsSkuStockExample;
-import com.mall.trade.model.UmsMember;
 import com.mall.trade.service.ISeckillOrderService;
 import com.mym.mall.common.service.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     private final OmsOrderMapper orderMapper;
     private final OmsOrderItemMapper orderItemMapper;
     private final PmsSkuStockMapper skuStockMapper;
-    private final UmsMemberService memberService;
+    private final MemberClient memberClient;
     private final RedisService redisService;
 
     @Value("${redis.key.orderId}")
@@ -68,12 +67,12 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             }
 
             // 2. 获取会员信息
-            UmsMember member = memberService.getById(memberId);
+            MemberDTO member = memberClient.getById(memberId).getData();
 
             // 3. 查找商品 SKU（取第一个 SKU）
-            PmsSkuStockExample skuExample = new PmsSkuStockExample();
-            skuExample.createCriteria().andProductIdEqualTo(productId);
-            List<PmsSkuStock> skuList = skuStockMapper.selectByExample(skuExample);
+            PmsSkuStock skuExample = new PmsSkuStock();
+            skuExample.setProductId(productId);
+            List<PmsSkuStock> skuList = skuStockMapper.selectByCondition(skuExample);
             if (skuList.isEmpty()) {
                 throw new RuntimeException("商品SKU不存在, productId=" + productId);
             }

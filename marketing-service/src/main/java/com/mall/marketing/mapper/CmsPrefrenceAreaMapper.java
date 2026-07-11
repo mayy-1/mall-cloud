@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.CmsPrefrenceArea;
-import com.mall.marketing.model.CmsPrefrenceAreaExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,27 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供商品优选区域的增删改查操作
  */
 public interface CmsPrefrenceAreaMapper {
-    long countByExample(CmsPrefrenceAreaExample example);
-
-    int deleteByExample(CmsPrefrenceAreaExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(CmsPrefrenceArea row);
 
     int insertSelective(CmsPrefrenceArea row);
-
-    List<CmsPrefrenceArea> selectByExampleWithBLOBs(CmsPrefrenceAreaExample example);
-
-    List<CmsPrefrenceArea> selectByExample(CmsPrefrenceAreaExample example);
-
     CmsPrefrenceArea selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") CmsPrefrenceArea row, @Param("example") CmsPrefrenceAreaExample example);
+    List<CmsPrefrenceArea> selectByCondition(CmsPrefrenceArea record);
 
-    int updateByExampleWithBLOBs(@Param("row") CmsPrefrenceArea row, @Param("example") CmsPrefrenceAreaExample example);
+    int deleteByCondition(CmsPrefrenceArea record);
 
-    int updateByExample(@Param("row") CmsPrefrenceArea row, @Param("example") CmsPrefrenceAreaExample example);
+    int updateSelectiveByCondition(@Param("record") CmsPrefrenceArea record, @Param("condition") CmsPrefrenceArea condition);
 
     int updateByPrimaryKeySelective(CmsPrefrenceArea row);
 

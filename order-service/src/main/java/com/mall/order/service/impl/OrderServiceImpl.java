@@ -1,12 +1,8 @@
 package com.mall.order.service.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.mall.order.mapper.OmsOrderMapperCustom;
-import com.mall.order.mapper.OmsOrderOperateHistoryMapperCustom;
+import com.github.pagehelper.PageHelper;import com.mall.order.mapper.OmsOrderOperateHistoryMapper;
 import com.mall.order.domain.dto.*;
-import com.mall.order.model.OmsOrder;
-import com.mall.order.model.OmsOrderExample;
-import com.mall.order.model.OmsOrderOperateHistory;
+import com.mall.order.model.OmsOrder;import com.mall.order.model.OmsOrderOperateHistory;
 import com.mall.order.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,9 +19,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements IOrderService {
     /** 订单自定义Mapper */
-    private final OmsOrderMapperCustom orderMapper;
+    private final OmsOrderMapper orderMapper;
     /** 订单操作记录自定义Mapper */
-    private final OmsOrderOperateHistoryMapperCustom orderOperateHistoryMapper;
+    private final OmsOrderOperateHistoryMapper orderOperateHistoryMapper;
 
     @Override
     public List<OmsOrder> list(OmsOrderQueryParam queryParam, Integer pageSize, Integer pageNum) {
@@ -54,11 +50,15 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public int close(List<Long> ids, String note) {
-        OmsOrder record = new OmsOrder();
-        record.setStatus(4);
-        OmsOrderExample example = new OmsOrderExample();
-        example.createCriteria().andDeleteStatusEqualTo(0).andIdIn(ids);
-        int count = orderMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            OmsOrder record = new OmsOrder();
+            record.setStatus(4);
+            OmsOrder condition = new OmsOrder();
+            condition.setId(id);
+            condition.setDeleteStatus(0);
+            count += orderMapper.updateSelectiveByCondition(record, condition);
+        }
         List<OmsOrderOperateHistory> historyList = ids.stream().map(orderId -> {
             OmsOrderOperateHistory history = new OmsOrderOperateHistory();
             history.setOrderId(orderId);
@@ -74,11 +74,16 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public int delete(List<Long> ids) {
-        OmsOrder record = new OmsOrder();
-        record.setDeleteStatus(1);
-        OmsOrderExample example = new OmsOrderExample();
-        example.createCriteria().andDeleteStatusEqualTo(0).andIdIn(ids);
-        return orderMapper.updateByExampleSelective(record, example);
+        int count = 0;
+        for (Long id : ids) {
+            OmsOrder record = new OmsOrder();
+            record.setDeleteStatus(1);
+            OmsOrder condition = new OmsOrder();
+            condition.setId(id);
+            condition.setDeleteStatus(0);
+            count += orderMapper.updateSelectiveByCondition(record, condition);
+        }
+        return count;
     }
 
     @Override

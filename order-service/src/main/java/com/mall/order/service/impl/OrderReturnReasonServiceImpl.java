@@ -2,9 +2,7 @@ package com.mall.order.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.order.mapper.OmsOrderReturnReasonMapper;
-import com.mall.order.model.OmsOrderReturnReason;
-import com.mall.order.model.OmsOrderReturnReasonExample;
-import com.mall.order.service.IOrderReturnReasonService;
+import com.mall.order.model.OmsOrderReturnReason;import com.mall.order.service.IOrderReturnReasonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,17 +32,19 @@ public class OrderReturnReasonServiceImpl implements IOrderReturnReasonService {
 
     @Override
     public int delete(List<Long> ids) {
-        OmsOrderReturnReasonExample example = new OmsOrderReturnReasonExample();
-        example.createCriteria().andIdIn(ids);
-        return returnReasonMapper.deleteByExample(example);
+        int count = 0;
+        for (Long id : ids) {
+            OmsOrderReturnReason condition = new OmsOrderReturnReason();
+            condition.setId(id);
+            count += returnReasonMapper.deleteByCondition(condition);
+        }
+        return count;
     }
 
     @Override
     public List<OmsOrderReturnReason> list(Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        OmsOrderReturnReasonExample example = new OmsOrderReturnReasonExample();
-        example.setOrderByClause("sort desc");
-        return returnReasonMapper.selectByExample(example);
+        return returnReasonMapper.selectByCondition(null);
     }
 
     @Override
@@ -52,11 +52,14 @@ public class OrderReturnReasonServiceImpl implements IOrderReturnReasonService {
         if(!status.equals(0)&&!status.equals(1)){
             return 0;
         }
-        OmsOrderReturnReason record = new OmsOrderReturnReason();
-        record.setStatus(status);
-        OmsOrderReturnReasonExample example = new OmsOrderReturnReasonExample();
-        example.createCriteria().andIdIn(ids);
-        return returnReasonMapper.updateByExampleSelective(record,example);
+        int count = 0;
+        for (Long id : ids) {
+            OmsOrderReturnReason record = new OmsOrderReturnReason();
+            record.setId(id);
+            record.setStatus(status);
+            count += returnReasonMapper.updateByPrimaryKeySelective(record);
+        }
+        return count;
     }
 
     @Override

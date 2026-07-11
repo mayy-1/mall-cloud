@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsHomeRecommendProductMapper;
-import com.mall.marketing.model.SmsHomeRecommendProduct;
-import com.mall.marketing.model.SmsHomeRecommendProductExample;
-import com.mall.marketing.service.IHomeRecommendProductService;
+import com.mall.marketing.model.SmsHomeRecommendProduct;import com.mall.marketing.service.IHomeRecommendProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,32 +38,33 @@ public class HomeRecommendProductServiceImpl implements IHomeRecommendProductSer
 
     @Override
     public int delete(List<Long> ids) {
-        SmsHomeRecommendProductExample example = new SmsHomeRecommendProductExample();
-        example.createCriteria().andIdIn(ids);
-        return recommendProductMapper.deleteByExample(example);
+        for (Long id : ids) {
+            recommendProductMapper.deleteByPrimaryKey(id);
+        }
+        return ids.size();
     }
 
     @Override
     public int updateRecommendStatus(List<Long> ids, Integer recommendStatus) {
-        SmsHomeRecommendProductExample example = new SmsHomeRecommendProductExample();
-        example.createCriteria().andIdIn(ids);
-        SmsHomeRecommendProduct record = new SmsHomeRecommendProduct();
-        record.setRecommendStatus(recommendStatus);
-        return recommendProductMapper.updateByExampleSelective(record,example);
+        for (Long id : ids) {
+            SmsHomeRecommendProduct record = new SmsHomeRecommendProduct();
+            record.setId(id);
+            record.setRecommendStatus(recommendStatus);
+            recommendProductMapper.updateByPrimaryKeySelective(record);
+        }
+        return ids.size();
     }
 
     @Override
     public List<SmsHomeRecommendProduct> list(String productName, Integer recommendStatus, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        SmsHomeRecommendProductExample example = new SmsHomeRecommendProductExample();
-        SmsHomeRecommendProductExample.Criteria criteria = example.createCriteria();
+        SmsHomeRecommendProduct condition = new SmsHomeRecommendProduct();
         if(!StringUtils.isEmpty(productName)){
-            criteria.andProductNameLike("%"+productName+"%");
+            condition.setProductName("%"+productName+"%");
         }
         if(recommendStatus!=null){
-            criteria.andRecommendStatusEqualTo(recommendStatus);
+            condition.setRecommendStatus(recommendStatus);
         }
-        example.setOrderByClause("sort desc");
-        return recommendProductMapper.selectByExample(example);
+        return recommendProductMapper.selectByCondition(condition);
     }
 }

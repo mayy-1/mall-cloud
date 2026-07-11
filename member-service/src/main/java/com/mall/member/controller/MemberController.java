@@ -9,19 +9,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 会员登录注册管理Controller
- * Created by macro on 2018/8/3.
+ * 会员登录注册管理Controller、
  */
-@Controller
+@RestController
 @Tag(name = "MemberController", description = "会员登录注册管理")
 @RequestMapping("/sso")
 @RequiredArgsConstructor
@@ -33,8 +29,7 @@ public class MemberController {
     private String tokenHead;
 
     @Operation(summary = "会员注册")
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/register")
     public CommonResult register(@RequestParam String username,
                                  @RequestParam String password,
                                  @RequestParam String telephone,
@@ -44,8 +39,7 @@ public class MemberController {
     }
 
     @Operation(summary = "会员登录")
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/login")
     public CommonResult login(@RequestParam String username,
                               @RequestParam String password) {
         SaTokenInfo saTokenInfo  = memberService.login(username, password);
@@ -59,32 +53,28 @@ public class MemberController {
     }
 
     @Operation(summary = "获取会员信息")
-    @RequestMapping(value = "/info", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/info")
     public CommonResult info() {
         UmsMember member = memberService.getCurrentMember();
         return CommonResult.success(member);
     }
 
     @Operation(summary = "登出功能")
-    @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/logout")
     public CommonResult logout() {
         memberService.logout();
         return CommonResult.success(null);
     }
 
     @Operation(summary = "获取验证码")
-    @RequestMapping(value = "/getAuthCode", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/getAuthCode")
     public CommonResult getAuthCode(@RequestParam String telephone) {
-        String authCode = memberService.generateAuthCode(telephone);
-        return CommonResult.success(authCode,"获取验证码成功");
+        memberService.generateAuthCode(telephone);
+        return CommonResult.success("获取验证码成功");
     }
 
     @Operation(summary = "修改密码")
-    @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/updatePassword")
     public CommonResult updatePassword(@RequestParam String telephone,
                                  @RequestParam String password,
                                  @RequestParam String authCode) {

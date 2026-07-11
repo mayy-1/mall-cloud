@@ -1,7 +1,8 @@
 package com.mall.member.mapper;
 
+import com.mall.member.domain.dto.SmsCouponHistoryDetail;
+import com.mall.member.model.SmsCoupon;
 import com.mall.member.model.SmsCouponHistory;
-import com.mall.member.model.SmsCouponHistoryExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,9 +13,6 @@ import org.springframework.context.annotation.Primary;
  */
 @Primary
 public interface SmsCouponHistoryMapper {
-    long countByExample(SmsCouponHistoryExample example);
-
-    int deleteByExample(SmsCouponHistoryExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -22,15 +20,19 @@ public interface SmsCouponHistoryMapper {
 
     int insertSelective(SmsCouponHistory row);
 
-    List<SmsCouponHistory> selectByExample(SmsCouponHistoryExample example);
-
     SmsCouponHistory selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsCouponHistory row, @Param("example") SmsCouponHistoryExample example);
+    List<SmsCouponHistory> selectByCondition(SmsCouponHistory record);
 
-    int updateByExample(@Param("row") SmsCouponHistory row, @Param("example") SmsCouponHistoryExample example);
+    int deleteByCondition(SmsCouponHistory record);
+
+    int updateSelectiveByCondition(@Param("record") SmsCouponHistory record, @Param("condition") SmsCouponHistory condition);
 
     int updateByPrimaryKeySelective(SmsCouponHistory row);
 
     int updateByPrimaryKey(SmsCouponHistory row);
+
+    List<SmsCouponHistoryDetail> getDetailList(@Param("memberId") Long memberId);
+
+    List<SmsCoupon> getCouponList(@Param("memberId") Long memberId, @Param("useStatus") Integer useStatus);
 }

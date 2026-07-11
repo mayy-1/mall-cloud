@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -24,9 +23,8 @@ import java.util.stream.Collectors;
 
 /**
  * 会员优惠券管理Controller
- * Created by macro on 2018/8/29.
  */
-@Controller
+@RestController
 @Tag(name = "CouponController", description = "用户优惠券管理")
 @RequestMapping("/member/coupon")
 @RequiredArgsConstructor
@@ -39,8 +37,7 @@ public class CouponController {
     private final CartClient cartClient;
 
     @Operation(summary = "领取指定优惠券")
-    @RequestMapping(value = "/add/{couponId}", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/add/{couponId}")
     public CommonResult add(@PathVariable Long couponId) {
         couponService.add(couponId);
         return CommonResult.success(null,"领取成功");
@@ -49,8 +46,7 @@ public class CouponController {
     @Operation(summary = "获取会员优惠券历史列表")
     @Parameter(name = "useStatus", description = "优惠券筛选类型:0->未使用；1->已使用；2->已过期",
             in = ParameterIn.QUERY,schema = @Schema(type = "integer",allowableValues = {"0","1","2"}))
-    @RequestMapping(value = "/listHistory", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/listHistory")
     public CommonResult<List<SmsCouponHistory>> listHistory(@RequestParam(value = "useStatus", required = false) Integer useStatus) {
         List<SmsCouponHistory> couponHistoryList = couponService.listHistory(useStatus);
         return CommonResult.success(couponHistoryList);
@@ -59,8 +55,7 @@ public class CouponController {
     @Operation(summary = "获取会员优惠券列表")
     @Parameter(name = "useStatus", description = "优惠券筛选类型:0->未使用；1->已使用；2->已过期",
             in = ParameterIn.QUERY,schema = @Schema(type = "integer",allowableValues = {"0","1","2"}))
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/list")
     public CommonResult<List<SmsCoupon>> list(@RequestParam(value = "useStatus", required = false) Integer useStatus) {
         List<SmsCoupon> couponList = couponService.list(useStatus);
         return CommonResult.success(couponList);
@@ -69,8 +64,7 @@ public class CouponController {
     @Operation(summary = "获取登录会员购物车的相关优惠券")
     @Parameter(name = "type", description = "使用可用:0->不可用；1->可用",
             in = ParameterIn.PATH,schema = @Schema(type = "integer",defaultValue = "1",allowableValues = {"0","1"}))
-    @RequestMapping(value = "/list/cart/{type}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/list/cart/{type}")
     public CommonResult<List<SmsCouponHistoryDetail>> listCart(@PathVariable Integer type) {
         List<CartPromotionItem> cartPromotionItemList;
         try {
@@ -99,8 +93,7 @@ public class CouponController {
     }
 
     @Operation(summary = "获取当前商品相关优惠券")
-    @RequestMapping(value = "/listByProduct/{productId}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/listByProduct/{productId}")
     public CommonResult<List<SmsCoupon>> listByProduct(@PathVariable Long productId) {
         List<SmsCoupon> couponHistoryList = couponService.listByProduct(productId);
         return CommonResult.success(couponHistoryList);

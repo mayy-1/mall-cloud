@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 品牌服务 Feign 接口
  */
-@FeignClient(name = "product-service", path = "/brand")
+@FeignClient(name = "product-service", path = "/brand", contextId = "product-brand")
 public interface BrandClient {
 
     /** 根据ID查询品牌详情 */

@@ -1,5 +1,6 @@
 package com.mall.user.service.impl;
 
+import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -9,16 +10,14 @@ import com.github.pagehelper.PageHelper;
 import com.mym.mall.common.constant.AuthConstant;
 import com.mym.mall.common.dto.UserDto;
 import com.mym.mall.common.exception.Asserts;
-import com.mall.user.mapper.UmsAdminRoleRelationMapperCustom;
+import com.mall.user.mapper.UmsAdminRoleRelationMapper;
 import com.mall.user.domain.dto.AdminSaveDTO;
 import com.mall.user.domain.dto.UpdatePasswordDTO;
 import com.mall.user.mapper.UmsAdminLoginLogMapper;
 import com.mall.user.mapper.UmsAdminMapper;
 import com.mall.user.model.UmsAdmin;
-import com.mall.user.model.UmsAdminExample;
 import com.mall.user.model.UmsAdminLoginLog;
 import com.mall.user.model.UmsAdminRoleRelation;
-import com.mall.user.model.UmsAdminRoleRelationExample;
 import com.mall.user.model.UmsResource;
 import com.mall.user.model.UmsRole;
 import com.mall.user.service.IAdminService;
@@ -28,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -46,24 +46,14 @@ public class AdminServiceImpl implements IAdminService {
 
     /** 管理员Mapper */
     private final UmsAdminMapper adminMapper;
-    /** 管理员角色关系自定义Mapper */
-    private final UmsAdminRoleRelationMapperCustom adminRoleRelationMapper;
+    /** 管理员角色关系Mapper */
+    private final UmsAdminRoleRelationMapper adminRoleRelationMapper;
     /** 登录日志Mapper */
     private final UmsAdminLoginLogMapper loginLogMapper;
     /** 管理员缓存服务 */
     private final UmsAdminCacheService adminCacheService;
 
-    /** 根据用户名查询管理员 */
-    @Override
-    public UmsAdmin getAdminByUsername(String username) {
-        UmsAdminExample example = new UmsAdminExample();
-        example.createCriteria().andUsernameEqualTo(username);
-        List<UmsAdmin> adminList = adminMapper.selectByExample(example);
-        if (adminList != null && !adminList.isEmpty()) {
-            return adminList.get(0);
-        }
-        return null;
-    }
+
 
     @Override
     public UmsAdmin register(AdminSaveDTO dto) {
@@ -72,9 +62,9 @@ public class AdminServiceImpl implements IAdminService {
         umsAdmin.setCreateTime(new Date());
         umsAdmin.setStatus(1);
         // 检查用户名是否已存在
-        UmsAdminExample example = new UmsAdminExample();
-        example.createCriteria().andUsernameEqualTo(umsAdmin.getUsername());
-        List<UmsAdmin> umsAdminList = adminMapper.selectByExample(example);
+        UmsAdmin query = new UmsAdmin();
+        query.setUsername(umsAdmin.getUsername());
+        List<UmsAdmin> umsAdminList = adminMapper.selectByCondition(query);
         if (!umsAdminList.isEmpty()) {
             return null;
         }
@@ -90,7 +80,14 @@ public class AdminServiceImpl implements IAdminService {
         if (StrUtil.isEmpty(username) || StrUtil.isEmpty(password)) {
             Asserts.fail("用户名或密码不能为空！");
         }
-        UmsAdmin admin = getAdminByUsername(username);
+        UmsAdmin query = new UmsAdmin();
+        query.setUsername(username);
+        UmsAdmin admin = new UmsAdmin();
+        List<UmsAdmin> adminList = adminMapper.selectByCondition(query);
+        if (adminList != null && !adminList.isEmpty()) {
+            admin = adminList.get(0);
+        }
+
         if (admin == null) {
             Asserts.fail("找不到该用户！");
         }
@@ -141,13 +138,11 @@ public class AdminServiceImpl implements IAdminService {
     @Override
     public List<UmsAdmin> list(String keyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        UmsAdminExample example = new UmsAdminExample();
-        UmsAdminExample.Criteria criteria = example.createCriteria();
+        UmsAdmin query = new UmsAdmin();
         if (!StringUtils.isEmpty(keyword)) {
-            criteria.andUsernameLike("%" + keyword + "%");
-            example.or(example.createCriteria().andNickNameLike("%" + keyword + "%"));
+            query.setUsername("%" + keyword + "%");
         }
-        return adminMapper.selectByExample(example);
+        return adminMapper.selectByCondition(query);
     }
 
     @Override
@@ -175,13 +170,14 @@ public class AdminServiceImpl implements IAdminService {
         return count;
     }
 
+    @Transactional
     @Override
     public int updateRole(Long adminId, List<Long> roleIds) {
         int count = roleIds == null ? 0 : roleIds.size();
         // 删除旧关系
-        UmsAdminRoleRelationExample adminRoleRelationExample = new UmsAdminRoleRelationExample();
-        adminRoleRelationExample.createCriteria().andAdminIdEqualTo(adminId);
-        adminRoleRelationMapper.deleteByExample(adminRoleRelationExample);
+        UmsAdminRoleRelation relation = new UmsAdminRoleRelation();
+        relation.setAdminId(adminId);
+        adminRoleRelationMapper.deleteByCondition(relation);
         // 建立新关系
         if (!CollectionUtils.isEmpty(roleIds)) {
             List<UmsAdminRoleRelation> list = new ArrayList<>();
@@ -193,7 +189,29 @@ public class AdminServiceImpl implements IAdminService {
             }
             adminRoleRelationMapper.insertList(list);
         }
+        // 刷新该用户 Session 中的权限，使权限修改即时生效
+        refreshCachedPermission(adminId);
         return count;
+    }
+
+    /** 刷新该用户 Session 中缓存的权限列表 */
+    private void refreshCachedPermission(Long adminId) {
+        try {
+            SaSession session = StpUtil.getSessionByLoginId(adminId, false);
+            if (session != null) {
+                UserDto userDto = (UserDto) session.get(AuthConstant.STP_ADMIN_INFO);
+                if (userDto != null) {
+                    List<UmsResource> resourceList = getResourceList(adminId);
+                    List<String> permissionList = resourceList.stream()
+                            .map(item -> item.getId() + ":" + item.getName())
+                            .toList();
+                    userDto.setPermissionList(permissionList);
+                    session.set(AuthConstant.STP_ADMIN_INFO, userDto);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("刷新用户[{}]权限缓存失败", adminId, e);
+        }
     }
 
     @Override
@@ -213,9 +231,9 @@ public class AdminServiceImpl implements IAdminService {
                 || StrUtil.isEmpty(dto.getNewPassword())) {
             return -1;
         }
-        UmsAdminExample example = new UmsAdminExample();
-        example.createCriteria().andUsernameEqualTo(dto.getUsername());
-        List<UmsAdmin> adminList = adminMapper.selectByExample(example);
+        UmsAdmin query = new UmsAdmin();
+        query.setUsername(dto.getUsername());
+        List<UmsAdmin> adminList = adminMapper.selectByCondition(query);
         if (CollUtil.isEmpty(adminList)) {
             return -2;
         }

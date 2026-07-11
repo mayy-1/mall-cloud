@@ -16,9 +16,17 @@ import java.util.Map;
 @FeignClient(name = "member-service")
 public interface MemberClient {
 
+    /** 获取当前登录会员 */
+    @GetMapping("/member/current")
+    CommonResult<MemberDTO> getCurrentMember();
+
     /** 根据ID查询会员信息 */
     @GetMapping("/member/{id}")
     CommonResult<MemberDTO> getById(@PathVariable Long id);
+
+    /** 更新会员积分 */
+    @PostMapping("/member/updateIntegration")
+    void updateIntegration(@RequestParam Long id, @RequestParam Integer integration);
 
     /** 前台会员登录，返回 token */
     @PostMapping("/sso/login")

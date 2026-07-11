@@ -2,7 +2,6 @@ package com.mall.user.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.user.mapper.UmsRoleMapper;
-import com.mall.user.mapper.UmsRoleMapperCustom;
 import com.mall.user.mapper.UmsRoleMenuRelationMapper;
 import com.mall.user.mapper.UmsRoleResourceRelationMapper;
 import com.mall.user.model.*;
@@ -22,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements IRoleService {
     /** 角色Mapper */
-    private final UmsRoleMapperCustom roleMapper;
+    private final UmsRoleMapper roleMapper;
     /** 角色菜单关系Mapper */
     private final UmsRoleMenuRelationMapper roleMenuRelationMapper;
     /** 角色资源关系Mapper */
@@ -46,26 +45,28 @@ public class RoleServiceImpl implements IRoleService {
 
     @Override
     public int delete(List<Long> ids) {
-        UmsRoleExample example = new UmsRoleExample();
-        example.createCriteria().andIdIn(ids);
-        int count = roleMapper.deleteByExample(example);
+        // TODO: 批量删除角色需要实现 deleteByIds
+        int count = 0;
+        for (Long id : ids) {
+            count += roleMapper.deleteByPrimaryKey(id);
+        }
         resourceService.initPathResourceMap();
         return count;
     }
 
     @Override
     public List<UmsRole> list() {
-        return roleMapper.selectByExample(new UmsRoleExample());
+        return roleMapper.selectByCondition(null);
     }
 
     @Override
     public List<UmsRole> list(String keyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        UmsRoleExample example = new UmsRoleExample();
+        UmsRole query = new UmsRole();
         if (!StringUtils.isEmpty(keyword)) {
-            example.createCriteria().andNameLike("%" + keyword + "%");
+            query.setName("%" + keyword + "%");
         }
-        return roleMapper.selectByExample(example);
+        return roleMapper.selectByCondition(query);
     }
 
     @Override
@@ -86,15 +87,15 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public int allocMenu(Long roleId, List<Long> menuIds) {
         //先删除原有关系
-        UmsRoleMenuRelationExample example = new UmsRoleMenuRelationExample();
-        example.createCriteria().andRoleIdEqualTo(roleId);
-        roleMenuRelationMapper.deleteByExample(example);
+        UmsRoleMenuRelation relation = new UmsRoleMenuRelation();
+        relation.setRoleId(roleId);
+        roleMenuRelationMapper.deleteByCondition(relation);
         //批量插入新关系
         for (Long menuId : menuIds) {
-            UmsRoleMenuRelation relation = new UmsRoleMenuRelation();
-            relation.setRoleId(roleId);
-            relation.setMenuId(menuId);
-            roleMenuRelationMapper.insert(relation);
+            UmsRoleMenuRelation relationNew = new UmsRoleMenuRelation();
+            relationNew.setRoleId(roleId);
+            relationNew.setMenuId(menuId);
+            roleMenuRelationMapper.insert(relationNew);
         }
         return menuIds.size();
     }
@@ -102,15 +103,15 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public int allocResource(Long roleId, List<Long> resourceIds) {
         //先删除原有关系
-        UmsRoleResourceRelationExample example = new UmsRoleResourceRelationExample();
-        example.createCriteria().andRoleIdEqualTo(roleId);
-        roleResourceRelationMapper.deleteByExample(example);
+        UmsRoleResourceRelation relation = new UmsRoleResourceRelation();
+        relation.setRoleId(roleId);
+        roleResourceRelationMapper.deleteByCondition(relation);
         //批量插入新关系
         for (Long resourceId : resourceIds) {
-            UmsRoleResourceRelation relation = new UmsRoleResourceRelation();
-            relation.setRoleId(roleId);
-            relation.setResourceId(resourceId);
-            roleResourceRelationMapper.insert(relation);
+            UmsRoleResourceRelation relationNew = new UmsRoleResourceRelation();
+            relationNew.setRoleId(roleId);
+            relationNew.setResourceId(resourceId);
+            roleResourceRelationMapper.insert(relationNew);
         }
         resourceService.initPathResourceMap();
         return resourceIds.size();

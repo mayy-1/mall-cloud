@@ -1,7 +1,6 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsMenu;
-import com.mall.user.model.UmsMenuExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,9 +8,6 @@ import org.apache.ibatis.annotations.Param;
  * 后台菜单Mapper
  */
 public interface UmsMenuMapper {
-    long countByExample(UmsMenuExample example);
-
-    int deleteByExample(UmsMenuExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -19,13 +15,11 @@ public interface UmsMenuMapper {
 
     int insertSelective(UmsMenu row);
 
-    List<UmsMenu> selectByExample(UmsMenuExample example);
-
     UmsMenu selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsMenu row, @Param("example") UmsMenuExample example);
+    List<UmsMenu> selectByCondition(UmsMenu record);
 
-    int updateByExample(@Param("row") UmsMenu row, @Param("example") UmsMenuExample example);
+    int deleteByCondition(UmsMenu record);
 
     int updateByPrimaryKeySelective(UmsMenu row);
 

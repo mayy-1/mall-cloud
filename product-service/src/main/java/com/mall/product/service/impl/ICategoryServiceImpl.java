@@ -3,8 +3,7 @@ package com.mall.product.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.mall.product.domain.dto.PmsProductCategoryParam;
 import com.mall.product.domain.dto.PmsProductCategoryWithChildrenItem;
-import com.mall.product.mapper.PmsProductCategoryAttributeRelationMapperCustom;
-import com.mall.product.mapper.PmsProductCategoryMapperCustom;
+import com.mall.product.mapper.PmsProductCategoryMapper;
 import com.mall.product.mapper.PmsProductMapper;
 import com.mall.product.model.*;
 import com.mall.product.service.ICategoryService;
@@ -28,10 +27,10 @@ public class ICategoryServiceImpl implements ICategoryService {
     private final PmsProductMapper productMapper;
 
     /** 分类属性关联Mapper（含批量插入） */
-    private final PmsProductCategoryAttributeRelationMapperCustom productCategoryAttributeRelationMapper;
+    private final PmsProductCategoryAttributeRelationMapper productCategoryAttributeRelationMapper;
 
     /** 商品分类Mapper（含listWithChildren） */
-    private final PmsProductCategoryMapperCustom productCategoryMapper;
+    private final PmsProductCategoryMapper productCategoryMapper;
 
     @Override
     public int create(PmsProductCategoryParam pmsProductCategoryParam) {
@@ -74,19 +73,19 @@ public class ICategoryServiceImpl implements ICategoryService {
         //更新商品分类时要更新商品中的名称
         PmsProduct product = new PmsProduct();
         product.setProductCategoryName(productCategory.getName());
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andProductCategoryIdEqualTo(id);
-        productMapper.updateByExampleSelective(product, example);
+        PmsProduct condition = new PmsProduct();
+        condition.setProductCategoryId(id);
+        productMapper.updateSelectiveByCondition(product, condition);
         //同时更新筛选属性的信息
         if (!CollectionUtils.isEmpty(pmsProductCategoryParam.getProductAttributeIdList())) {
-            PmsProductCategoryAttributeRelationExample relationExample = new PmsProductCategoryAttributeRelationExample();
-            relationExample.createCriteria().andProductCategoryIdEqualTo(id);
-            productCategoryAttributeRelationMapper.deleteByExample(relationExample);
+            PmsProductCategoryAttributeRelation relationCondition = new PmsProductCategoryAttributeRelation();
+            relationCondition.setProductCategoryId(id);
+            productCategoryAttributeRelationMapper.deleteByCondition(relationCondition);
             insertRelationList(id, pmsProductCategoryParam.getProductAttributeIdList());
         } else {
-            PmsProductCategoryAttributeRelationExample relationExample = new PmsProductCategoryAttributeRelationExample();
-            relationExample.createCriteria().andProductCategoryIdEqualTo(id);
-            productCategoryAttributeRelationMapper.deleteByExample(relationExample);
+            PmsProductCategoryAttributeRelation relationCondition = new PmsProductCategoryAttributeRelation();
+            relationCondition.setProductCategoryId(id);
+            productCategoryAttributeRelationMapper.deleteByCondition(relationCondition);
         }
         return productCategoryMapper.updateByPrimaryKeySelective(productCategory);
     }
@@ -94,10 +93,10 @@ public class ICategoryServiceImpl implements ICategoryService {
     @Override
     public List<PmsProductCategory> getList(Long parentId, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        PmsProductCategoryExample example = new PmsProductCategoryExample();
-        example.setOrderByClause("sort desc");
-        example.createCriteria().andParentIdEqualTo(parentId);
-        return productCategoryMapper.selectByExample(example);
+        PageHelper.orderBy("sort desc");
+        PmsProductCategory condition = new PmsProductCategory();
+        condition.setParentId(parentId);
+        return productCategoryMapper.selectByCondition(condition);
     }
 
     @Override
@@ -112,20 +111,26 @@ public class ICategoryServiceImpl implements ICategoryService {
 
     @Override
     public int updateNavStatus(List<Long> ids, Integer navStatus) {
-        PmsProductCategory productCategory = new PmsProductCategory();
-        productCategory.setNavStatus(navStatus);
-        PmsProductCategoryExample example = new PmsProductCategoryExample();
-        example.createCriteria().andIdIn(ids);
-        return productCategoryMapper.updateByExampleSelective(productCategory, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProductCategory category = new PmsProductCategory();
+            category.setId(id);
+            category.setNavStatus(navStatus);
+            count += productCategoryMapper.updateByPrimaryKeySelective(category);
+        }
+        return count;
     }
 
     @Override
     public int updateShowStatus(List<Long> ids, Integer showStatus) {
-        PmsProductCategory productCategory = new PmsProductCategory();
-        productCategory.setShowStatus(showStatus);
-        PmsProductCategoryExample example = new PmsProductCategoryExample();
-        example.createCriteria().andIdIn(ids);
-        return productCategoryMapper.updateByExampleSelective(productCategory, example);
+        int count = 0;
+        for (Long id : ids) {
+            PmsProductCategory category = new PmsProductCategory();
+            category.setId(id);
+            category.setShowStatus(showStatus);
+            count += productCategoryMapper.updateByPrimaryKeySelective(category);
+        }
+        return count;
     }
 
     @Override

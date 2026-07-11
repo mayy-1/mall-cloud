@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 首页内容 Feign 接口
  */
-@FeignClient(name = "marketing-service", path = "/home")
+@FeignClient(name = "marketing-service", path = "/home", contextId = "marketing-home")
 public interface HomeClient {
 
     /** 获取首页广告列表 */

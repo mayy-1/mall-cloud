@@ -1,7 +1,6 @@
 package com.mall.order.mapper;
 
 import com.mall.order.model.OmsOrderReturnReason;
-import com.mall.order.model.OmsOrderReturnReasonExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供退货原因的增删改查操作
  */
 public interface OmsOrderReturnReasonMapper {
-    long countByExample(OmsOrderReturnReasonExample example);
-
-    int deleteByExample(OmsOrderReturnReasonExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(OmsOrderReturnReason row);
 
     int insertSelective(OmsOrderReturnReason row);
-
-    List<OmsOrderReturnReason> selectByExample(OmsOrderReturnReasonExample example);
-
     OmsOrderReturnReason selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") OmsOrderReturnReason row, @Param("example") OmsOrderReturnReasonExample example);
+    List<OmsOrderReturnReason> selectByCondition(OmsOrderReturnReason record);
 
-    int updateByExample(@Param("row") OmsOrderReturnReason row, @Param("example") OmsOrderReturnReasonExample example);
+    int deleteByCondition(OmsOrderReturnReason record);
+
+    int updateSelectiveByCondition(@Param("record") OmsOrderReturnReason record, @Param("condition") OmsOrderReturnReason condition);
 
     int updateByPrimaryKeySelective(OmsOrderReturnReason row);
 

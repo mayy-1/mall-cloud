@@ -8,11 +8,7 @@ import com.mym.mall.common.dto.UserDto;
 import com.mym.mall.common.exception.Asserts;
 import com.mall.member.mapper.UmsMemberLevelMapper;
 import com.mall.member.mapper.UmsMemberMapper;
-import com.mall.member.model.UmsMember;
-import com.mall.member.model.UmsMemberExample;
-import com.mall.member.model.UmsMemberLevel;
-import com.mall.member.model.UmsMemberLevelExample;
-import com.mall.member.service.IMemberCacheService;
+import com.mall.member.model.UmsMember;import com.mall.member.model.UmsMemberLevel;import com.mall.member.service.IMemberCacheService;
 import com.mall.member.service.IMemberService;
 import com.mall.member.util.StpMemberUtil;
 import lombok.RequiredArgsConstructor;
@@ -50,9 +46,9 @@ public class MemberServiceImpl implements IMemberService {
 
     @Override
     public UmsMember getByUsername(String username) {
-        UmsMemberExample example = new UmsMemberExample();
-        example.createCriteria().andUsernameEqualTo(username);
-        List<UmsMember> memberList = memberMapper.selectByExample(example);
+        UmsMember example = new UmsMember();
+        example.setUsername(username);
+        List<UmsMember> memberList = memberMapper.selectByCondition(example);
         if (!CollectionUtils.isEmpty(memberList)) {
             return memberList.get(0);
         }
@@ -71,10 +67,10 @@ public class MemberServiceImpl implements IMemberService {
             Asserts.fail("验证码错误");
         }
         //查询是否已有该用户
-        UmsMemberExample example = new UmsMemberExample();
-        example.createCriteria().andUsernameEqualTo(username);
-        example.or(example.createCriteria().andPhoneEqualTo(telephone));
-        List<UmsMember> umsMembers = memberMapper.selectByExample(example);
+        UmsMember example = new UmsMember();
+        example.setUsername(username);
+        example.setPhone(telephone);
+        List<UmsMember> umsMembers = memberMapper.selectByCondition(example);
         if (!CollectionUtils.isEmpty(umsMembers)) {
             Asserts.fail("该用户已经存在");
         }
@@ -86,9 +82,9 @@ public class MemberServiceImpl implements IMemberService {
         umsMember.setCreateTime(new Date());
         umsMember.setStatus(1);
         //获取默认会员等级并设置
-        UmsMemberLevelExample levelExample = new UmsMemberLevelExample();
-        levelExample.createCriteria().andDefaultStatusEqualTo(1);
-        List<UmsMemberLevel> memberLevelList = memberLevelMapper.selectByExample(levelExample);
+        UmsMemberLevel levelExample = new UmsMemberLevel();
+        levelExample.setDefaultStatus(1);
+        List<UmsMemberLevel> memberLevelList = memberLevelMapper.selectByCondition(levelExample);
         if (!CollectionUtils.isEmpty(memberLevelList)) {
             umsMember.setMemberLevelId(memberLevelList.get(0).getId());
         }
@@ -97,21 +93,20 @@ public class MemberServiceImpl implements IMemberService {
     }
 
     @Override
-    public String generateAuthCode(String telephone) {
+    public void generateAuthCode(String telephone) {
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
         for(int i=0;i<6;i++){
             sb.append(random.nextInt(10));
         }
         memberCacheService.setAuthCode(telephone,sb.toString());
-        return sb.toString();
     }
 
     @Override
     public void updatePassword(String telephone, String password, String authCode) {
-        UmsMemberExample example = new UmsMemberExample();
-        example.createCriteria().andPhoneEqualTo(telephone);
-        List<UmsMember> memberList = memberMapper.selectByExample(example);
+        UmsMember example = new UmsMember();
+        example.setPhone(telephone);
+        List<UmsMember> memberList = memberMapper.selectByCondition(example);
         if(CollectionUtils.isEmpty(memberList)){
             Asserts.fail("该账号不存在");
         }

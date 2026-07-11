@@ -8,81 +8,9 @@
     <result column="intergration" jdbcType="INTEGER" property="intergration" />
     <result column="type" jdbcType="INTEGER" property="type" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, name, growth, intergration, type
   </sql>
-  <select id="selectByExample" parameterType="com.mall.member.model.UmsMemberTaskExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from ums_member_task
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -92,12 +20,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from ums_member_task
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.member.model.UmsMemberTaskExample">
-    delete from ums_member_task
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.member.model.UmsMemberTask">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -142,46 +64,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.member.model.UmsMemberTaskExample" resultType="java.lang.Long">
-    select count(*) from ums_member_task
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update ums_member_task
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.name != null">
-        name = #{row.name,jdbcType=VARCHAR},
-      </if>
-      <if test="row.growth != null">
-        growth = #{row.growth,jdbcType=INTEGER},
-      </if>
-      <if test="row.intergration != null">
-        intergration = #{row.intergration,jdbcType=INTEGER},
-      </if>
-      <if test="row.type != null">
-        type = #{row.type,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update ums_member_task
-    set id = #{row.id,jdbcType=BIGINT},
-      name = #{row.name,jdbcType=VARCHAR},
-      growth = #{row.growth,jdbcType=INTEGER},
-      intergration = #{row.intergration,jdbcType=INTEGER},
-      type = #{row.type,jdbcType=INTEGER}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.member.model.UmsMemberTask">
     update ums_member_task
     <set>
@@ -208,4 +90,44 @@
       type = #{type,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.member.model.UmsMemberTask">
+    SELECT <include refid="Base_Column_List"/> FROM ums_member_task
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="growth != null">AND growth = #{growth}</if>
+      <if test="intergration != null">AND intergration = #{intergration}</if>
+      <if test="type != null">AND type = #{type}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.member.model.UmsMemberTask">
+    DELETE FROM ums_member_task
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="growth != null">AND growth = #{growth}</if>
+      <if test="intergration != null">AND intergration = #{intergration}</if>
+      <if test="type != null">AND type = #{type}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update ums_member_task
+    <set>
+      <if test="record.name != null">name = #{record.name},</if>
+      <if test="record.growth != null">growth = #{record.growth},</if>
+      <if test="record.intergration != null">intergration = #{record.intergration},</if>
+      <if test="record.type != null">type = #{record.type},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.name != null">AND name = #{condition.name}</if>
+      <if test="condition.growth != null">AND growth = #{condition.growth}</if>
+      <if test="condition.intergration != null">AND intergration = #{condition.intergration}</if>
+      <if test="condition.type != null">AND type = #{condition.type}</if>
+    </where>
+  </update>
+
 </mapper>

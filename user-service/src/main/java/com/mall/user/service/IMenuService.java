@@ -11,24 +11,9 @@ import java.util.List;
  */
 public interface IMenuService {
     /**
-     * 创建后台菜单
-     */
-    int create(UmsMenu umsMenu);
-
-    /**
-     * 修改后台菜单
-     */
-    int update(Long id, UmsMenu umsMenu);
-
-    /**
      * 根据ID获取菜单详情
      */
     UmsMenu getItem(Long id);
-
-    /**
-     * 根据ID删除菜单
-     */
-    int delete(Long id);
 
     /**
      * 分页查询后台菜单

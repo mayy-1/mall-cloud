@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsFlashPromotionSession;
-import com.mall.marketing.model.SmsFlashPromotionSessionExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供限时购场次的增删改查操作
  */
 public interface SmsFlashPromotionSessionMapper {
-    long countByExample(SmsFlashPromotionSessionExample example);
-
-    int deleteByExample(SmsFlashPromotionSessionExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(SmsFlashPromotionSession row);
 
     int insertSelective(SmsFlashPromotionSession row);
-
-    List<SmsFlashPromotionSession> selectByExample(SmsFlashPromotionSessionExample example);
-
     SmsFlashPromotionSession selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") SmsFlashPromotionSession row, @Param("example") SmsFlashPromotionSessionExample example);
+    List<SmsFlashPromotionSession> selectByCondition(SmsFlashPromotionSession record);
 
-    int updateByExample(@Param("row") SmsFlashPromotionSession row, @Param("example") SmsFlashPromotionSessionExample example);
+    int deleteByCondition(SmsFlashPromotionSession record);
+
+    int updateSelectiveByCondition(@Param("record") SmsFlashPromotionSession record, @Param("condition") SmsFlashPromotionSession condition);
 
     int updateByPrimaryKeySelective(SmsFlashPromotionSession row);
 

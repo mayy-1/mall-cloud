@@ -11,81 +11,9 @@
     <result column="continme_fee" jdbcType="DECIMAL" property="continmeFee" />
     <result column="dest" jdbcType="VARCHAR" property="dest" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, name, charge_type, first_weight, first_fee, continue_weight, continme_fee, dest
   </sql>
-  <select id="selectByExample" parameterType="com.mall.product.model.PmsFeightTemplateExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from pms_feight_template
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -95,12 +23,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from pms_feight_template
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.product.model.PmsFeightTemplateExample">
-    delete from pms_feight_template
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.product.model.PmsFeightTemplate">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -165,58 +87,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.product.model.PmsFeightTemplateExample" resultType="java.lang.Long">
-    select count(*) from pms_feight_template
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update pms_feight_template
-    <set>
-      <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
-      </if>
-      <if test="row.name != null">
-        name = #{row.name,jdbcType=VARCHAR},
-      </if>
-      <if test="row.chargeType != null">
-        charge_type = #{row.chargeType,jdbcType=INTEGER},
-      </if>
-      <if test="row.firstWeight != null">
-        first_weight = #{row.firstWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="row.firstFee != null">
-        first_fee = #{row.firstFee,jdbcType=DECIMAL},
-      </if>
-      <if test="row.continueWeight != null">
-        continue_weight = #{row.continueWeight,jdbcType=DECIMAL},
-      </if>
-      <if test="row.continmeFee != null">
-        continme_fee = #{row.continmeFee,jdbcType=DECIMAL},
-      </if>
-      <if test="row.dest != null">
-        dest = #{row.dest,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update pms_feight_template
-    set id = #{row.id,jdbcType=BIGINT},
-      name = #{row.name,jdbcType=VARCHAR},
-      charge_type = #{row.chargeType,jdbcType=INTEGER},
-      first_weight = #{row.firstWeight,jdbcType=DECIMAL},
-      first_fee = #{row.firstFee,jdbcType=DECIMAL},
-      continue_weight = #{row.continueWeight,jdbcType=DECIMAL},
-      continme_fee = #{row.continmeFee,jdbcType=DECIMAL},
-      dest = #{row.dest,jdbcType=VARCHAR}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.product.model.PmsFeightTemplate">
     update pms_feight_template
     <set>
@@ -255,4 +125,56 @@
       dest = #{dest,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.product.model.PmsFeightTemplate">
+    SELECT <include refid="Base_Column_List"/> FROM pms_feight_template
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="chargeType != null">AND charge_type = #{chargeType}</if>
+      <if test="firstWeight != null">AND first_weight = #{firstWeight}</if>
+      <if test="firstFee != null">AND first_fee = #{firstFee}</if>
+      <if test="continueWeight != null">AND continue_weight = #{continueWeight}</if>
+      <if test="continmeFee != null">AND continme_fee = #{continmeFee}</if>
+      <if test="dest != null">AND dest = #{dest}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.product.model.PmsFeightTemplate">
+    DELETE FROM pms_feight_template
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="name != null">AND name = #{name}</if>
+      <if test="chargeType != null">AND charge_type = #{chargeType}</if>
+      <if test="firstWeight != null">AND first_weight = #{firstWeight}</if>
+      <if test="firstFee != null">AND first_fee = #{firstFee}</if>
+      <if test="continueWeight != null">AND continue_weight = #{continueWeight}</if>
+      <if test="continmeFee != null">AND continme_fee = #{continmeFee}</if>
+      <if test="dest != null">AND dest = #{dest}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update pms_feight_template
+    <set>
+      <if test="record.name != null">name = #{record.name},</if>
+      <if test="record.chargeType != null">charge_type = #{record.chargeType},</if>
+      <if test="record.firstWeight != null">first_weight = #{record.firstWeight},</if>
+      <if test="record.firstFee != null">first_fee = #{record.firstFee},</if>
+      <if test="record.continueWeight != null">continue_weight = #{record.continueWeight},</if>
+      <if test="record.continmeFee != null">continme_fee = #{record.continmeFee},</if>
+      <if test="record.dest != null">dest = #{record.dest},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.name != null">AND name = #{condition.name}</if>
+      <if test="condition.chargeType != null">AND charge_type = #{condition.chargeType}</if>
+      <if test="condition.firstWeight != null">AND first_weight = #{condition.firstWeight}</if>
+      <if test="condition.firstFee != null">AND first_fee = #{condition.firstFee}</if>
+      <if test="condition.continueWeight != null">AND continue_weight = #{condition.continueWeight}</if>
+      <if test="condition.continmeFee != null">AND continme_fee = #{condition.continmeFee}</if>
+      <if test="condition.dest != null">AND dest = #{condition.dest}</if>
+    </where>
+  </update>
+
 </mapper>

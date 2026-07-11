@@ -11,81 +11,9 @@
     <result column="flash_promotion_limit" jdbcType="INTEGER" property="flashPromotionLimit" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, flash_promotion_id, flash_promotion_session_id, product_id, flash_promotion_price, flash_promotion_count, flash_promotion_limit, sort
   </sql>
-  <select id="selectByExample" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelationExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from sms_flash_promotion_product_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -95,12 +23,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sms_flash_promotion_product_relation
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelationExample">
-    delete from sms_flash_promotion_product_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelation">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -161,54 +83,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelationExample" resultType="java.lang.Long">
-    select count(*) from sms_flash_promotion_product_relation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update sms_flash_promotion_product_relation
-    <set>
-      <if test="row.flashPromotionId != null">
-        flash_promotion_id = #{row.flashPromotionId,jdbcType=BIGINT},
-      </if>
-      <if test="row.flashPromotionSessionId != null">
-        flash_promotion_session_id = #{row.flashPromotionSessionId,jdbcType=BIGINT},
-      </if>
-      <if test="row.productId != null">
-        product_id = #{row.productId,jdbcType=BIGINT},
-      </if>
-      <if test="row.flashPromotionPrice != null">
-        flash_promotion_price = #{row.flashPromotionPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="row.flashPromotionCount != null">
-        flash_promotion_count = #{row.flashPromotionCount,jdbcType=INTEGER},
-      </if>
-      <if test="row.flashPromotionLimit != null">
-        flash_promotion_limit = #{row.flashPromotionLimit,jdbcType=INTEGER},
-      </if>
-      <if test="row.sort != null">
-        sort = #{row.sort,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update sms_flash_promotion_product_relation
-    set flash_promotion_id = #{row.flashPromotionId,jdbcType=BIGINT},
-      flash_promotion_session_id = #{row.flashPromotionSessionId,jdbcType=BIGINT},
-      product_id = #{row.productId,jdbcType=BIGINT},
-      flash_promotion_price = #{row.flashPromotionPrice,jdbcType=DECIMAL},
-      flash_promotion_count = #{row.flashPromotionCount,jdbcType=INTEGER},
-      flash_promotion_limit = #{row.flashPromotionLimit,jdbcType=INTEGER},
-      sort = #{row.sort,jdbcType=INTEGER}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelation">
     update sms_flash_promotion_product_relation
     <set>
@@ -247,4 +121,83 @@
       sort = #{sort,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+<resultMap id="flashProductMap" type="com.mall.marketing.domain.dto.SmsFlashPromotionProduct" extends="com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper.BaseResultMap">
+        <association property="product" resultMap="com.mall.marketing.mapper.PmsProductMapper.BaseResultMap" columnPrefix="p_"/>
+    </resultMap>
+    <select id="getList" resultMap="flashProductMap">
+        SELECT
+            r.id,
+            r.flash_promotion_price,
+            r.flash_promotion_count,
+            r.flash_promotion_limit,
+            r.flash_promotion_id,
+            r.flash_promotion_session_id,
+            r.product_id,
+            r.sort,
+            p.id p_id,
+            p.`name` p_name,
+            p.product_sn p_product_sn,
+            p.price p_price,
+            p.stock p_stock
+        FROM
+            sms_flash_promotion_product_relation r
+            LEFT JOIN pms_product p ON r.product_id = p.id
+        WHERE
+            r.flash_promotion_id = #{flashPromotionId}
+            AND r.flash_promotion_session_id = #{flashPromotionSessionId}
+        ORDER BY r.sort DESC
+    </select>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelation">
+    SELECT <include refid="Base_Column_List"/> FROM sms_flash_promotion_product_relation
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="flashPromotionId != null">AND flash_promotion_id = #{flashPromotionId}</if>
+      <if test="flashPromotionSessionId != null">AND flash_promotion_session_id = #{flashPromotionSessionId}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="flashPromotionPrice != null">AND flash_promotion_price = #{flashPromotionPrice}</if>
+      <if test="flashPromotionCount != null">AND flash_promotion_count = #{flashPromotionCount}</if>
+      <if test="flashPromotionLimit != null">AND flash_promotion_limit = #{flashPromotionLimit}</if>
+      <if test="sort != null">AND sort = #{sort}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelation">
+    DELETE FROM sms_flash_promotion_product_relation
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="flashPromotionId != null">AND flash_promotion_id = #{flashPromotionId}</if>
+      <if test="flashPromotionSessionId != null">AND flash_promotion_session_id = #{flashPromotionSessionId}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="flashPromotionPrice != null">AND flash_promotion_price = #{flashPromotionPrice}</if>
+      <if test="flashPromotionCount != null">AND flash_promotion_count = #{flashPromotionCount}</if>
+      <if test="flashPromotionLimit != null">AND flash_promotion_limit = #{flashPromotionLimit}</if>
+      <if test="sort != null">AND sort = #{sort}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update sms_flash_promotion_product_relation
+    <set>
+      <if test="record.flashPromotionId != null">flash_promotion_id = #{record.flashPromotionId},</if>
+      <if test="record.flashPromotionSessionId != null">flash_promotion_session_id = #{record.flashPromotionSessionId},</if>
+      <if test="record.productId != null">product_id = #{record.productId},</if>
+      <if test="record.flashPromotionPrice != null">flash_promotion_price = #{record.flashPromotionPrice},</if>
+      <if test="record.flashPromotionCount != null">flash_promotion_count = #{record.flashPromotionCount},</if>
+      <if test="record.flashPromotionLimit != null">flash_promotion_limit = #{record.flashPromotionLimit},</if>
+      <if test="record.sort != null">sort = #{record.sort},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.flashPromotionId != null">AND flash_promotion_id = #{condition.flashPromotionId}</if>
+      <if test="condition.flashPromotionSessionId != null">AND flash_promotion_session_id = #{condition.flashPromotionSessionId}</if>
+      <if test="condition.productId != null">AND product_id = #{condition.productId}</if>
+      <if test="condition.flashPromotionPrice != null">AND flash_promotion_price = #{condition.flashPromotionPrice}</if>
+      <if test="condition.flashPromotionCount != null">AND flash_promotion_count = #{condition.flashPromotionCount}</if>
+      <if test="condition.flashPromotionLimit != null">AND flash_promotion_limit = #{condition.flashPromotionLimit}</if>
+      <if test="condition.sort != null">AND sort = #{condition.sort}</if>
+    </where>
+  </update>
+
 </mapper>

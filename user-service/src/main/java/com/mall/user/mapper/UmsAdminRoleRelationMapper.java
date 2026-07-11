@@ -1,7 +1,8 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsAdminRoleRelation;
-import com.mall.user.model.UmsAdminRoleRelationExample;
+import com.mall.user.model.UmsResource;
+import com.mall.user.model.UmsRole;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,25 +13,27 @@ import org.springframework.context.annotation.Primary;
  */
 @Primary
 public interface UmsAdminRoleRelationMapper {
-    long countByExample(UmsAdminRoleRelationExample example);
-
-    int deleteByExample(UmsAdminRoleRelationExample example);
-
     int deleteByPrimaryKey(Long id);
 
     int insert(UmsAdminRoleRelation row);
 
     int insertSelective(UmsAdminRoleRelation row);
 
-    List<UmsAdminRoleRelation> selectByExample(UmsAdminRoleRelationExample example);
-
     UmsAdminRoleRelation selectByPrimaryKey(Long id);
-
-    int updateByExampleSelective(@Param("row") UmsAdminRoleRelation row, @Param("example") UmsAdminRoleRelationExample example);
-
-    int updateByExample(@Param("row") UmsAdminRoleRelation row, @Param("example") UmsAdminRoleRelationExample example);
 
     int updateByPrimaryKeySelective(UmsAdminRoleRelation row);
 
     int updateByPrimaryKey(UmsAdminRoleRelation row);
+
+    List<UmsAdminRoleRelation> selectByCondition(UmsAdminRoleRelation record);
+
+    int deleteByCondition(UmsAdminRoleRelation record);
+
+    int insertList(@Param("list") List<UmsAdminRoleRelation> adminRoleRelationList);
+
+    List<UmsRole> getRoleList(@Param("adminId") Long adminId);
+
+    List<UmsResource> getResourceList(@Param("adminId") Long adminId);
+
+    List<Long> getAdminIdList(@Param("resourceId") Long resourceId);
 }

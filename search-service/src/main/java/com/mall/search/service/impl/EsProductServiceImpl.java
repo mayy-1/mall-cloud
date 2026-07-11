@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import com.mall.search.mapper.EsProductMapperCustom;
+import com.mall.search.mapper.EsProductMapper;
 import com.mall.search.domain.EsProduct;
 import com.mall.search.domain.EsProductRelatedInfo;
 import com.mall.search.repository.EsProductRepository;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class EsProductServiceImpl implements IEsProductService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EsProductServiceImpl.class);
     /** 商品搜索自定义Mapper */
-    private final EsProductMapperCustom productMapper;
+    private final EsProductMapper productMapper;
     /** ES商品Repository */
     private final EsProductRepository productRepository;
     /** ES操作模板 */

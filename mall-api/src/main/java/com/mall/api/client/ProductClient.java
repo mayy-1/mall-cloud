@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 商品服务 Feign 接口
  */
-@FeignClient(name = "product-service", path = "/product")
+@FeignClient(name = "product-service", path = "/product", contextId = "product-product")
 public interface ProductClient {
 
     /** 根据ID查询商品 */

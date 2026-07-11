@@ -15,9 +15,6 @@ import java.util.List;
  */
 public interface IAdminService {
 
-    /** 根据用户名获取管理员 */
-    UmsAdmin getAdminByUsername(String username);
-
     /** 注册管理员 */
     UmsAdmin register(AdminSaveDTO dto);
 
@@ -37,7 +34,6 @@ public interface IAdminService {
     int delete(Long id);
 
     /** 给管理员分配角色 */
-    @Transactional
     int updateRole(Long adminId, List<Long> roleIds);
 
     /** 获取管理员的角色列表 */

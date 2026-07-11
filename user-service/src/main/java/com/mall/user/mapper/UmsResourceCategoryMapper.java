@@ -1,15 +1,11 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsResourceCategory;
-import com.mall.user.model.UmsResourceCategoryExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**资源分类Mapper */
 public interface UmsResourceCategoryMapper {
-    long countByExample(UmsResourceCategoryExample example);
-
-    int deleteByExample(UmsResourceCategoryExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -17,13 +13,11 @@ public interface UmsResourceCategoryMapper {
 
     int insertSelective(UmsResourceCategory row);
 
-    List<UmsResourceCategory> selectByExample(UmsResourceCategoryExample example);
-
     UmsResourceCategory selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsResourceCategory row, @Param("example") UmsResourceCategoryExample example);
+    List<UmsResourceCategory> selectByCondition(UmsResourceCategory record);
 
-    int updateByExample(@Param("row") UmsResourceCategory row, @Param("example") UmsResourceCategoryExample example);
+    int deleteByCondition(UmsResourceCategory record);
 
     int updateByPrimaryKeySelective(UmsResourceCategory row);
 

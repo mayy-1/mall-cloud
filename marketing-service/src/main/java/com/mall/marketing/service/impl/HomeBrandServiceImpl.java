@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsHomeBrandMapper;
-import com.mall.marketing.model.SmsHomeBrand;
-import com.mall.marketing.model.SmsHomeBrandExample;
-import com.mall.marketing.service.IHomeBrandService;
+import com.mall.marketing.model.SmsHomeBrand;import com.mall.marketing.service.IHomeBrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,32 +38,33 @@ public class HomeBrandServiceImpl implements IHomeBrandService {
 
     @Override
     public int delete(List<Long> ids) {
-        SmsHomeBrandExample example = new SmsHomeBrandExample();
-        example.createCriteria().andIdIn(ids);
-        return homeBrandMapper.deleteByExample(example);
+        for (Long id : ids) {
+            homeBrandMapper.deleteByPrimaryKey(id);
+        }
+        return ids.size();
     }
 
     @Override
     public int updateRecommendStatus(List<Long> ids, Integer recommendStatus) {
-        SmsHomeBrandExample example = new SmsHomeBrandExample();
-        example.createCriteria().andIdIn(ids);
-        SmsHomeBrand record = new SmsHomeBrand();
-        record.setRecommendStatus(recommendStatus);
-        return homeBrandMapper.updateByExampleSelective(record,example);
+        for (Long id : ids) {
+            SmsHomeBrand record = new SmsHomeBrand();
+            record.setId(id);
+            record.setRecommendStatus(recommendStatus);
+            homeBrandMapper.updateByPrimaryKeySelective(record);
+        }
+        return ids.size();
     }
 
     @Override
     public List<SmsHomeBrand> list(String brandName, Integer recommendStatus, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        SmsHomeBrandExample example = new SmsHomeBrandExample();
-        SmsHomeBrandExample.Criteria criteria = example.createCriteria();
+        SmsHomeBrand condition = new SmsHomeBrand();
         if(!StringUtils.isEmpty(brandName)){
-            criteria.andBrandNameLike("%"+brandName+"%");
+            condition.setBrandName("%"+brandName+"%");
         }
         if(recommendStatus!=null){
-            criteria.andRecommendStatusEqualTo(recommendStatus);
+            condition.setRecommendStatus(recommendStatus);
         }
-        example.setOrderByClause("sort desc");
-        return homeBrandMapper.selectByExample(example);
+        return homeBrandMapper.selectByCondition(condition);
     }
 }

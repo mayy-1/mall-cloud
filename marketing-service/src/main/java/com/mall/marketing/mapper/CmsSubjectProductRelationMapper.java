@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.CmsSubjectProductRelation;
-import com.mall.marketing.model.CmsSubjectProductRelationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,23 +12,19 @@ import org.springframework.context.annotation.Primary;
  */
 @Primary
 public interface CmsSubjectProductRelationMapper {
-    long countByExample(CmsSubjectProductRelationExample example);
-
-    int deleteByExample(CmsSubjectProductRelationExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(CmsSubjectProductRelation row);
 
     int insertSelective(CmsSubjectProductRelation row);
-
-    List<CmsSubjectProductRelation> selectByExample(CmsSubjectProductRelationExample example);
-
     CmsSubjectProductRelation selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") CmsSubjectProductRelation row, @Param("example") CmsSubjectProductRelationExample example);
+    List<CmsSubjectProductRelation> selectByCondition(CmsSubjectProductRelation record);
 
-    int updateByExample(@Param("row") CmsSubjectProductRelation row, @Param("example") CmsSubjectProductRelationExample example);
+    int deleteByCondition(CmsSubjectProductRelation record);
+
+    int updateSelectiveByCondition(@Param("record") CmsSubjectProductRelation record, @Param("condition") CmsSubjectProductRelation condition);
 
     int updateByPrimaryKeySelective(CmsSubjectProductRelation row);
 

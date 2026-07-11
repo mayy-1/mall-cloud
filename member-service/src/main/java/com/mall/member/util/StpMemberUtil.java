@@ -28,11 +28,8 @@ import cn.dev33.satoken.stp.StpLogic;
 import java.util.List;
 
 /**
- * @auther macrozheng
  * @description 前台商城用户登录认证工具类
  * 拷贝于默认的StpUtil，仅改动了TYPE和stpLogic对象
- * @date 2024/1/26
- * @github https://github.com/macrozheng
  */
 public class StpMemberUtil {
 

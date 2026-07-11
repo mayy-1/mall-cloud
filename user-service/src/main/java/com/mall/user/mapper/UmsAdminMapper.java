@@ -1,18 +1,15 @@
 package com.mall.user.mapper;
 
 import com.mall.user.model.UmsAdmin;
-import com.mall.user.model.UmsAdminExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 后台用户Mapper
  * 提供UmsAdmin的CRUD操作
  */
 public interface UmsAdminMapper {
-    long countByExample(UmsAdminExample example);
-
-    int deleteByExample(UmsAdminExample example);
 
     int deleteByPrimaryKey(Long id);
 
@@ -20,15 +17,14 @@ public interface UmsAdminMapper {
 
     int insertSelective(UmsAdmin row);
 
-    List<UmsAdmin> selectByExample(UmsAdminExample example);
-
     UmsAdmin selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") UmsAdmin row, @Param("example") UmsAdminExample example);
+    List<UmsAdmin> selectByCondition(UmsAdmin record);
 
-    int updateByExample(@Param("row") UmsAdmin row, @Param("example") UmsAdminExample example);
+    int deleteByCondition(UmsAdmin record);
 
     int updateByPrimaryKeySelective(UmsAdmin row);
 
     int updateByPrimaryKey(UmsAdmin row);
+
 }

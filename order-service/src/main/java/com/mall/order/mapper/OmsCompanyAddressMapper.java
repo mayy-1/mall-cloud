@@ -1,7 +1,6 @@
 package com.mall.order.mapper;
 
 import com.mall.order.model.OmsCompanyAddress;
-import com.mall.order.model.OmsCompanyAddressExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供收货地址的增删改查操作
  */
 public interface OmsCompanyAddressMapper {
-    long countByExample(OmsCompanyAddressExample example);
-
-    int deleteByExample(OmsCompanyAddressExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(OmsCompanyAddress row);
 
     int insertSelective(OmsCompanyAddress row);
-
-    List<OmsCompanyAddress> selectByExample(OmsCompanyAddressExample example);
-
     OmsCompanyAddress selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") OmsCompanyAddress row, @Param("example") OmsCompanyAddressExample example);
+    List<OmsCompanyAddress> selectByCondition(OmsCompanyAddress record);
 
-    int updateByExample(@Param("row") OmsCompanyAddress row, @Param("example") OmsCompanyAddressExample example);
+    int deleteByCondition(OmsCompanyAddress record);
+
+    int updateSelectiveByCondition(@Param("record") OmsCompanyAddress record, @Param("condition") OmsCompanyAddress condition);
 
     int updateByPrimaryKeySelective(OmsCompanyAddress row);
 

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * UmsAdminCacheService实现类
+ * 后台用户缓存 Service
  */
 @Service
 @RequiredArgsConstructor

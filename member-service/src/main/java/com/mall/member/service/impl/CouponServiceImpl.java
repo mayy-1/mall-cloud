@@ -30,7 +30,7 @@ public class CouponServiceImpl implements ICouponService {
     /** 优惠券Mapper */
     private final SmsCouponMapper couponMapper;
     /** 优惠券使用记录自定义Mapper */
-    private final SmsCouponHistoryMapperCustom couponHistoryMapper;
+    private final SmsCouponHistoryMapper couponHistoryMapper;
     /** 优惠券与商品关联Mapper */
     private final SmsCouponProductRelationMapper couponProductRelationMapper;
     /** 优惠券与分类关联Mapper */
@@ -54,9 +54,11 @@ public class CouponServiceImpl implements ICouponService {
             Asserts.fail("优惠券还没到领取时间");
         }
         //判断用户领取的优惠券数量是否超过限制
-        SmsCouponHistoryExample couponHistoryExample = new SmsCouponHistoryExample();
-        couponHistoryExample.createCriteria().andCouponIdEqualTo(couponId).andMemberIdEqualTo(currentMember.getId());
-        long count = couponHistoryMapper.countByExample(couponHistoryExample);
+        SmsCouponHistory condition = new SmsCouponHistory();
+        condition.setCouponId(couponId);
+        condition.setMemberId(currentMember.getId());
+        List<SmsCouponHistory> historyList = couponHistoryMapper.selectByCondition(condition);
+        long count = historyList.size();
         if(count>=coupon.getPerLimit()){
             Asserts.fail("您已经领取过该优惠券");
         }
@@ -101,13 +103,12 @@ public class CouponServiceImpl implements ICouponService {
     @Override
     public List<SmsCouponHistory> listHistory(Integer useStatus) {
         UmsMember currentMember = memberService.getCurrentMember();
-        SmsCouponHistoryExample couponHistoryExample=new SmsCouponHistoryExample();
-        SmsCouponHistoryExample.Criteria criteria = couponHistoryExample.createCriteria();
-        criteria.andMemberIdEqualTo(currentMember.getId());
+        SmsCouponHistory condition = new SmsCouponHistory();
+        condition.setMemberId(currentMember.getId());
         if(useStatus!=null){
-            criteria.andUseStatusEqualTo(useStatus);
+            condition.setUseStatus(useStatus);
         }
-        return couponHistoryMapper.selectByExample(couponHistoryExample);
+        return couponHistoryMapper.selectByCondition(condition);
     }
 
     @Override
@@ -172,18 +173,18 @@ public class CouponServiceImpl implements ICouponService {
     public List<SmsCoupon> listByProduct(Long productId) {
         List<Long> allCouponIds = new ArrayList<>();
         //获取指定商品优惠券
-        SmsCouponProductRelationExample cprExample = new SmsCouponProductRelationExample();
-        cprExample.createCriteria().andProductIdEqualTo(productId);
-        List<SmsCouponProductRelation> cprList = couponProductRelationMapper.selectByExample(cprExample);
+        SmsCouponProductRelation cprCondition = new SmsCouponProductRelation();
+        cprCondition.setProductId(productId);
+        List<SmsCouponProductRelation> cprList = couponProductRelationMapper.selectByCondition(cprCondition);
         if(CollUtil.isNotEmpty(cprList)){
             List<Long> couponIds = cprList.stream().map(SmsCouponProductRelation::getCouponId).collect(Collectors.toList());
             allCouponIds.addAll(couponIds);
         }
         //获取指定分类优惠券
         PmsProduct product = productMapper.selectByPrimaryKey(productId);
-        SmsCouponProductCategoryRelationExample cpcrExample = new SmsCouponProductCategoryRelationExample();
-        cpcrExample.createCriteria().andProductCategoryIdEqualTo(product.getProductCategoryId());
-        List<SmsCouponProductCategoryRelation> cpcrList = couponProductCategoryRelationMapper.selectByExample(cpcrExample);
+        SmsCouponProductCategoryRelation cpcrCondition = new SmsCouponProductCategoryRelation();
+        cpcrCondition.setProductCategoryId(product.getProductCategoryId());
+        List<SmsCouponProductCategoryRelation> cpcrList = couponProductCategoryRelationMapper.selectByCondition(cpcrCondition);
         if(CollUtil.isNotEmpty(cpcrList)){
             List<Long> couponIds = cpcrList.stream().map(SmsCouponProductCategoryRelation::getCouponId).collect(Collectors.toList());
             allCouponIds.addAll(couponIds);
@@ -191,17 +192,21 @@ public class CouponServiceImpl implements ICouponService {
         if(CollUtil.isEmpty(allCouponIds)){
             return new ArrayList<>();
         }
-        //所有优惠券
-        SmsCouponExample couponExample = new SmsCouponExample();
-        couponExample.createCriteria().andEndTimeGreaterThan(new Date())
-                .andStartTimeLessThan(new Date())
-                .andUseTypeEqualTo(0);
-        couponExample.or(couponExample.createCriteria()
-                .andEndTimeGreaterThan(new Date())
-                .andStartTimeLessThan(new Date())
-                .andUseTypeNotEqualTo(0)
-                .andIdIn(allCouponIds));
-        return couponMapper.selectByExample(couponExample);
+        //查询所有优惠券并在Java中过滤
+        Date now = new Date();
+        List<SmsCoupon> allCoupons = couponMapper.selectByCondition(null);
+        List<SmsCoupon> filteredCoupons = allCoupons.stream()
+                .filter(coupon -> {
+                    boolean timeValid = coupon.getEndTime() != null && coupon.getStartTime() != null
+                            && now.before(coupon.getEndTime()) && now.after(coupon.getStartTime());
+                    if (coupon.getUseType() == 0) {
+                        return timeValid;
+                    } else {
+                        return timeValid && allCouponIds.contains(coupon.getId());
+                    }
+                })
+                .collect(Collectors.toList());
+        return filteredCoupons;
     }
 
     @Override

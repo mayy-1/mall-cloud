@@ -20,3 +20,10 @@ public interface PmsSkuStockMapper {
 
     int updateByPrimaryKey(PmsSkuStock row);
 }
+    List<PmsSkuStock> selectByCondition(PmsSkuStock record);
+
+    int deleteByCondition(PmsSkuStock record);
+
+    int updateSelectiveByCondition(@Param("record") PmsSkuStock record, @Param("condition") PmsSkuStock condition);
+
+}

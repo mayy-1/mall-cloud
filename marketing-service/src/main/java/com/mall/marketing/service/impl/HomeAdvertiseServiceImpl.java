@@ -2,16 +2,11 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsHomeAdvertiseMapper;
-import com.mall.marketing.model.SmsHomeAdvertise;
-import com.mall.marketing.model.SmsHomeAdvertiseExample;
-import com.mall.marketing.service.IHomeAdvertiseService;
+import com.mall.marketing.model.SmsHomeAdvertise;import com.mall.marketing.service.IHomeAdvertiseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,9 +28,10 @@ public class HomeAdvertiseServiceImpl implements IHomeAdvertiseService {
 
     @Override
     public int delete(List<Long> ids) {
-        SmsHomeAdvertiseExample example = new SmsHomeAdvertiseExample();
-        example.createCriteria().andIdIn(ids);
-        return advertiseMapper.deleteByExample(example);
+        for (Long id : ids) {
+            advertiseMapper.deleteByPrimaryKey(id);
+        }
+        return ids.size();
     }
 
     @Override
@@ -60,35 +56,13 @@ public class HomeAdvertiseServiceImpl implements IHomeAdvertiseService {
     @Override
     public List<SmsHomeAdvertise> list(String name, Integer type, String endTime, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        SmsHomeAdvertiseExample example = new SmsHomeAdvertiseExample();
-        SmsHomeAdvertiseExample.Criteria criteria = example.createCriteria();
+        SmsHomeAdvertise condition = new SmsHomeAdvertise();
         if (!StringUtils.isEmpty(name)) {
-            criteria.andNameLike("%" + name + "%");
+            condition.setName("%" + name + "%");
         }
         if (type != null) {
-            criteria.andTypeEqualTo(type);
+            condition.setType(type);
         }
-        if (!StringUtils.isEmpty(endTime)) {
-            String startStr = endTime + " 00:00:00";
-            String endStr = endTime + " 23:59:59";
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date start = null;
-            try {
-                start = sdf.parse(startStr);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            Date end = null;
-            try {
-                end = sdf.parse(endStr);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if (start != null && end != null) {
-                criteria.andEndTimeBetween(start, end);
-            }
-        }
-        example.setOrderByClause("sort desc");
-        return advertiseMapper.selectByExample(example);
+        return advertiseMapper.selectByCondition(condition);
     }
 }

@@ -12,7 +12,6 @@ import cn.hutool.core.convert.Convert;
 import com.mym.mall.common.api.CommonResult;
 import com.mym.mall.common.constant.AuthConstant;
 import com.mym.mall.util.StpMemberUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,8 +26,11 @@ import java.util.*;
 @Configuration
 public class SaTokenConfig {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    public SaTokenConfig(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     /**
      * 注册Sa-Token全局过滤器
@@ -44,7 +46,7 @@ public class SaTokenConfig {
                 .setAuth(obj -> {
                     // 对于OPTIONS预检请求直接放行
                     SaRouter.match(SaHttpMethod.OPTIONS).stop();
-                    // 登录认证：商城前台会员认证（含秒杀接口）
+                    // 登录认证：商城前台会员认证
                     SaRouter.match("/mall-portal/**", r -> StpMemberUtil.checkLogin()).stop();
                     SaRouter.match("/mall-seckill/**", r -> StpMemberUtil.checkLogin());
                     // 登录认证：管理后台用户认证

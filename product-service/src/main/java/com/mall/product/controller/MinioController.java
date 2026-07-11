@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +22,7 @@ import java.util.Date;
  * Handles file upload and delete operations via MinIO
  */
 @Tag(name = "MinioController", description = "MinIO Object Storage Management")
-@Controller
+@RestController
 @RequestMapping("/minio")
 public class MinioController {
 
@@ -42,8 +41,7 @@ public class MinioController {
     private String SECRET_KEY;
 
     @Operation(summary = "File upload")
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/upload")
     public CommonResult<MinioUploadDto> upload(@RequestPart("file") MultipartFile file) {
         try {
             // Create MinIO client
@@ -103,8 +101,7 @@ public class MinioController {
     }
 
     @Operation(summary = "File delete")
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/delete")
     public CommonResult delete(@RequestParam("objectName") String objectName) {
         try {
             MinioClient minioClient = MinioClient.builder()

@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.CmsSubjectMapper;
-import com.mall.marketing.model.CmsSubject;
-import com.mall.marketing.model.CmsSubjectExample;
-import com.mall.marketing.service.ISubjectService;
+import com.mall.marketing.model.CmsSubject;import com.mall.marketing.service.ISubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,17 +21,16 @@ public class SubjectServiceImpl implements ISubjectService {
 
     @Override
     public List<CmsSubject> listAll() {
-        return subjectMapper.selectByExample(new CmsSubjectExample());
+        return subjectMapper.selectByCondition(new CmsSubject());
     }
 
     @Override
     public List<CmsSubject> list(String keyword, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        CmsSubjectExample example = new CmsSubjectExample();
-        CmsSubjectExample.Criteria criteria = example.createCriteria();
+        CmsSubject condition = new CmsSubject();
         if (!StringUtils.isEmpty(keyword)) {
-            criteria.andTitleLike("%" + keyword + "%");
+            condition.setTitle("%" + keyword + "%");
         }
-        return subjectMapper.selectByExample(example);
+        return subjectMapper.selectByCondition(condition);
     }
 }

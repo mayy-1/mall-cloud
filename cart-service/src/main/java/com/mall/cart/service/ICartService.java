@@ -1,7 +1,7 @@
 package com.mall.cart.service;
 
+import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.cart.domain.dto.CartProduct;
-import com.mall.cart.domain.dto.CartPromotionItem;
 import com.mall.cart.model.OmsCartItem;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +26,7 @@ public interface ICartService {
     /**
      * 获取包含促销活动信息的购物车列表
      */
-    List<CartPromotionItem> listPromotion(Long memberId, List<Long> cartIds);
+    List<CartPromotionItemDTO> listPromotion(Long memberId, List<Long> cartIds);
 
     /**
      * 修改某个购物车商品的数量

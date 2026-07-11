@@ -8,7 +8,6 @@ import com.mall.portal.service.IBrandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
  * 首页品牌推荐管理Controller
  * Created by macro on 2020/5/15.
  */
-@Controller
+@RestController
 @Tag(name = "BrandController", description = "前台品牌管理")
 @RequestMapping("/brand")
 @RequiredArgsConstructor
@@ -27,8 +26,7 @@ public class BrandController {
     private final IBrandService brandService;
 
     @Operation(summary = "分页获取推荐品牌")
-    @RequestMapping(value = "/recommendList", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/recommendList")
     public CommonResult<List<PmsBrand>> recommendList(@RequestParam(value = "pageSize", defaultValue = "6") Integer pageSize,
                                                       @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
         List<PmsBrand> brandList = brandService.recommendList(pageNum, pageSize);
@@ -36,16 +34,14 @@ public class BrandController {
     }
 
     @Operation(summary = "获取品牌详情")
-    @RequestMapping(value = "/detail/{brandId}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/detail/{brandId}")
     public CommonResult<PmsBrand> detail(@PathVariable Long brandId) {
         PmsBrand brand = brandService.detail(brandId);
         return CommonResult.success(brand);
     }
 
     @Operation(summary = "分页获取品牌相关商品")
-    @RequestMapping(value = "/productList", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/productList")
     public CommonResult<CommonPage<PmsProduct>> productList(@RequestParam Long brandId,
                                                             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                                             @RequestParam(value = "pageSize", defaultValue = "6") Integer pageSize) {

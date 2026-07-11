@@ -7,81 +7,9 @@
     <result column="product_attribute_id" jdbcType="BIGINT" property="productAttributeId" />
     <result column="value" jdbcType="VARCHAR" property="value" />
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, product_id, product_attribute_id, value
   </sql>
-  <select id="selectByExample" parameterType="com.mall.product.model.PmsProductAttributeValueExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from pms_product_attribute_value
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -91,12 +19,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from pms_product_attribute_value
     where id = #{id,jdbcType=BIGINT}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.mall.product.model.PmsProductAttributeValueExample">
-    delete from pms_product_attribute_value
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.mall.product.model.PmsProductAttributeValue">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -133,38 +55,6 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.mall.product.model.PmsProductAttributeValueExample" resultType="java.lang.Long">
-    select count(*) from pms_product_attribute_value
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update pms_product_attribute_value
-    <set>
-      <if test="row.productId != null">
-        product_id = #{row.productId,jdbcType=BIGINT},
-      </if>
-      <if test="row.productAttributeId != null">
-        product_attribute_id = #{row.productAttributeId,jdbcType=BIGINT},
-      </if>
-      <if test="row.value != null">
-        value = #{row.value,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update pms_product_attribute_value
-    set product_id = #{row.productId,jdbcType=BIGINT},
-      product_attribute_id = #{row.productAttributeId,jdbcType=BIGINT},
-      value = #{row.value,jdbcType=VARCHAR}
-    <if test="example != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.mall.product.model.PmsProductAttributeValue">
     update pms_product_attribute_value
     <set>
@@ -187,4 +77,49 @@
       value = #{value,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+<insert id="insertList">
+        insert into pms_product_attribute_value (product_id,product_attribute_id,value) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.productId,jdbcType=BIGINT},
+            #{item.productAttributeId,jdbcType=BIGINT},
+            #{item.value,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.product.model.PmsProductAttributeValue">
+    SELECT <include refid="Base_Column_List"/> FROM pms_product_attribute_value
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="productAttributeId != null">AND product_attribute_id = #{productAttributeId}</if>
+      <if test="value != null">AND value = #{value}</if>
+    </where>
+  </select>
+
+  <delete id="deleteByCondition" parameterType="com.mall.product.model.PmsProductAttributeValue">
+    DELETE FROM pms_product_attribute_value
+    <where>
+      <if test="id != null">AND id = #{id}</if>
+      <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="productAttributeId != null">AND product_attribute_id = #{productAttributeId}</if>
+      <if test="value != null">AND value = #{value}</if>
+    </where>
+  </delete>
+
+  <update id="updateSelectiveByCondition">
+    update pms_product_attribute_value
+    <set>
+      <if test="record.productId != null">product_id = #{record.productId},</if>
+      <if test="record.productAttributeId != null">product_attribute_id = #{record.productAttributeId},</if>
+      <if test="record.value != null">value = #{record.value},</if>
+    </set>
+    <where>
+      <if test="condition.id != null">AND id = #{condition.id}</if>
+      <if test="condition.productId != null">AND product_id = #{condition.productId}</if>
+      <if test="condition.productAttributeId != null">AND product_attribute_id = #{condition.productAttributeId}</if>
+      <if test="condition.value != null">AND value = #{condition.value}</if>
+    </where>
+  </update>
+
 </mapper>

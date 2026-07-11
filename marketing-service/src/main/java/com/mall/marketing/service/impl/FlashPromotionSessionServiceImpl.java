@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.mall.marketing.domain.dto.SmsFlashPromotionSessionDetail;
 import com.mall.marketing.mapper.SmsFlashPromotionSessionMapper;
-import com.mall.marketing.model.SmsFlashPromotionSession;
-import com.mall.marketing.model.SmsFlashPromotionSessionExample;
-import com.mall.marketing.service.IFlashPromotionProductRelationService;
+import com.mall.marketing.model.SmsFlashPromotionSession;import com.mall.marketing.service.IFlashPromotionProductRelationService;
 import com.mall.marketing.service.IFlashPromotionSessionService;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
@@ -58,16 +56,16 @@ public class FlashPromotionSessionServiceImpl implements IFlashPromotionSessionS
 
     @Override
     public List<SmsFlashPromotionSession> list() {
-        SmsFlashPromotionSessionExample example = new SmsFlashPromotionSessionExample();
-        return promotionSessionMapper.selectByExample(example);
+        SmsFlashPromotionSession example = new SmsFlashPromotionSession();
+        return promotionSessionMapper.selectByCondition(example);
     }
 
     @Override
     public List<SmsFlashPromotionSessionDetail> selectList(Long flashPromotionId) {
         List<SmsFlashPromotionSessionDetail> result = new ArrayList<>();
-        SmsFlashPromotionSessionExample example = new SmsFlashPromotionSessionExample();
-        example.createCriteria().andStatusEqualTo(1);
-        List<SmsFlashPromotionSession> list = promotionSessionMapper.selectByExample(example);
+        SmsFlashPromotionSession example = new SmsFlashPromotionSession();
+        example.setStatus(1);
+        List<SmsFlashPromotionSession> list = promotionSessionMapper.selectByCondition(example);
         for (SmsFlashPromotionSession promotionSession : list) {
             SmsFlashPromotionSessionDetail detail = new SmsFlashPromotionSessionDetail();
             BeanUtils.copyProperties(promotionSession, detail);

@@ -1,14 +1,12 @@
 package com.mall.product.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.mall.product.mapper.PmsProductAttributeMapperCustom;
 import com.mall.product.mapper.PmsProductAttributeCategoryMapper;
 import com.mall.product.mapper.PmsProductAttributeMapper;
 import com.mall.product.domain.dto.PmsProductAttributeParam;
 import com.mall.product.domain.dto.ProductAttrInfo;
 import com.mall.product.model.PmsProductAttribute;
 import com.mall.product.model.PmsProductAttributeCategory;
-import com.mall.product.model.PmsProductAttributeExample;
 import com.mall.product.service.IAttributeService;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +26,16 @@ public class IAttributeServiceImpl implements IAttributeService {
     /** 属性分类Mapper */
     private final PmsProductAttributeCategoryMapper productAttributeCategoryMapper;
     /** 自定义Mapper（含getProductAttrInfo等复杂查询） */
-    private final PmsProductAttributeMapperCustom productAttributeDao;
+    private final PmsProductAttributeMapper productAttributeDao;
 
     @Override
     public List<PmsProductAttribute> getList(Long cid, Integer type, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        PmsProductAttributeExample example = new PmsProductAttributeExample();
-        example.setOrderByClause("sort desc");
-        example.createCriteria().andProductAttributeCategoryIdEqualTo(cid).andTypeEqualTo(type);
-        return productAttributeMapper.selectByExample(example);
+        PageHelper.orderBy("sort desc");
+        PmsProductAttribute condition = new PmsProductAttribute();
+        condition.setProductAttributeCategoryId(cid);
+        condition.setType(type);
+        return productAttributeMapper.selectByCondition(condition);
     }
 
     @Override
@@ -76,9 +75,10 @@ public class IAttributeServiceImpl implements IAttributeService {
         Integer type = pmsProductAttribute.getType();
         PmsProductAttributeCategory pmsProductAttributeCategory = productAttributeCategoryMapper
                 .selectByPrimaryKey(pmsProductAttribute.getProductAttributeCategoryId());
-        PmsProductAttributeExample example = new PmsProductAttributeExample();
-        example.createCriteria().andIdIn(ids);
-        int count = productAttributeMapper.deleteByExample(example);
+        int count = 0;
+        for (Long id : ids) {
+            count += productAttributeMapper.deleteByPrimaryKey(id);
+        }
         // 删除后更新属性分类计数
         if (type == 0) {
             if (pmsProductAttributeCategory.getAttributeCount() >= count) {

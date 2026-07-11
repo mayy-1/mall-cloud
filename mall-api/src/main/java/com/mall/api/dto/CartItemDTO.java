@@ -23,4 +23,8 @@ public class CartItemDTO {
     private String sp1;
     private String sp2;
     private String sp3;
+    private Long productCategoryId;
+    private String productBrand;
+    private String productSn;
+    private String productAttr;
 }

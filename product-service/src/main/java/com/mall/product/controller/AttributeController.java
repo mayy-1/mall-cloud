@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
  * 商品属性管理Controller
  * Created by macro on 2018/4/26.
  */
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "AttributeController", description = "商品属性管理")
 @RequestMapping("/productAttribute")
@@ -32,8 +31,7 @@ public class AttributeController {
 
     @Operation(summary = "根据分类查询属性列表或参数列表")
     @Parameters({@Parameter(name = "type", description = "0表示属性，1表示参数", required = true,in = ParameterIn.QUERY, schema = @Schema(type = "integer"))})
-    @RequestMapping(value = "/list/{cid}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/list/{cid}")
     public CommonResult<CommonPage<PmsProductAttribute>> getList(@PathVariable Long cid,
                                                                  @RequestParam(value = "type") Integer type,
                                                                  @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
@@ -43,8 +41,7 @@ public class AttributeController {
     }
 
     @Operation(summary = "添加商品属性信息")
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/create")
     public CommonResult create(@RequestBody PmsProductAttributeParam productAttributeParam) {
         int count = productAttributeService.create(productAttributeParam);
         if (count > 0) {
@@ -55,8 +52,7 @@ public class AttributeController {
     }
 
     @Operation(summary = "修改商品属性信息")
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/update/{id}")
     public CommonResult update(@PathVariable Long id, @RequestBody PmsProductAttributeParam productAttributeParam) {
         int count = productAttributeService.update(id, productAttributeParam);
         if (count > 0) {
@@ -67,16 +63,14 @@ public class AttributeController {
     }
 
     @Operation(summary = "查询单个商品属性")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/{id}")
     public CommonResult<PmsProductAttribute> getItem(@PathVariable Long id) {
         PmsProductAttribute productAttribute = productAttributeService.getItem(id);
         return CommonResult.success(productAttribute);
     }
 
     @Operation(summary = "批量删除商品属性")
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/delete")
     public CommonResult delete(@RequestParam("ids") List<Long> ids) {
         int count = productAttributeService.delete(ids);
         if (count > 0) {
@@ -87,8 +81,7 @@ public class AttributeController {
     }
 
     @Operation(summary = "根据商品分类的id获取商品属性及属性分类")
-    @RequestMapping(value = "/attrInfo/{productCategoryId}", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/attrInfo/{productCategoryId}")
     public CommonResult<List<ProductAttrInfo>> getAttrInfo(@PathVariable Long productCategoryId) {
         List<ProductAttrInfo> productAttrInfoList = productAttributeService.getProductAttrInfo(productCategoryId);
         return CommonResult.success(productAttrInfoList);

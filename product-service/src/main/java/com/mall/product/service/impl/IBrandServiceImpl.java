@@ -5,9 +5,7 @@ import com.mall.product.domain.dto.PmsBrandParam;
 import com.mall.product.mapper.PmsBrandMapper;
 import com.mall.product.mapper.PmsProductMapper;
 import com.mall.product.model.PmsBrand;
-import com.mall.product.model.PmsBrandExample;
 import com.mall.product.model.PmsProduct;
-import com.mall.product.model.PmsProductExample;
 import com.mall.product.service.IBrandService;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ public class IBrandServiceImpl implements IBrandService {
 
     @Override
     public List<PmsBrand> listAllBrand() {
-        return brandMapper.selectByExample(new PmsBrandExample());
+        return brandMapper.selectByCondition(new PmsBrand());
     }
 
     @Override
@@ -57,9 +55,9 @@ public class IBrandServiceImpl implements IBrandService {
         //更新品牌时要更新商品中的品牌名称
         PmsProduct product = new PmsProduct();
         product.setBrandName(pmsBrand.getName());
-        PmsProductExample example = new PmsProductExample();
-        example.createCriteria().andBrandIdEqualTo(id);
-        productMapper.updateByExampleSelective(product, example);
+        PmsProduct condition = new PmsProduct();
+        condition.setBrandId(id);
+        productMapper.updateSelectiveByCondition(product, condition);
         return brandMapper.updateByPrimaryKeySelective(pmsBrand);
     }
 
@@ -70,21 +68,22 @@ public class IBrandServiceImpl implements IBrandService {
 
     @Override
     public int deleteBrand(List<Long> ids) {
-        PmsBrandExample pmsBrandExample = new PmsBrandExample();
-        pmsBrandExample.createCriteria().andIdIn(ids);
-        return brandMapper.deleteByExample(pmsBrandExample);
+        int count = 0;
+        for (Long id : ids) {
+            count += brandMapper.deleteByPrimaryKey(id);
+        }
+        return count;
     }
 
     @Override
     public List<PmsBrand> listBrand(String keyword, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        PmsBrandExample pmsBrandExample = new PmsBrandExample();
-        pmsBrandExample.setOrderByClause("sort desc");
-        PmsBrandExample.Criteria criteria = pmsBrandExample.createCriteria();
+        PageHelper.orderBy("sort desc");
+        PmsBrand condition = new PmsBrand();
         if (!StringUtils.isEmpty(keyword)) {
-            criteria.andNameLike("%" + keyword + "%");
+            condition.setName("%" + keyword + "%");
         }
-        return brandMapper.selectByExample(pmsBrandExample);
+        return brandMapper.selectByCondition(condition);
     }
 
     @Override
@@ -94,28 +93,34 @@ public class IBrandServiceImpl implements IBrandService {
 
     @Override
     public int updateShowStatus(List<Long> ids, Integer showStatus) {
-        PmsBrand pmsBrand = new PmsBrand();
-        pmsBrand.setShowStatus(showStatus);
-        PmsBrandExample pmsBrandExample = new PmsBrandExample();
-        pmsBrandExample.createCriteria().andIdIn(ids);
-        return brandMapper.updateByExampleSelective(pmsBrand, pmsBrandExample);
+        int count = 0;
+        for (Long id : ids) {
+            PmsBrand brand = new PmsBrand();
+            brand.setId(id);
+            brand.setShowStatus(showStatus);
+            count += brandMapper.updateByPrimaryKeySelective(brand);
+        }
+        return count;
     }
 
     @Override
     public int updateFactoryStatus(List<Long> ids, Integer factoryStatus) {
-        PmsBrand pmsBrand = new PmsBrand();
-        pmsBrand.setFactoryStatus(factoryStatus);
-        PmsBrandExample pmsBrandExample = new PmsBrandExample();
-        pmsBrandExample.createCriteria().andIdIn(ids);
-        return brandMapper.updateByExampleSelective(pmsBrand, pmsBrandExample);
+        int count = 0;
+        for (Long id : ids) {
+            PmsBrand brand = new PmsBrand();
+            brand.setId(id);
+            brand.setFactoryStatus(factoryStatus);
+            count += brandMapper.updateByPrimaryKeySelective(brand);
+        }
+        return count;
     }
 
     @Override
     public List<PmsBrand> listRecommendBrand(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        PmsBrandExample example = new PmsBrandExample();
-        example.createCriteria().andShowStatusEqualTo(1);
-        example.setOrderByClause("sort desc");
-        return brandMapper.selectByExample(example);
+        PageHelper.orderBy("sort desc");
+        PmsBrand condition = new PmsBrand();
+        condition.setShowStatus(1);
+        return brandMapper.selectByCondition(condition);
     }
 }

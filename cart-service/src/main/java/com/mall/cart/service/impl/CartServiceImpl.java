@@ -1,16 +1,17 @@
 package com.mall.cart.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import com.mall.api.client.MemberClient;
+import com.mall.api.client.PromotionClient;
+import com.mall.api.dto.CartItemDTO;
+import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.MemberDTO;
 import com.mall.cart.domain.dto.CartProduct;
-import com.mall.cart.domain.dto.CartPromotionItem;
 import com.mall.cart.mapper.OmsCartItemMapper;
+import com.mall.cart.mapper.PortalProductMapper;
 import com.mall.cart.model.OmsCartItem;
-import com.mall.cart.model.OmsCartItemExample;
 import com.mall.cart.service.ICartService;
-import com.mall.cart.model.UmsMember;
-import com.mall.cart.mapper.PortalProductMapperCustom;
-import com.mall.cart.feign.OmsPromotionService;
-import com.mall.cart.feign.UmsMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,17 +31,17 @@ public class CartServiceImpl implements ICartService {
 
     /** 购物车Mapper */
     private final OmsCartItemMapper cartItemMapper;
-    /** 前台商品自定义Mapper */
-    private final PortalProductMapperCustom productMapper;
+    /** 前台商品Mapper */
+    private final PortalProductMapper productMapper;
     /** 促销服务Feign调用 */
-    private final OmsPromotionService promotionService;
+    private final PromotionClient promotionClient;
     /** 会员服务Feign调用 */
-    private final UmsMemberService memberService;
+    private final MemberClient memberClient;
 
     @Override
     public int add(OmsCartItem cartItem) {
         int count;
-        UmsMember currentMember = memberService.getCurrentMember();
+        MemberDTO currentMember = memberClient.getCurrentMember().getData();
         cartItem.setMemberId(currentMember.getId());
         cartItem.setMemberNickname(currentMember.getNickname());
         cartItem.setDeleteStatus(0);
@@ -60,13 +61,14 @@ public class CartServiceImpl implements ICartService {
      * 根据会员id,商品id和规格获取购物车中商品
      */
     private OmsCartItem getCartItem(OmsCartItem cartItem) {
-        OmsCartItemExample example = new OmsCartItemExample();
-        OmsCartItemExample.Criteria criteria = example.createCriteria().andMemberIdEqualTo(cartItem.getMemberId())
-                .andProductIdEqualTo(cartItem.getProductId()).andDeleteStatusEqualTo(0);
-        if (cartItem.getProductSkuId()!=null) {
-            criteria.andProductSkuIdEqualTo(cartItem.getProductSkuId());
+        OmsCartItem condition = new OmsCartItem();
+        condition.setMemberId(cartItem.getMemberId());
+        condition.setProductId(cartItem.getProductId());
+        condition.setDeleteStatus(0);
+        if (cartItem.getProductSkuId() != null) {
+            condition.setProductSkuId(cartItem.getProductSkuId());
         }
-        List<OmsCartItem> cartItemList = cartItemMapper.selectByExample(example);
+        List<OmsCartItem> cartItemList = cartItemMapper.selectByCondition(condition);
         if (!CollectionUtils.isEmpty(cartItemList)) {
             return cartItemList.get(0);
         }
@@ -75,41 +77,53 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public List<OmsCartItem> list(Long memberId) {
-        OmsCartItemExample example = new OmsCartItemExample();
-        example.createCriteria().andDeleteStatusEqualTo(0).andMemberIdEqualTo(memberId);
-        return cartItemMapper.selectByExample(example);
+        OmsCartItem condition = new OmsCartItem();
+        condition.setDeleteStatus(0);
+        condition.setMemberId(memberId);
+        return cartItemMapper.selectByCondition(condition);
     }
 
     @Override
-    public List<CartPromotionItem> listPromotion(Long memberId, List<Long> cartIds) {
+    public List<CartPromotionItemDTO> listPromotion(Long memberId, List<Long> cartIds) {
         List<OmsCartItem> cartItemList = list(memberId);
         if(CollUtil.isNotEmpty(cartIds)){
             cartItemList = cartItemList.stream().filter(item->cartIds.contains(item.getId())).collect(Collectors.toList());
         }
-        List<CartPromotionItem> cartPromotionItemList = new ArrayList<>();
+        List<CartPromotionItemDTO> cartPromotionItemList = new ArrayList<>();
         if(!CollectionUtils.isEmpty(cartItemList)){
-            cartPromotionItemList = promotionService.calcCartPromotion(cartItemList);
+            List<CartItemDTO> cartItemDTOList = cartItemList.stream().map(item -> {
+                CartItemDTO dto = new CartItemDTO();
+                BeanUtil.copyProperties(item, dto);
+                return dto;
+            }).collect(Collectors.toList());
+            cartPromotionItemList = promotionClient.calcCartPromotion(cartItemDTOList).getData();
         }
         return cartPromotionItemList;
     }
 
     @Override
     public int updateQuantity(Long id, Long memberId, Integer quantity) {
-        OmsCartItem cartItem = new OmsCartItem();
-        cartItem.setQuantity(quantity);
-        OmsCartItemExample example = new OmsCartItemExample();
-        example.createCriteria().andDeleteStatusEqualTo(0)
-                .andIdEqualTo(id).andMemberIdEqualTo(memberId);
-        return cartItemMapper.updateByExampleSelective(cartItem, example);
+        OmsCartItem record = new OmsCartItem();
+        record.setQuantity(quantity);
+        OmsCartItem condition = new OmsCartItem();
+        condition.setDeleteStatus(0);
+        condition.setId(id);
+        condition.setMemberId(memberId);
+        return cartItemMapper.updateSelectiveByCondition(record, condition);
     }
 
     @Override
     public int delete(Long memberId, List<Long> ids) {
+        // 使用 selectByCondition + 逐条删除代替 updateSelectiveByCondition + andIdIn
         OmsCartItem record = new OmsCartItem();
         record.setDeleteStatus(1);
-        OmsCartItemExample example = new OmsCartItemExample();
-        example.createCriteria().andIdIn(ids).andMemberIdEqualTo(memberId);
-        return cartItemMapper.updateByExampleSelective(record, example);
+        for (Long id : ids) {
+            OmsCartItem condition = new OmsCartItem();
+            condition.setId(id);
+            condition.setMemberId(memberId);
+            cartItemMapper.updateSelectiveByCondition(record, condition);
+        }
+        return ids.size();
     }
 
     @Override
@@ -134,8 +148,8 @@ public class CartServiceImpl implements ICartService {
     public int clear(Long memberId) {
         OmsCartItem record = new OmsCartItem();
         record.setDeleteStatus(1);
-        OmsCartItemExample example = new OmsCartItemExample();
-        example.createCriteria().andMemberIdEqualTo(memberId);
-        return cartItemMapper.updateByExampleSelective(record,example);
+        OmsCartItem condition = new OmsCartItem();
+        condition.setMemberId(memberId);
+        return cartItemMapper.updateSelectiveByCondition(record, condition);
     }
 }

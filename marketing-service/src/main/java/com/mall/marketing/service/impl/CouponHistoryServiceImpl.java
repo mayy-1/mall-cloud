@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsCouponHistoryMapper;
-import com.mall.marketing.model.SmsCouponHistory;
-import com.mall.marketing.model.SmsCouponHistoryExample;
-import com.mall.marketing.service.ICouponHistoryService;
+import com.mall.marketing.model.SmsCouponHistory;import com.mall.marketing.service.ICouponHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,17 +21,16 @@ public class CouponHistoryServiceImpl implements ICouponHistoryService {
     @Override
     public List<SmsCouponHistory> list(Long couponId, Integer useStatus, String orderSn, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        SmsCouponHistoryExample example = new SmsCouponHistoryExample();
-        SmsCouponHistoryExample.Criteria criteria = example.createCriteria();
+        SmsCouponHistory condition = new SmsCouponHistory();
         if(couponId!=null){
-            criteria.andCouponIdEqualTo(couponId);
+            condition.setCouponId(couponId);
         }
         if(useStatus!=null){
-            criteria.andUseStatusEqualTo(useStatus);
+            condition.setUseStatus(useStatus);
         }
         if(!StringUtils.isEmpty(orderSn)){
-            criteria.andOrderSnEqualTo(orderSn);
+            condition.setOrderSn(orderSn);
         }
-        return historyMapper.selectByExample(example);
+        return historyMapper.selectByCondition(condition);
     }
 }

@@ -2,9 +2,7 @@ package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mall.marketing.mapper.SmsHomeNewProductMapper;
-import com.mall.marketing.model.SmsHomeNewProduct;
-import com.mall.marketing.model.SmsHomeNewProductExample;
-import com.mall.marketing.service.IHomeNewProductService;
+import com.mall.marketing.model.SmsHomeNewProduct;import com.mall.marketing.service.IHomeNewProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,32 +38,33 @@ public class HomeNewProductServiceImpl implements IHomeNewProductService {
 
     @Override
     public int delete(List<Long> ids) {
-        SmsHomeNewProductExample example = new SmsHomeNewProductExample();
-        example.createCriteria().andIdIn(ids);
-        return homeNewProductMapper.deleteByExample(example);
+        for (Long id : ids) {
+            homeNewProductMapper.deleteByPrimaryKey(id);
+        }
+        return ids.size();
     }
 
     @Override
     public int updateRecommendStatus(List<Long> ids, Integer recommendStatus) {
-        SmsHomeNewProductExample example = new SmsHomeNewProductExample();
-        example.createCriteria().andIdIn(ids);
-        SmsHomeNewProduct record = new SmsHomeNewProduct();
-        record.setRecommendStatus(recommendStatus);
-        return homeNewProductMapper.updateByExampleSelective(record,example);
+        for (Long id : ids) {
+            SmsHomeNewProduct record = new SmsHomeNewProduct();
+            record.setId(id);
+            record.setRecommendStatus(recommendStatus);
+            homeNewProductMapper.updateByPrimaryKeySelective(record);
+        }
+        return ids.size();
     }
 
     @Override
     public List<SmsHomeNewProduct> list(String productName, Integer recommendStatus, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
-        SmsHomeNewProductExample example = new SmsHomeNewProductExample();
-        SmsHomeNewProductExample.Criteria criteria = example.createCriteria();
+        SmsHomeNewProduct condition = new SmsHomeNewProduct();
         if(!StringUtils.isEmpty(productName)){
-            criteria.andProductNameLike("%"+productName+"%");
+            condition.setProductName("%"+productName+"%");
         }
         if(recommendStatus!=null){
-            criteria.andRecommendStatusEqualTo(recommendStatus);
+            condition.setRecommendStatus(recommendStatus);
         }
-        example.setOrderByClause("sort desc");
-        return homeNewProductMapper.selectByExample(example);
+        return homeNewProductMapper.selectByCondition(condition);
     }
 }

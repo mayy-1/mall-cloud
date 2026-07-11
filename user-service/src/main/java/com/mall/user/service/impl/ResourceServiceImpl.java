@@ -6,7 +6,6 @@ import com.mym.mall.common.constant.AuthConstant;
 import com.mym.mall.common.service.RedisService;
 import com.mall.user.mapper.UmsResourceMapper;
 import com.mall.user.model.UmsResource;
-import com.mall.user.model.UmsResourceExample;
 import com.mall.user.service.IResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,59 +31,35 @@ public class ResourceServiceImpl implements IResourceService {
     private String applicationName;
 
     @Override
-    public int create(UmsResource umsResource) {
-        umsResource.setCreateTime(new Date());
-        int count = resourceMapper.insert(umsResource);
-        initPathResourceMap();
-        return count;
-    }
-
-    @Override
-    public int update(Long id, UmsResource umsResource) {
-        umsResource.setId(id);
-        int count = resourceMapper.updateByPrimaryKeySelective(umsResource);
-        initPathResourceMap();
-        return count;
-    }
-
-    @Override
     public UmsResource getItem(Long id) {
         return resourceMapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public int delete(Long id) {
-        int count = resourceMapper.deleteByPrimaryKey(id);
-        initPathResourceMap();
-        return count;
-    }
-
-    @Override
     public List<UmsResource> list(Long categoryId, String nameKeyword, String urlKeyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
-        UmsResourceExample example = new UmsResourceExample();
-        UmsResourceExample.Criteria criteria = example.createCriteria();
+        UmsResource query = new UmsResource();
         if (categoryId != null) {
-            criteria.andCategoryIdEqualTo(categoryId);
+            query.setCategoryId(categoryId);
         }
         if (StrUtil.isNotEmpty(nameKeyword)) {
-            criteria.andNameLike('%' + nameKeyword + '%');
+            query.setName('%' + nameKeyword + '%');
         }
         if (StrUtil.isNotEmpty(urlKeyword)) {
-            criteria.andUrlLike('%' + urlKeyword + '%');
+            query.setUrl('%' + urlKeyword + '%');
         }
-        return resourceMapper.selectByExample(example);
+        return resourceMapper.selectByCondition(query);
     }
 
     @Override
     public List<UmsResource> listAll() {
-        return resourceMapper.selectByExample(new UmsResourceExample());
+        return resourceMapper.selectByCondition(null);
     }
 
     @Override
     public Map<String, String> initPathResourceMap() {
         Map<String, String> pathResourceMap = new TreeMap<>();
-        List<UmsResource> resourceList = resourceMapper.selectByExample(new UmsResourceExample());
+        List<UmsResource> resourceList = resourceMapper.selectByCondition(null);
         for (UmsResource resource : resourceList) {
             pathResourceMap.put("/" + applicationName + resource.getUrl(), resource.getId() + ":" + resource.getName());
         }

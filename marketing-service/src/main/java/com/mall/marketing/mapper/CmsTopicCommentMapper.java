@@ -1,7 +1,6 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.CmsTopicComment;
-import com.mall.marketing.model.CmsTopicCommentExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,23 +9,19 @@ import org.apache.ibatis.annotations.Param;
  * 提供话题评论的增删改查操作
  */
 public interface CmsTopicCommentMapper {
-    long countByExample(CmsTopicCommentExample example);
-
-    int deleteByExample(CmsTopicCommentExample example);
 
     int deleteByPrimaryKey(Long id);
 
     int insert(CmsTopicComment row);
 
     int insertSelective(CmsTopicComment row);
-
-    List<CmsTopicComment> selectByExample(CmsTopicCommentExample example);
-
     CmsTopicComment selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") CmsTopicComment row, @Param("example") CmsTopicCommentExample example);
+    List<CmsTopicComment> selectByCondition(CmsTopicComment record);
 
-    int updateByExample(@Param("row") CmsTopicComment row, @Param("example") CmsTopicCommentExample example);
+    int deleteByCondition(CmsTopicComment record);
+
+    int updateSelectiveByCondition(@Param("record") CmsTopicComment record, @Param("condition") CmsTopicComment condition);
 
     int updateByPrimaryKeySelective(CmsTopicComment row);
 

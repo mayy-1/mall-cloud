@@ -99,7 +99,7 @@ spring:
               filters:
                 - StripPrefix=1
 
-            # ========== 秒杀快捷路径 (保留兼容) ==========
+            # ========== 秒杀快捷路径 ==========
             - id: mall-seckill
               uri: lb://marketing-service
               predicates:
