@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 会员商品浏览记录管理Controller
- * Created by macro on 2018/8/3.
  */
 @RestController
 @Tag(name = "ReadHistoryController", description = "会员商品浏览记录管理")

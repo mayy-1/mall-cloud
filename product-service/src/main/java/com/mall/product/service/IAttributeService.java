@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * 商品属性Service
+ * 【管理端专用】商品属性/参数的增删改查，用于管理端商品属性管理
  * Created by macro on 2018/4/26.
  */
 public interface IAttributeService {

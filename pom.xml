@@ -14,14 +14,12 @@
         <module>mall-api</module>           <!-- Feign 接口 + 跨服务 DTO -->
         <module>mall-monitor</module>
         <module>mall-gateway</module>
-        <module>mall-auth</module>
         <module>user-service</module>       <!-- 后台用户+角色+菜单+资源，端口8081 -->
-        <module>product-service</module>    <!-- 商品+品牌+分类+SKU+文件，端口8082 -->
+        <module>product-service</module>    <!-- 商品+品牌+分类+SKU+文件+首页聚合，端口8082 -->
         <module>order-service</module>      <!-- 后台订单管理，端口8083 -->
         <module>marketing-service</module>  <!-- 营销+内容(Cms+Sms合并)，端口8084 -->
         <module>member-service</module>     <!-- 前台会员+地址+收藏+关注+浏览，端口8085 -->
         <module>cart-service</module>       <!-- 购物车，端口8086 -->
-        <module>portal-service</module>     <!-- 首页聚合(纯Feign编排)，端口8087 -->
         <module>trade-service</module>      <!-- 前台下单+支付，端口8090 -->
         <module>search-service</module>     <!-- 全文搜索(ES)，端口8093 -->
     </modules>
@@ -58,6 +56,7 @@
         <spring-boot-admin.version>3.5.6</spring-boot-admin.version>
         <minio.version>8.6.0</minio.version>
         <knife4j.version>4.5.0</knife4j.version>
+        <seata.version>1.8.0</seata.version>
         <springdoc-openapi.version>2.8.17</springdoc-openapi.version>
         <sa-token.version>1.42.0</sa-token.version>
         <redisson.version>3.40.2</redisson.version>
@@ -238,6 +237,12 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
+            </dependency>
+            <!-- Seata 分布式事务 -->
+            <dependency>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-spring-boot-starter</artifactId>
+                <version>${seata.version}</version>
             </dependency>
             <!--支付宝支付Java SDK-->
             <dependency>

@@ -1,5 +1,6 @@
 package com.mall.api.client.marketing;
 
+import com.mall.api.dto.HomeAdvertiseDTO;
 import com.mall.api.dto.SubjectDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -15,7 +16,7 @@ public interface HomeClient {
 
     /** 获取首页广告列表 */
     @GetMapping("/advertise/list")
-    CommonResult<List<Object>> getHomeAdvertises();
+    CommonResult<List<HomeAdvertiseDTO>> getHomeAdvertises();
 
     /** 分页获取推荐专题 */
     @GetMapping("/recommendSubject/list")

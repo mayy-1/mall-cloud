@@ -26,4 +26,14 @@ public interface OmsOrderReturnReasonMapper {
     int updateByPrimaryKeySelective(OmsOrderReturnReason row);
 
     int updateByPrimaryKey(OmsOrderReturnReason row);
+
+    /**
+     * 批量删除
+     */
+    int deleteByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 批量更新启用状态
+     */
+    int updateStatusByIds(@Param("ids") List<Long> ids, @Param("status") Integer status);
 }

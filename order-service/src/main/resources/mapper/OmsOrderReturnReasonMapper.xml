@@ -130,4 +130,21 @@
     </where>
   </update>
 
+  <delete id="deleteByIds">
+    DELETE FROM oms_order_return_reason
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+
+  <update id="updateStatusByIds">
+    UPDATE oms_order_return_reason
+    SET status = #{status}
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </update>
+
 </mapper>

@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 商品属性分类Service
- * Created by macro on 2018/4/26.
+ * 【管理端专用】属性分类的增删改查，用于管理端商品属性分类管理
  */
 public interface IAttributeCategoryService {
     /**

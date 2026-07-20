@@ -6,7 +6,13 @@ import org.apache.ibatis.annotations.Param;
 
 import org.springframework.context.annotation.Primary;
 
-/**SKU库存Mapper */
+/**
+ * SKU库存Mapper
+ * 【管理端+订单系统】
+ * - 管理端：insertList/replaceList(批量编辑库存)
+ * - 订单系统：selectByPrimaryKey/updateByPrimaryKeySelective(扣减/锁定/释放库存)
+ * 对应表: pms_sku_stock
+ */
 @Primary
 public interface PmsSkuStockMapper {
 
@@ -26,4 +32,19 @@ public interface PmsSkuStockMapper {
     int updateByPrimaryKeySelective(PmsSkuStock row);
 
     int updateByPrimaryKey(PmsSkuStock row);
+
+    /**
+     * 批量插入SKU库存
+     */
+    int insertList(@Param("list") List<PmsSkuStock> list);
+
+    /**
+     * 批量替换SKU库存（REPLACE INTO，存在则更新，不存在则插入）
+     */
+    int replaceList(@Param("list") List<PmsSkuStock> list);
+
+    /**
+     * 批量删除SKU
+     */
+    int deleteByIds(@Param("ids") List<Long> ids);
 }

@@ -1,5 +1,6 @@
 package com.mall.api.client.marketing;
 
+import com.mall.api.dto.FlashPromotionDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,11 @@ public interface MarketingClient {
 
     /** 获取当前秒杀活动 */
     @GetMapping("/current")
-    CommonResult<Object> getCurrentFlashPromotion();
+    CommonResult<FlashPromotionDTO> getCurrentFlashPromotion();
 
     /** 获取首页秒杀活动 */
     @GetMapping("/home")
-    CommonResult<Object> getHomeFlashPromotion();
+    CommonResult<FlashPromotionDTO> getHomeFlashPromotion();
 }
 
 

@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 商品属性管理Controller
- * Created by macro on 2018/4/26.
+ * 商品属性管理 Controller
+ * 【管理端专用】所有接口均面向后台管理，用于商品属性/参数的创建、修改、删除和查询。
+ * 属性/参数值作为商品编辑时的备选项，由管理后台维护，用户端不直接调用。
  */
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "AttributeController", description = "商品属性管理")
@@ -29,6 +31,7 @@ import java.util.List;
 public class AttributeController {
     private final IAttributeService productAttributeService;
 
+    /** 【管理端】根据分类查询属性列表或参数列表（type=0属性，type=1参数） */
     @Operation(summary = "根据分类查询属性列表或参数列表")
     @Parameters({@Parameter(name = "type", description = "0表示属性，1表示参数", required = true,in = ParameterIn.QUERY, schema = @Schema(type = "integer"))})
     @GetMapping("/list/{cid}")
@@ -40,6 +43,7 @@ public class AttributeController {
         return CommonResult.success(CommonPage.restPage(productAttributeList));
     }
 
+    /** 【管理端】添加商品属性信息 */
     @Operation(summary = "添加商品属性信息")
     @PostMapping("/create")
     public CommonResult create(@RequestBody PmsProductAttributeParam productAttributeParam) {
@@ -51,6 +55,7 @@ public class AttributeController {
         }
     }
 
+    /** 【管理端】修改商品属性信息 */
     @Operation(summary = "修改商品属性信息")
     @PostMapping("/update/{id}")
     public CommonResult update(@PathVariable Long id, @RequestBody PmsProductAttributeParam productAttributeParam) {
@@ -62,6 +67,7 @@ public class AttributeController {
         }
     }
 
+    /** 【管理端】查询单个商品属性 */
     @Operation(summary = "查询单个商品属性")
     @GetMapping("/{id}")
     public CommonResult<PmsProductAttribute> getItem(@PathVariable Long id) {
@@ -69,6 +75,7 @@ public class AttributeController {
         return CommonResult.success(productAttribute);
     }
 
+    /** 【管理端】批量删除商品属性 */
     @Operation(summary = "批量删除商品属性")
     @PostMapping("/delete")
     public CommonResult delete(@RequestParam("ids") List<Long> ids) {
@@ -80,6 +87,7 @@ public class AttributeController {
         }
     }
 
+    /** 【管理端】根据商品分类ID获取商品属性及属性分类（商品编辑时用） */
     @Operation(summary = "根据商品分类的id获取商品属性及属性分类")
     @GetMapping("/attrInfo/{productCategoryId}")
     public CommonResult<List<ProductAttrInfo>> getAttrInfo(@PathVariable Long productCategoryId) {

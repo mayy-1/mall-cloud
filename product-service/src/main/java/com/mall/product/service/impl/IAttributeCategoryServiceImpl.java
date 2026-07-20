@@ -1,14 +1,18 @@
 package com.mall.product.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.mall.product.domain.dto.PmsProductAttributeCategoryItem;import com.mall.product.model.PmsProductAttributeCategory;import com.mall.product.service.IAttributeCategoryService;
+import com.mall.product.domain.dto.PmsProductAttributeCategoryItem;
+import com.mall.product.mapper.PmsProductAttributeCategoryMapper;
+import com.mall.product.model.PmsProductAttributeCategory;
+import com.mall.product.service.IAttributeCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * PmsProductAttributeCategoryService瀹炵幇绫? * Created by macro on 2018/4/26.
+ * 商品属性分类Service实现类
+ * 【管理端专用】属性分类CRUD，新增/删除属性时自动更新分类下的属性计数和参数计数
  */
 @Service
 @RequiredArgsConstructor

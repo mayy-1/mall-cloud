@@ -8,4 +8,4 @@ spring:
         file-extension: yaml
   config:
     import:
-      - nacos:search-service-prod.yaml?refreshEnabled=true
+      - nacos:mall-search-prod.yaml?refreshEnabled=true

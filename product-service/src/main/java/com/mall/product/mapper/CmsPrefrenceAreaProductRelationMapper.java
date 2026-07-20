@@ -26,4 +26,9 @@ public interface CmsPrefrenceAreaProductRelationMapper {
     int updateByPrimaryKeySelective(CmsPrefrenceAreaProductRelation row);
 
     int updateByPrimaryKey(CmsPrefrenceAreaProductRelation row);
+
+    /**
+     * 批量插入优选专区商品关系
+     */
+    int insertList(@Param("list") List<CmsPrefrenceAreaProductRelation> list);
 }

@@ -246,4 +246,12 @@
     </where>
   </update>
 
+  <delete id="deleteByIds">
+    DELETE FROM pms_sku_stock
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+
 </mapper>

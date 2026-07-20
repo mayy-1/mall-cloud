@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 产品查询参数
- * Created by macro on 2018/4/27.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -27,4 +26,6 @@ public class PmsProductQueryParam {
     private Integer newStatus;
     @Schema(title = "推荐状态；0->不推荐；1->推荐")
     private Integer recommandStatus;
+    @Schema(title = "删除状态：0->未删除；1->已删除")
+    private Integer deleteStatus;
 }

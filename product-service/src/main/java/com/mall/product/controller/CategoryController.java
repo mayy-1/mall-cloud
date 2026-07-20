@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 商品分类模块Controller
- * Created by macro on 2018/4/26.
+ * 商品分类管理 Controller
+ * 【管理端专用】全部分类增删改查 + 树形展示
  */
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ import java.util.List;
 public class CategoryController {
     private final ICategoryService productCategoryService;
 
+    /** 【管理端】添加产品分类 */
     @Operation(summary = "添加产品分类")
     @PostMapping("/create")
     public CommonResult create(@Validated @RequestBody PmsProductCategoryParam productCategoryParam) {
@@ -37,6 +38,7 @@ public class CategoryController {
         }
     }
 
+    /** 【管理端】修改商品分类 */
     @Operation(summary = "修改商品分类")
     @PostMapping("/update/{id}")
     public CommonResult update(@PathVariable Long id,
@@ -50,6 +52,7 @@ public class CategoryController {
         }
     }
 
+    /** 【管理端】分页查询指定父分类下的子分类 */
     @Operation(summary = "分页查询商品分类")
     @GetMapping("/list/{parentId}")
     public CommonResult<CommonPage<PmsProductCategory>> getList(@PathVariable Long parentId,
@@ -59,6 +62,7 @@ public class CategoryController {
         return CommonResult.success(CommonPage.restPage(productCategoryList));
     }
 
+    /** 【管理端】根据ID获取商品分类 */
     @Operation(summary = "根据id获取商品分类")
     @GetMapping("/{id}")
     public CommonResult<PmsProductCategory> getItem(@PathVariable Long id) {
@@ -66,6 +70,7 @@ public class CategoryController {
         return CommonResult.success(productCategory);
     }
 
+    /** 【管理端】删除商品分类 */
     @Operation(summary = "删除商品分类")
     @PostMapping("/delete/{id}")
     public CommonResult delete(@PathVariable Long id) {
@@ -77,6 +82,7 @@ public class CategoryController {
         }
     }
 
+    /** 【管理端】修改导航栏显示状态 */
     @Operation(summary = "修改导航栏显示状态")
     @PostMapping("/update/navStatus")
     public CommonResult updateNavStatus(@RequestParam("ids") List<Long> ids, @RequestParam("navStatus") Integer navStatus) {
@@ -88,6 +94,7 @@ public class CategoryController {
         }
     }
 
+    /** 【管理端】修改显示状态 */
     @Operation(summary = "修改显示状态")
     @PostMapping("/update/showStatus")
     public CommonResult updateShowStatus(@RequestParam("ids") List<Long> ids, @RequestParam("showStatus") Integer showStatus) {
@@ -99,6 +106,7 @@ public class CategoryController {
         }
     }
 
+    /** 【管理端】查询所有一级分类及子分类 */
     @Operation(summary = "查询所有一级分类及子分类")
     @GetMapping("/list/withChildren")
     public CommonResult<List<PmsProductCategoryWithChildrenItem>> listWithChildren() {

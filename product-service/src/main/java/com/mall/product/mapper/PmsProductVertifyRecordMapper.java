@@ -26,4 +26,9 @@ public interface PmsProductVertifyRecordMapper {
     int updateByPrimaryKeySelective(PmsProductVertifyRecord row);
 
     int updateByPrimaryKey(PmsProductVertifyRecord row);
+
+    /**
+     * 批量插入商品审核记录
+     */
+    int insertList(@Param("list") List<PmsProductVertifyRecord> list);
 }

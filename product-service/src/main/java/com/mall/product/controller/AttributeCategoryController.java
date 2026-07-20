@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 商品属性分类Controller
- * Created by macro on 2018/4/26.
+ * 商品属性分类管理 Controller
+ * 【管理端专用】所有接口均面向后台管理，用于商品属性分类的增删改查。
+ * 用户端不直接调用此类接口。
  */
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ import java.util.List;
 public class AttributeCategoryController {
     private final IAttributeCategoryService productAttributeCategoryService;
 
-    @Operation(summary = "添加商品属性分类")
+    /** 【管理端】添加商品属性分类 */
     @PostMapping("/create")
     public CommonResult create(@RequestParam String name) {
         int count = productAttributeCategoryService.create(name);
@@ -36,6 +37,7 @@ public class AttributeCategoryController {
     }
 
     @Operation(summary = "修改商品属性分类")
+    // 【管理端】
     @PostMapping("/update/{id}")
     public CommonResult update(@PathVariable Long id, @RequestParam String name) {
         int count = productAttributeCategoryService.update(id, name);
@@ -46,6 +48,7 @@ public class AttributeCategoryController {
         }
     }
 
+    /** 【管理端】删除单个商品属性分类 */
     @Operation(summary = "删除单个商品属性分类")
     @GetMapping("/delete/{id}")
     public CommonResult delete(@PathVariable Long id) {
@@ -57,6 +60,7 @@ public class AttributeCategoryController {
         }
     }
 
+    /** 【管理端】获取单个商品属性分类信息 */
     @Operation(summary = "获取单个商品属性分类信息")
     @GetMapping("/{id}")
     public CommonResult<PmsProductAttributeCategory> getItem(@PathVariable Long id) {
@@ -64,6 +68,7 @@ public class AttributeCategoryController {
         return CommonResult.success(productAttributeCategory);
     }
 
+    /** 【管理端】分页获取所有商品属性分类 */
     @Operation(summary = "分页获取所有商品属性分类")
     @GetMapping("/list")
     public CommonResult<CommonPage<PmsProductAttributeCategory>> getList(@RequestParam(defaultValue = "5") Integer pageSize, @RequestParam(defaultValue = "1") Integer pageNum) {
@@ -71,6 +76,7 @@ public class AttributeCategoryController {
         return CommonResult.success(CommonPage.restPage(productAttributeCategoryList));
     }
 
+    /** 【管理端】获取所有商品属性分类及其下属性 */
     @Operation(summary = "获取所有商品属性分类及其下属性")
     @GetMapping("/list/withAttr")
     public CommonResult<List<PmsProductAttributeCategoryItem>> getListWithAttr() {

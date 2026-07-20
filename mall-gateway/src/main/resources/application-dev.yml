@@ -9,3 +9,8 @@ spring:
   config:
     import:
       - nacos:mall-gateway-dev.yaml?refreshEnabled=true
+  data:
+    redis:
+      lettuce:
+        client-resources:
+          command-timeout: 60s

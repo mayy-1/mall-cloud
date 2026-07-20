@@ -5,6 +5,10 @@ spring:
     name: search-service
   profiles:
     active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/mall_product?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 241119
   data:
     elasticsearch:
       repositories:
@@ -15,6 +19,8 @@ spring:
     socket-timeout: 10s
 mybatis:
   mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
 management:
   endpoints:
     web:

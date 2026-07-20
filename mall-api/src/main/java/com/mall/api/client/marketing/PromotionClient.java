@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 促销服务 Feign 接口
  */
-@FeignClient(name = "marketing-service", path = "/promotion")
+@FeignClient(name = "marketing-service", path = "/promotion", contextId = "marketing-promotion")
 public interface PromotionClient {
 
     /** 计算购物车促销信息 */

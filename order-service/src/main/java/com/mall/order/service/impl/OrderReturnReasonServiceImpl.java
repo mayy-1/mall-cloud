@@ -32,13 +32,8 @@ public class OrderReturnReasonServiceImpl implements IOrderReturnReasonService {
 
     @Override
     public int delete(List<Long> ids) {
-        int count = 0;
-        for (Long id : ids) {
-            OmsOrderReturnReason condition = new OmsOrderReturnReason();
-            condition.setId(id);
-            count += returnReasonMapper.deleteByCondition(condition);
-        }
-        return count;
+        // ✅ 批量删除，1次SQL替代 N 次 deleteByCondition
+        return returnReasonMapper.deleteByIds(ids);
     }
 
     @Override
@@ -52,14 +47,8 @@ public class OrderReturnReasonServiceImpl implements IOrderReturnReasonService {
         if(!status.equals(0)&&!status.equals(1)){
             return 0;
         }
-        int count = 0;
-        for (Long id : ids) {
-            OmsOrderReturnReason record = new OmsOrderReturnReason();
-            record.setId(id);
-            record.setStatus(status);
-            count += returnReasonMapper.updateByPrimaryKeySelective(record);
-        }
-        return count;
+        // ✅ 批量更新状态，1次SQL替代 N 次 updateByPrimaryKeySelective
+        return returnReasonMapper.updateStatusByIds(ids, status);
     }
 
     @Override

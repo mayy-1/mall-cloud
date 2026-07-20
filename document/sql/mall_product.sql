@@ -1,5 +1,41 @@
 -- ============================================================
--- Database: mall_product -- product-service database
+-- Database: mall_product -- product-service 数据库
+-- ============================================================
+-- 
+-- 数据库用途分析：
+-- mall_product 是商品微服务（product-service）的专属数据库，
+-- 存储所有与商品相关的核心业务数据。共 18 张表，全部以 pms_ 为前缀。
+--
+-- 表按功能分为以下几类：
+--
+-- 【商品核心表】（管理端+用户端共用）
+--   pms_product                    商品主表（最核心）
+--   pms_product_attribute          商品属性参数表
+--   pms_product_attribute_value    商品属性值
+--   pms_product_attribute_category 商品属性分类
+--   pms_product_category           商品分类表
+--   pms_product_category_attribute_relation 分类-属性关系
+--   pms_sku_stock                  SKU 库存表
+--
+-- 【商品扩展表】（管理端主导，用户端查看）
+--   pms_brand                      品牌表
+--   pms_member_price               商品会员价格表
+--   pms_product_full_reduction     商品满减信息
+--   pms_product_ladder             商品阶梯价格
+--   pms_feight_template            运费模板
+--   pms_comment                    商品评价表
+--   pms_comment_replay             评价回复表
+--
+-- 【管理端专用辅助表】
+--   pms_album                      商品相册
+--   pms_album_pic                  相册图片
+--   pms_product_operate_log        商品操作日志
+--   pms_product_vertify_record    商品审核记录
+--
+-- 与 marketing-service 的关系：
+-- product-service 本地还维护了 2 张 Cms* 关系表（CmsPrefrenceAreaProductRelation、
+-- CmsSubjectProductRelation），仅存储商品维度的关系ID，主表数据在 marketing-service
+-- 的 mall_marketing 数据库中。这属于跨库冗余，后续应考虑通过 Feign 调用替换。
 -- ============================================================
 
 SET NAMES utf8mb4;

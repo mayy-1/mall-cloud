@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 会员收货地址服务 Feign 接口
  */
-@FeignClient(name = "member-service", path = "/member/address")
+@FeignClient(name = "member-service", path = "/member/address", contextId = "member-address")
 public interface MemberAddressClient {
 
     /** 获取会员收货地址列表 */

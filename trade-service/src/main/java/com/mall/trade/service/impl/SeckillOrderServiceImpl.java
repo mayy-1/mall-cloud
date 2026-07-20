@@ -1,7 +1,7 @@
 package com.mall.trade.service.impl;
 
 import com.mall.api.client.member.MemberClient;
-import com.mall.api.client.product.ProductClient;
+import com.mall.api.client.product.SkuStockClient;
 import com.mall.api.dto.MemberDTO;
 import com.mall.api.dto.SkuStockDTO;
 import com.mall.trade.domain.dto.SeckillOrderMessage;
@@ -41,7 +41,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     private final RedissonClient redissonClient;
     private final OmsOrderMapper orderMapper;
     private final OmsOrderItemMapper orderItemMapper;
-    private final ProductClient productClient;
+    private final SkuStockClient skuStockClient;
     private final MemberClient memberClient;
     private final RedisService redisService;
 
@@ -70,14 +70,14 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             MemberDTO member = memberClient.getById(memberId).getData();
 
             // 3. 查找商品 SKU（取第一个 SKU）
-            List<SkuStockDTO> skuList = productClient.getSkuStockByProductId(productId).getData();
+            List<SkuStockDTO> skuList = skuStockClient.getSkuStockByProductId(productId).getData();
             if (skuList == null || skuList.isEmpty()) {
                 throw new RuntimeException("商品SKU不存在, productId=" + productId);
             }
             SkuStockDTO skuStock = skuList.get(0);
 
             // 4. 锁定库存（lock_stock + 1）
-            productClient.lockStock(skuStock.getId(), message.getQuantity());
+            skuStockClient.lockStock(skuStock.getId(), message.getQuantity());
 
             // 5. 构建订单对象
             OmsOrder order = new OmsOrder();

@@ -14,20 +14,22 @@ import java.util.Map;
 /**
  * 会员服务 Feign 接口
  */
-@FeignClient(name = "member-service")
+@FeignClient(name = "member-service", contextId = "member-default")
 public interface MemberClient {
 
     /** 获取当前登录会员 */
-    @GetMapping("/member/current")
+    @GetMapping("/sso/info")
     CommonResult<MemberDTO> getCurrentMember();
 
     /** 根据ID查询会员信息 */
-    @GetMapping("/member/{id}")
+    @GetMapping("/sso/{id}")
     CommonResult<MemberDTO> getById(@PathVariable Long id);
 
-    /** 更新会员积分 */
+    /** 更新会员积分（sourceType: 0=购物, 1=管理员修改） */
     @PostMapping("/member/updateIntegration")
-    void updateIntegration(@RequestParam Long id, @RequestParam Integer integration);
+    void updateIntegration(@RequestParam Long id,
+                           @RequestParam Integer integration,
+                           @RequestParam(defaultValue = "0") Integer sourceType);
 
     /** 获取积分消费设置 */
     @GetMapping("/member/integrationConsumeSetting")

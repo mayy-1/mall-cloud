@@ -29,8 +29,11 @@ public interface IMemberService {
     /** 获取当前登录会员 */
     UmsMember getCurrentMember();
 
-    /** 更新会员积分 */
-    void updateIntegration(Long id, Integer integration);
+    /** 更新会员积分（同时记录变动历史）
+     * @param id 会员ID
+     * @param integration 更新后的积分值
+     * @param sourceType 积分来源：0=购物，1=管理员修改 */
+    void updateIntegration(Long id, Integer integration, Integer sourceType);
 
     /** 会员登录 */
     SaTokenInfo login(String username, String password);

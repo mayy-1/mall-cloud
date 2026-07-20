@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Param;
 
 import org.springframework.context.annotation.Primary;
 
-/**会员价格Mapper */
+/**
+ * 会员价格Mapper
+ * 【管理端专用】商品创建/编辑时设置不同会员等级的价格
+ * 对应表: pms_member_price
+ */
 @Primary
 public interface PmsMemberPriceMapper {
 
@@ -26,4 +30,9 @@ public interface PmsMemberPriceMapper {
     int updateByPrimaryKeySelective(PmsMemberPrice row);
 
     int updateByPrimaryKey(PmsMemberPrice row);
+
+    /**
+     * 批量插入会员价格
+     */
+    int insertList(@Param("list") List<PmsMemberPrice> list);
 }

@@ -2,16 +2,21 @@ package com.mall.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
+import com.mall.api.dto.BrandDTO;
+import com.mall.api.dto.ProductDTO;
 import com.mall.product.mapper.*;
 import com.mall.product.domain.dto.PmsProductParam;
 import com.mall.product.domain.dto.PmsProductQueryParam;
 import com.mall.product.domain.dto.PmsProductResult;
 import com.mall.product.model.*;
 import com.mall.product.service.IProductService;
+import com.mym.mall.common.api.CommonResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -22,9 +27,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * 商品管理Service实现类
- * Created by macro on 2018/4/26.
+ * 【管理端+用户端+订单系统】
  */
 @Service
 @RequiredArgsConstructor
@@ -59,6 +66,7 @@ public class IProductServiceImpl implements IProductService {
     private final PmsProductVertifyRecordMapper productVertifyRecordMapper;
 
     @Override
+    @Transactional
     public int create(PmsProductParam productParam) {
         int count;
         //创建商品
@@ -111,6 +119,7 @@ public class IProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional
     public int update(Long id, PmsProductParam productParam) {
         int count;
         //更新商品信息
@@ -168,12 +177,12 @@ public class IProductServiceImpl implements IProductService {
         skuStockCondition.setProductId(id);
         List<PmsSkuStock> oriStuList = skuStockMapper.selectByCondition(skuStockCondition);
         //获取新增sku信息
-        List<PmsSkuStock> insertSkuList = currSkuList.stream().filter(item -> item.getId() == null).collect(Collectors.toList());
+        List<PmsSkuStock> insertSkuList = currSkuList.stream().filter(item -> item.getId() == null).collect(toList());
         //获取需要更新的sku信息
-        List<PmsSkuStock> updateSkuList = currSkuList.stream().filter(item -> item.getId() != null).collect(Collectors.toList());
-        List<Long> updateSkuIds = updateSkuList.stream().map(PmsSkuStock::getId).collect(Collectors.toList());
+        List<PmsSkuStock> updateSkuList = currSkuList.stream().filter(item -> item.getId() != null).collect(toList());
+        List<Long> updateSkuIds = updateSkuList.stream().map(PmsSkuStock::getId).collect(toList());
         //获取需要删除的sku信息
-        List<PmsSkuStock> removeSkuList = oriStuList.stream().filter(item -> !updateSkuIds.contains(item.getId())).collect(Collectors.toList());
+        List<PmsSkuStock> removeSkuList = oriStuList.stream().filter(item -> !updateSkuIds.contains(item.getId())).collect(toList());
         handleSkuStockCode(insertSkuList, id);
         handleSkuStockCode(updateSkuList, id);
         //新增sku
@@ -182,10 +191,9 @@ public class IProductServiceImpl implements IProductService {
         }
         //删除sku
         if (CollUtil.isNotEmpty(removeSkuList)) {
-            List<Long> removeSkuIds = removeSkuList.stream().map(PmsSkuStock::getId).collect(Collectors.toList());
-            for (Long skuId : removeSkuIds) {
-                skuStockMapper.deleteByPrimaryKey(skuId);
-            }
+            List<Long> removeSkuIds = removeSkuList.stream().map(PmsSkuStock::getId).collect(toList());
+            // ✅ 批量删除SKU，1次SQL替代 N 次 deleteByPrimaryKey
+            skuStockMapper.deleteByIds(removeSkuIds);
         }
         //修改sku
         if (CollUtil.isNotEmpty(updateSkuList)) {
@@ -229,24 +237,21 @@ public class IProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional
     public int updateVerifyStatus(List<Long> ids, Integer verifyStatus, String detail) {
         List<PmsProductVertifyRecord> list = new ArrayList<>();
-        int count = 0;
-        for (Long id : ids) {
-            PmsProduct product = new PmsProduct();
-            product.setId(id);
-            product.setVerifyStatus(verifyStatus);
-            count += productMapper.updateByPrimaryKeySelective(product);
-        }
+        PmsProduct record = new PmsProduct();
+        record.setVerifyStatus(verifyStatus);
+        int count = productMapper.updateByIds(record, ids);
         //修改完审核状态后插入审核记录
         for (Long id : ids) {
-            PmsProductVertifyRecord record = new PmsProductVertifyRecord();
-            record.setProductId(id);
-            record.setCreateTime(new Date());
-            record.setDetail(detail);
-            record.setStatus(verifyStatus);
-            record.setVertifyMan("test");
-            list.add(record);
+            PmsProductVertifyRecord Precord = new PmsProductVertifyRecord();
+            Precord.setProductId(id);
+            Precord.setCreateTime(new Date());
+            Precord.setDetail(detail);
+            Precord.setStatus(verifyStatus);
+            Precord.setVertifyMan("test");
+            list.add(Precord);
         }
         productVertifyRecordMapper.insertList(list);
         return count;
@@ -254,49 +259,34 @@ public class IProductServiceImpl implements IProductService {
 
     @Override
     public int updatePublishStatus(List<Long> ids, Integer publishStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProduct product = new PmsProduct();
-            product.setId(id);
-            product.setPublishStatus(publishStatus);
-            count += productMapper.updateByPrimaryKeySelective(product);
-        }
+        PmsProduct record = new PmsProduct();
+        record.setPublishStatus(publishStatus);
+        int count = productMapper.updateByIds(record, ids);
         return count;
     }
 
     @Override
     public int updateRecommendStatus(List<Long> ids, Integer recommendStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProduct product = new PmsProduct();
-            product.setId(id);
-            product.setRecommandStatus(recommendStatus);
-            count += productMapper.updateByPrimaryKeySelective(product);
-        }
+        PmsProduct record = new PmsProduct();
+        record.setRecommandStatus(recommendStatus);
+        int count = productMapper.updateByIds(record, ids);
         return count;
     }
 
     @Override
     public int updateNewStatus(List<Long> ids, Integer newStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProduct product = new PmsProduct();
-            product.setId(id);
-            product.setNewStatus(newStatus);
-            count += productMapper.updateByPrimaryKeySelective(product);
-        }
+        PmsProduct record = new PmsProduct();
+        record.setNewStatus(newStatus);
+        int count = productMapper.updateByIds(record, ids);
         return count;
     }
 
     @Override
     public int updateDeleteStatus(List<Long> ids, Integer deleteStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProduct product = new PmsProduct();
-            product.setId(id);
-            product.setDeleteStatus(deleteStatus);
-            count += productMapper.updateByPrimaryKeySelective(product);
-        }
+        // ✅ 批量更新删除状态
+        PmsProduct record = new PmsProduct();
+        record.setDeleteStatus(deleteStatus);
+        int count = productMapper.updateByIds(record, ids);
         return count;
     }
 
@@ -320,14 +310,14 @@ public class IProductServiceImpl implements IProductService {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
-        List<PmsProduct> result = new ArrayList<>();
-        for (Long id : ids) {
-            PmsProduct product = productMapper.selectByPrimaryKey(id);
-            if (product != null && product.getDeleteStatus() != null && product.getDeleteStatus() == 0) {
-                result.add(product);
-            }
-        }
-        return result;
+        List<PmsProduct> products = productMapper.selectByIds(ids);
+        return products;
+    }
+
+    @Override
+    public List<PmsProduct> search(String keyword, Integer pageNum, Integer pageSize, Integer sort) {
+        PageHelper.startPage(pageNum, pageSize);
+        return productMapper.selectBySearch(keyword, sort);
     }
 
     /**
@@ -354,4 +344,69 @@ public class IProductServiceImpl implements IProductService {
         }
     }
 
+    @Override
+    public CommonResult<List<ProductDTO>> listRecommendProduct(Integer pageNum, Integer pageSize) {
+        PmsProductQueryParam param = new PmsProductQueryParam();
+        param.setPublishStatus(1);
+        param.setRecommandStatus(1);
+        param.setDeleteStatus(0);
+        PageHelper.startPage(pageNum, pageSize);
+        List<PmsProduct> list = productMapper.selectByCondition(toProduct(param));
+        return CommonResult.success(list.stream().map(this::toDto).collect(toList()));
+    }
+
+    @Override
+    public CommonResult<List<ProductDTO>> listHotProduct(Integer pageNum, Integer pageSize) {
+        PmsProductQueryParam param = new PmsProductQueryParam();
+        param.setPublishStatus(1);
+        param.setDeleteStatus(0);
+        PageHelper.startPage(pageNum, pageSize);
+        List<PmsProduct> list = productMapper.selectByCondition(toProduct(param));
+        return CommonResult.success(list.stream().map(this::toDto).collect(toList()));
+    }
+
+    @Override
+    public CommonResult<List<ProductDTO>> listNewProduct(Integer pageNum, Integer pageSize) {
+        PmsProductQueryParam param = new PmsProductQueryParam();
+        param.setPublishStatus(1);
+        param.setNewStatus(1);
+        param.setDeleteStatus(0);
+        PageHelper.startPage(pageNum, pageSize);
+        List<PmsProduct> list = productMapper.selectByCondition(toProduct(param));
+        return CommonResult.success(list.stream().map(this::toDto).collect(toList()));
+    }
+
+    @Override
+    public List<ProductDTO> productList(PmsProductQueryParam param, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        PmsProduct product = new PmsProduct();
+        BeanUtils.copyProperties(param, product);
+        List<PmsProduct> list = productMapper.selectByCondition(product);
+        return list.stream().map(p-> {
+            ProductDTO productDTO = new ProductDTO();
+            BeanUtils.copyProperties(p, productDTO);
+            return productDTO;
+        }).collect(toList());
+    }
+
+    /**
+     * 将查询参数 DTO 转为 Mapper 所需的实体类
+     */
+    private PmsProduct toProduct(PmsProductQueryParam param) {
+        PmsProduct product = new PmsProduct();
+        BeanUtils.copyProperties(param, product);
+        return product;
+    }
+
+    private ProductDTO toDto(PmsProduct p) {
+        ProductDTO dto = new ProductDTO();
+        dto.setId(p.getId());
+        dto.setName(p.getName());
+        dto.setPic(p.getPic());
+        dto.setPrice(p.getPrice());
+        dto.setStock(p.getStock());
+        dto.setBrandName(p.getBrandName());
+        dto.setProductSn(p.getProductSn());
+        return dto;
+    }
 }

@@ -1,12 +1,11 @@
 package com.mym.mall.config;
 
 import com.mym.mall.common.config.BaseRedisConfig;
-import org.springframework.context.annotation.Configuration;
 
 /**
- * Redis相关配置
+ * Redis 配置适配。
+ * BaseRedisConfig（mall-common）已通过 @Configuration 自动注册 redisTemplate 等 bean，
+ * 本类仅作为 gateway 模块的占位适配，不可再声明 @Configuration 避免 bean 重复定义。
  */
-@Configuration
 public class RedisConfig extends BaseRedisConfig {
-
 }

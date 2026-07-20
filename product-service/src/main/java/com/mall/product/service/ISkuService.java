@@ -6,6 +6,9 @@ import java.util.List;
 
 /**
  * sku商品库存管理Service
+ * 【管理端+订单系统】
+ * - 管理端：SKU列表查询(getList)、批量编辑库存(update)
+ * - 订单系统：库存扣减(deductStock)、库存锁定(lockStock)、库存释放(releaseStock)、支付成功扣减(paySuccessDeductStock)
  * Created by macro on 2018/4/27.
  */
 public interface ISkuService {

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * OSS对象存储服务接口
- * 提供文件上传签名生成和回调处理
+ * 【管理端专用】提供文件上传签名生成和回调处理，用于管理端商品图片/相册上传
  */
 public interface IOssService {
     /** 生成OSS上传签名策略 */

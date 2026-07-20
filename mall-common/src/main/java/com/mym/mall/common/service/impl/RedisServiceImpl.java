@@ -1,6 +1,8 @@
 package com.mym.mall.common.service.impl;
 
 import com.mym.mall.common.service.RedisService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * redis操作实现类
  */
 @Service
+@ConditionalOnClass(RedisOperations.class)
 public class RedisServiceImpl implements RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 

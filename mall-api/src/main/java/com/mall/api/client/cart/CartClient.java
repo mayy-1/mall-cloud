@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 购物车服务 Feign 接口
  */
-@FeignClient(name = "cart-service", path = "/cart")
+@FeignClient(name = "cart-service", path = "/cart", contextId = "cart-default")
 public interface CartClient {
 
     /** 获取购物车列表 */

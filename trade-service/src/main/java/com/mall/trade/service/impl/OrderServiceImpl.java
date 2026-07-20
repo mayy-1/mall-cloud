@@ -6,8 +6,9 @@ import com.github.pagehelper.PageHelper;
 import com.mall.api.client.cart.CartClient;
 import com.mall.api.client.member.MemberAddressClient;
 import com.mall.api.client.member.MemberClient;
-import com.mall.api.client.member.MemberCouponClient;
-import com.mall.api.client.product.ProductClient;
+import com.mall.api.client.marketing.MarketingCouponClient;
+import com.mall.api.client.product.SkuStockClient;
+import io.seata.spring.annotation.GlobalTransactional;
 import com.mall.api.dto.*;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.exception.Asserts;
@@ -46,14 +47,14 @@ public class OrderServiceImpl implements IOrderService {
 
     /** 会员服务Feign客户端 */
     private final MemberClient memberClient;
-    /** 商品服务Feign客户端 */
-    private final ProductClient productClient;
+    /** SKU库存服务Feign客户端 */
+    private final SkuStockClient skuStockClient;
     /** 购物车服务Feign客户端 */
     private final CartClient cartClient;
     /** 收货地址服务Feign客户端 */
     private final MemberAddressClient memberAddressClient;
     /** 会员优惠券服务Feign客户端 */
-    private final MemberCouponClient memberCouponClient;
+    private final MarketingCouponClient marketingCouponClient;
     /** 订单Mapper */
     private final OmsOrderMapper orderMapper;
     /** 前台订单商品项Mapper */
@@ -85,7 +86,7 @@ public class OrderServiceImpl implements IOrderService {
         result.setCartPromotionItemList(cartPromotionItemList);
         List<MemberAddressDTO> memberReceiveAddressList = memberAddressClient.list().getData();
         result.setMemberReceiveAddressList(memberReceiveAddressList);
-        List<CouponHistoryDetailDTO> couponHistoryDetailList = memberCouponClient.listCart(cartPromotionItemList, 1).getData();
+        List<CouponHistoryDetailDTO> couponHistoryDetailList = marketingCouponClient.listCart(cartPromotionItemList, 1).getData();
         result.setCouponHistoryDetailList(couponHistoryDetailList);
         result.setMemberIntegration(currentMember.getIntegration());
         IntegrationConsumeSettingDTO integrationConsumeSetting = memberClient.getIntegrationConsumeSetting().getData();
@@ -96,6 +97,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
+    @GlobalTransactional(timeoutMills = 300000, name = "trade-generate-order")
     public Map<String, Object> generateOrder(OrderParam orderParam) {
         List<OmsOrderItem> orderItemList = new ArrayList<>();
         if(orderParam.getMemberReceiveAddressId()==null){
@@ -232,12 +234,13 @@ public class OrderServiceImpl implements IOrderService {
         orderMapper.updateByPrimaryKeySelective(order);
         OmsOrderDetail orderDetail = portalOrderMapper.getDetail(orderId);
         for (OmsOrderItem orderItem : orderDetail.getOrderItemList()) {
-            productClient.paySuccessDeductStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+            skuStockClient.paySuccessDeductStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
         }
         return orderDetail.getOrderItemList().size();
     }
 
     @Override
+    @GlobalTransactional(timeoutMills = 300000, name = "trade-cancel-timeout")
     public Integer cancelTimeOutOrder() {
         Integer count = 0;
         OmsOrderSetting orderSetting = orderSettingMapper.selectByPrimaryKey(1L);
@@ -252,7 +255,7 @@ public class OrderServiceImpl implements IOrderService {
         portalOrderMapper.updateOrderStatus(ids, 4);
         for (OmsOrderDetail timeOutOrder : timeOutOrders) {
             for (OmsOrderItem orderItem : timeOutOrder.getOrderItemList()) {
-                productClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+                skuStockClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
             }
             updateCouponStatus(timeOutOrder.getCouponId(), timeOutOrder.getMemberId(), 0);
             if (timeOutOrder.getUseIntegration() != null) {
@@ -280,7 +283,7 @@ public class OrderServiceImpl implements IOrderService {
             List<OmsOrderItem> orderItemList = orderItemMapper.selectByCondition(itemCondition);
             if (!CollectionUtils.isEmpty(orderItemList)) {
                 for (OmsOrderItem orderItem : orderItemList) {
-                    productClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
+                    skuStockClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
                 }
             }
             // 秒杀订单回滚 Redis 库存
@@ -456,7 +459,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private void updateCouponStatus(Long couponId, Long memberId, Integer useStatus) {
         if (couponId == null) return;
-        memberCouponClient.updateCouponStatus(couponId, memberId, useStatus);
+        marketingCouponClient.updateCouponStatus(couponId, memberId, useStatus);
     }
 
     private void handleRealAmount(List<OmsOrderItem> orderItemList) {
@@ -593,7 +596,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     private CouponHistoryDetailDTO getUseCoupon(List<CartPromotionItemDTO> cartPromotionItemList, Long couponId) {
-        List<CouponHistoryDetailDTO> couponHistoryDetailList = memberCouponClient.listCart(cartPromotionItemList, 1).getData();
+        List<CouponHistoryDetailDTO> couponHistoryDetailList = marketingCouponClient.listCart(cartPromotionItemList, 1).getData();
         for (CouponHistoryDetailDTO couponHistoryDetail : couponHistoryDetailList) {
             if (couponHistoryDetail.getCoupon().getId().equals(couponId)) {
                 return couponHistoryDetail;
@@ -612,7 +615,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private void lockStock(List<CartPromotionItemDTO> cartPromotionItemList) {
         for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
-            productClient.lockStock(cartPromotionItem.getProductSkuId(), cartPromotionItem.getQuantity());
+            skuStockClient.lockStock(cartPromotionItem.getProductSkuId(), cartPromotionItem.getQuantity());
         }
     }
 

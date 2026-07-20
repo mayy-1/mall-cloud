@@ -518,8 +518,6 @@
         </collection>
         <collection property="productAttributeValueList" columnPrefix="attribute_" resultMap="com.mall.product.mapper.PmsProductAttributeValueMapper.BaseResultMap">
         </collection>
-        <collection property="subjectProductRelationList" column="{productId=id}" select="selectSubjectProductRelationByProductId"/>
-        <collection property="prefrenceAreaProductRelationList" column="{productId=id}" select="selectPrefrenceAreaProductRelationByProductId"/>
 
     </resultMap>
 
@@ -594,6 +592,18 @@
       <if test="detailMobileHtml != null">AND detail_mobile_html = #{detailMobileHtml}</if>
     </where>
   </select>
+  <select id="selectByIds" resultMap="ResultMapWithBLOBs">
+    SELECT
+    <include refid="Base_Column_List" />
+    ,<include refid="Blob_Column_List" />
+    FROM pms_product
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+    AND delete_status = 0
+  </select>
+
 
   <delete id="deleteByCondition" parameterType="com.mall.product.model.PmsProduct">
     DELETE FROM pms_product
@@ -733,5 +743,51 @@
       <if test="condition.detailMobileHtml != null">AND detail_mobile_html = #{condition.detailMobileHtml}</if>
     </where>
   </update>
+
+  <!-- 批量按ID更新状态字段 -->
+  <update id="updateByIds">
+    UPDATE pms_product
+    <set>
+      <if test="record.deleteStatus != null">delete_status = #{record.deleteStatus},</if>
+      <if test="record.publishStatus != null">publish_status = #{record.publishStatus},</if>
+      <if test="record.newStatus != null">new_status = #{record.newStatus},</if>
+      <if test="record.recommandStatus != null">recommand_status = #{record.recommandStatus},</if>
+      <if test="record.verifyStatus != null">verify_status = #{record.verifyStatus},</if>
+    </set>
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </update>
+
+  <!-- 前台商品搜索：JOIN品牌/分类表，模糊匹配多字段 -->
+  <select id="selectBySearch" resultMap="ResultMapWithBLOBs">
+    SELECT p.* FROM pms_product p
+    LEFT JOIN pms_brand b ON p.brand_id = b.id
+    LEFT JOIN pms_product_category c ON p.product_category_id = c.id
+    WHERE p.publish_status = 1
+    <if test="keyword != null and keyword != ''">
+      AND (p.name LIKE concat('%', #{keyword}, '%')
+           OR p.keywords LIKE concat('%', #{keyword}, '%')
+           OR p.product_sn LIKE concat('%', #{keyword}, '%')
+           OR b.name LIKE concat('%', #{keyword}, '%')
+           OR c.name LIKE concat('%', #{keyword}, '%'))
+    </if>
+    <if test="sort == null or sort == 0">
+      ORDER BY p.sort DESC
+    </if>
+    <if test="sort == 1">
+      ORDER BY p.id DESC
+    </if>
+    <if test="sort == 2">
+      ORDER BY p.sale DESC
+    </if>
+    <if test="sort == 3">
+      ORDER BY p.price ASC
+    </if>
+    <if test="sort == 4">
+      ORDER BY p.price DESC
+    </if>
+  </select>
 
 </mapper>

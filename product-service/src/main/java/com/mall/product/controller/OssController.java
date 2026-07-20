@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Oss相关操作接口
- * Created by macro on 2018/4/26.
+ * 阿里云 OSS 对象存储 Controller
  */
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class OssController {
     private final IOssService ossService;
 
+    /** 【管理端】OSS 上传签名生成（前端直传 OSS 时获取临时授权） */
     @Operation(summary = "oss上传签名生成")
     @GetMapping("/policy")
     public CommonResult<OssPolicyResult> policy() {
@@ -29,6 +29,7 @@ public class OssController {
         return CommonResult.success(result);
     }
 
+    /** 【管理端】OSS 上传成功回调（OSS 通知服务端上传完成） */
     @Operation(summary = "oss上传成功回调")
     @PostMapping("callback")
     public CommonResult<OssCallbackResult> callback(HttpServletRequest request) {

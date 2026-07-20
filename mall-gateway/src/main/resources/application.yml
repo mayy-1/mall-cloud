@@ -59,9 +59,9 @@ spring:
               filters:
                 - StripPrefix=1
 
-            # ========== 前台门户路由 (mall-app / H5 前端) ==========
-            - id: portal-portal-service
-              uri: lb://portal-service
+            # ========== 前台门户路由 (mall-app / H5 前端) - 直连服务，无 BFF 层 ==========
+            - id: portal-product-service
+              uri: lb://product-service
               predicates:
                 - Path=/mall-portal/home/**,/mall-portal/product/**,/mall-portal/brand/**
               filters:
@@ -171,8 +171,6 @@ sa-token:
   is-concurrent: true
   # 在多人登录同一账号时，是否共用一个token (为false时每次登录新建一个token)
   is-share: false
-  # token风格
-  token-style: uuid
   # 是否输出操作日志
   is-log: false
   # 是否从cookie中读取token

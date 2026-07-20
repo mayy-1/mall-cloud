@@ -26,4 +26,9 @@ public interface CmsSubjectProductRelationMapper {
     int updateByPrimaryKeySelective(CmsSubjectProductRelation row);
 
     int updateByPrimaryKey(CmsSubjectProductRelation row);
+
+    /**
+     * 批量插入专题商品关系
+     */
+    int insertList(@Param("list") List<CmsSubjectProductRelation> list);
 }

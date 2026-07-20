@@ -26,4 +26,9 @@ public interface PmsProductAttributeValueMapper {
     int updateByPrimaryKeySelective(PmsProductAttributeValue row);
 
     int updateByPrimaryKey(PmsProductAttributeValue row);
+
+    /**
+     * 批量插入商品属性值
+     */
+    int insertList(@Param("list") List<PmsProductAttributeValue> list);
 }

@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * 商品sku库存管理Service实现类
+ * 【管理端+订单系统】
+ * - 管理端：getList(SKU列表查询)、update(批量编辑库存，使用REPLACE INTO)
+ * - 订单系统：deductStock(扣减库存)、lockStock(锁定库存)、releaseStock(释放库存)、paySuccessDeductStock(支付成功扣减)
  * Created by macro on 2018/4/27.
  */
 @Service

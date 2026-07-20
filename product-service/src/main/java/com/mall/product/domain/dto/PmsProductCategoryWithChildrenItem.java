@@ -7,9 +7,6 @@ import lombok.Setter;
 
 import java.util.List;
 
-/**
- * Created by macro on 2018/5/25.
- */
 public class PmsProductCategoryWithChildrenItem extends PmsProductCategory {
     @Getter
     @Setter

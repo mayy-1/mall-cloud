@@ -1,6 +1,8 @@
 package com.mall.member.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
+import com.mall.member.mapper.UmsIntegrationConsumeSettingMapper;
+import com.mall.member.model.UmsIntegrationConsumeSetting;
 import com.mym.mall.common.api.CommonResult;
 import com.mall.member.model.UmsMember;
 import com.mall.member.service.IMemberService;
@@ -24,6 +26,8 @@ import java.util.Map;
 public class MemberController {
     /** 会员业务服务 */
     private final IMemberService memberService;
+    /** 积分消费设置Mapper */
+    private final UmsIntegrationConsumeSettingMapper integrationConsumeSettingMapper;
     /** JWT Token前缀 */
     @Value("${sa-token.token-prefix}")
     private String tokenHead;
@@ -52,10 +56,17 @@ public class MemberController {
         return CommonResult.success(tokenMap);
     }
 
-    @Operation(summary = "获取会员信息")
+    @Operation(summary = "获取已登录会员信息")
     @GetMapping("/info")
     public CommonResult info() {
         UmsMember member = memberService.getCurrentMember();
+        return CommonResult.success(member);
+    }
+
+    @Operation(summary = "通过Feign获取会员信息")
+    @GetMapping("/{id}")
+    public CommonResult getById(@PathVariable("id") Long id) {
+        UmsMember member = memberService.getById(id);
         return CommonResult.success(member);
     }
 

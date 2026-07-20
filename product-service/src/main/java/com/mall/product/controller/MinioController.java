@@ -18,8 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * MinIO Object Storage Controller
- * Handles file upload and delete operations via MinIO
+ * MinIO 对象存储 Controller
+ *
+ * 【管理端专用】文件上传和删除操作，主要用于后台管理中商品图片、品牌Logo等文件的上传和删除。
+ * 用户端通过 MinIO 的公开 URL 直接访问文件，不调用本接口。
  */
 @Tag(name = "MinioController", description = "MinIO Object Storage Management")
 @RestController
@@ -40,6 +42,7 @@ public class MinioController {
     @Value("${minio.secretKey}")
     private String SECRET_KEY;
 
+    /** 【管理端】文件上传到 MinIO */
     @Operation(summary = "File upload")
     @PostMapping("/upload")
     public CommonResult<MinioUploadDto> upload(@RequestPart("file") MultipartFile file) {
@@ -100,6 +103,7 @@ public class MinioController {
                 .build();
     }
 
+    /** 【管理端】从 MinIO 删除文件 */
     @Operation(summary = "File delete")
     @PostMapping("/delete")
     public CommonResult delete(@RequestParam("objectName") String objectName) {

@@ -36,6 +36,20 @@ redis:
   key:
     orderId: order_id
   database: 0
+# ========== Seata 分布式事务 ==========
+seata:
+  enabled: false
+  application-id: ${spring.application.name}
+  tx-service-group: mall-tx-group
+  service:
+    vgroup-mapping:
+      mall-tx-group: default
+    grouplist:
+      default: localhost:8091
+  config:
+    type: file
+  registry:
+    type: file
 management:
   endpoints:
     web:

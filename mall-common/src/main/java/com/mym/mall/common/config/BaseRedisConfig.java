@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.mym.mall.common.service.RedisService;
 import com.mym.mall.common.service.impl.RedisServiceImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
@@ -25,6 +27,7 @@ import java.time.Duration;
  * Created by macro on 2020/6/19.
  */
 @Configuration
+@ConditionalOnClass(RedisOperations.class)
 public class BaseRedisConfig {
 
     @Bean

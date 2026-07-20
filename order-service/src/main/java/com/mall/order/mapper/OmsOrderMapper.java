@@ -29,4 +29,14 @@ public interface OmsOrderMapper {
     int updateByPrimaryKeySelective(OmsOrder row);
 
     int updateByPrimaryKey(OmsOrder row);
+
+    /**
+     * 批量关闭订单（status=4，仅限未删除订单）
+     */
+    int closeByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 批量逻辑删除订单（delete_status=1，仅限未删除订单）
+     */
+    int deleteByIds(@Param("ids") List<Long> ids);
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 会员收藏管理Controller
- * Created by macro on 2018/8/2.
  */
 @RestController
 @Tag(name = "ProductCollectionController", description = "会员收藏管理")

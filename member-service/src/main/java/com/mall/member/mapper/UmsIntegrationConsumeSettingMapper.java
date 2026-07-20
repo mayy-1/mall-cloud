@@ -14,6 +14,7 @@ public interface UmsIntegrationConsumeSettingMapper {
     int insert(UmsIntegrationConsumeSetting row);
 
     int insertSelective(UmsIntegrationConsumeSetting row);
+
     UmsIntegrationConsumeSetting selectByPrimaryKey(Long id);
 
     List<UmsIntegrationConsumeSetting> selectByCondition(UmsIntegrationConsumeSetting record);

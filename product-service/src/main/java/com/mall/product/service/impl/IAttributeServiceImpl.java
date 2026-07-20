@@ -16,17 +16,16 @@ import java.util.List;
 
 /**
  * 商品属性Service实现类
- * 负责商品属性（规格/参数）的增删改查，关联更新属性分类计数
+ * 【管理端专用】商品属性/参数的增删改查
+ * 新增/删除属性时自动更新属性分类下的属性计数(attributeCount)或参数计数(paramCount)
  */
 @Service
 @RequiredArgsConstructor
 public class IAttributeServiceImpl implements IAttributeService {
-    /** 标准CRUD Mapper */
+    /** 商品属性Mapper */
     private final PmsProductAttributeMapper productAttributeMapper;
     /** 属性分类Mapper */
     private final PmsProductAttributeCategoryMapper productAttributeCategoryMapper;
-    /** 自定义Mapper（含getProductAttrInfo等复杂查询） */
-    private final PmsProductAttributeMapper productAttributeDao;
 
     @Override
     public List<PmsProductAttribute> getList(Long cid, Integer type, Integer pageSize, Integer pageNum) {
@@ -99,6 +98,6 @@ public class IAttributeServiceImpl implements IAttributeService {
 
     @Override
     public List<ProductAttrInfo> getProductAttrInfo(Long productCategoryId) {
-        return productAttributeDao.getProductAttrInfo(productCategoryId);
+        return productAttributeMapper.getProductAttrInfo(productCategoryId);
     }
 }

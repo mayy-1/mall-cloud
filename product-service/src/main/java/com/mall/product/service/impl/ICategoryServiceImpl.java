@@ -1,8 +1,10 @@
 package com.mall.product.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.mall.product.domain.dto.PmsProductCategoryFlatItem;
 import com.mall.product.domain.dto.PmsProductCategoryParam;
 import com.mall.product.domain.dto.PmsProductCategoryWithChildrenItem;
+import com.mall.product.mapper.PmsProductCategoryAttributeRelationMapper;
 import com.mall.product.mapper.PmsProductCategoryMapper;
 import com.mall.product.mapper.PmsProductMapper;
 import com.mall.product.model.*;
@@ -11,28 +13,30 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商品分类Service实现类
- * Created by macro on 2018/4/26.
+ * 【管理端+用户端】listWithChildren为用户端共用（分类层级树），
+ * 分类增删改、导航/显示状态切换为管理端专用，更新分类时同步更新商品中的分类名称
  */
 @Service
 @RequiredArgsConstructor
 public class ICategoryServiceImpl implements ICategoryService {
 
-    /** 商品Mapper */
     private final PmsProductMapper productMapper;
 
-    /** 分类属性关联Mapper（含批量插入） */
     private final PmsProductCategoryAttributeRelationMapper productCategoryAttributeRelationMapper;
 
-    /** 商品分类Mapper（含listWithChildren） */
     private final PmsProductCategoryMapper productCategoryMapper;
 
     @Override
+    @Transactional
     public int create(PmsProductCategoryParam pmsProductCategoryParam) {
         PmsProductCategory productCategory = new PmsProductCategory();
         productCategory.setProductCount(0);
@@ -65,6 +69,7 @@ public class ICategoryServiceImpl implements ICategoryService {
     }
 
     @Override
+    @Transactional
     public int update(Long id, PmsProductCategoryParam pmsProductCategoryParam) {
         PmsProductCategory productCategory = new PmsProductCategory();
         productCategory.setId(id);
@@ -111,31 +116,45 @@ public class ICategoryServiceImpl implements ICategoryService {
 
     @Override
     public int updateNavStatus(List<Long> ids, Integer navStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProductCategory category = new PmsProductCategory();
-            category.setId(id);
-            category.setNavStatus(navStatus);
-            count += productCategoryMapper.updateByPrimaryKeySelective(category);
-        }
-        return count;
+        PmsProductCategory record = new PmsProductCategory();
+        record.setNavStatus(navStatus);
+        return productCategoryMapper.updateByIds(record, ids);
     }
 
     @Override
     public int updateShowStatus(List<Long> ids, Integer showStatus) {
-        int count = 0;
-        for (Long id : ids) {
-            PmsProductCategory category = new PmsProductCategory();
-            category.setId(id);
-            category.setShowStatus(showStatus);
-            count += productCategoryMapper.updateByPrimaryKeySelective(category);
-        }
-        return count;
+        PmsProductCategory record = new PmsProductCategory();
+        record.setShowStatus(showStatus);
+        return productCategoryMapper.updateByIds(record, ids);
     }
 
     @Override
     public List<PmsProductCategoryWithChildrenItem> listWithChildren() {
-        return productCategoryMapper.listWithChildren();
+        // 1. 从 Mapper 获取扁平数据（一级分类 + 直接子分类，按行展开）
+        List<PmsProductCategoryFlatItem> flatList = productCategoryMapper.listWithChildren();
+        if (CollectionUtils.isEmpty(flatList)) {
+            return new ArrayList<>();
+        }
+        // 2. 在内存中按一级分类ID分组，构建树形结构
+        Map<Long, PmsProductCategoryWithChildrenItem> treeMap = new LinkedHashMap<>();
+        for (PmsProductCategoryFlatItem flat : flatList) {
+            PmsProductCategoryWithChildrenItem parent = treeMap.get(flat.getId());
+            if (parent == null) {
+                parent = new PmsProductCategoryWithChildrenItem();
+                parent.setId(flat.getId());
+                parent.setName(flat.getName());
+                parent.setChildren(new ArrayList<>());
+                treeMap.put(flat.getId(), parent);
+            }
+            // LEFT JOIN 的一级分类自身没有子分类时 child_id 为 NULL，过滤掉
+            if (flat.getChildId() != null) {
+                PmsProductCategory child = new PmsProductCategory();
+                child.setId(flat.getChildId());
+                child.setName(flat.getChildName());
+                parent.getChildren().add(child);
+            }
+        }
+        return new ArrayList<>(treeMap.values());
     }
 
     /**

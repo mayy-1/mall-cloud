@@ -50,15 +50,8 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public int close(List<Long> ids, String note) {
-        int count = 0;
-        for (Long id : ids) {
-            OmsOrder record = new OmsOrder();
-            record.setStatus(4);
-            OmsOrder condition = new OmsOrder();
-            condition.setId(id);
-            condition.setDeleteStatus(0);
-            count += orderMapper.updateSelectiveByCondition(record, condition);
-        }
+        // ✅ 批量关闭订单，1次SQL替代 N 次 updateSelectiveByCondition
+        int count = orderMapper.closeByIds(ids);
         List<OmsOrderOperateHistory> historyList = ids.stream().map(orderId -> {
             OmsOrderOperateHistory history = new OmsOrderOperateHistory();
             history.setOrderId(orderId);
@@ -74,15 +67,8 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public int delete(List<Long> ids) {
-        int count = 0;
-        for (Long id : ids) {
-            OmsOrder record = new OmsOrder();
-            record.setDeleteStatus(1);
-            OmsOrder condition = new OmsOrder();
-            condition.setId(id);
-            condition.setDeleteStatus(0);
-            count += orderMapper.updateSelectiveByCondition(record, condition);
-        }
+        // ✅ 批量逻辑删除订单，1次SQL替代 N 次 updateSelectiveByCondition
+        return orderMapper.deleteByIds(ids);
         return count;
     }
 

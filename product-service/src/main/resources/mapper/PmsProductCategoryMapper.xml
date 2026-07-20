@@ -173,12 +173,14 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-<resultMap id="listWithChildrenMap" type="com.mall.product.domain.dto.PmsProductCategoryWithChildrenItem"
-               extends="com.mall.product.mapper.PmsProductCategoryMapper.BaseResultMap">
-        <collection property="children" resultMap="com.mall.product.mapper.PmsProductCategoryMapper.BaseResultMap"
-                    columnPrefix="child_"></collection>
+
+    <resultMap id="listWithChildrenFlatMap" type="com.mall.product.domain.dto.PmsProductCategoryFlatItem">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="child_id" property="childId"/>
+        <result column="child_name" property="childName"/>
     </resultMap>
-    <select id="listWithChildren" resultMap="listWithChildrenMap">
+    <select id="listWithChildren" resultMap="listWithChildrenFlatMap">
         select
             c1.id,
             c1.name,
@@ -253,6 +255,18 @@
       <if test="condition.keywords != null">AND keywords = #{condition.keywords}</if>
       <if test="condition.description != null">AND description = #{condition.description}</if>
     </where>
+  </update>
+
+  <update id="updateByIds">
+    UPDATE pms_product_category
+    <set>
+      <if test="record.navStatus != null">nav_status = #{record.navStatus},</if>
+      <if test="record.showStatus != null">show_status = #{record.showStatus},</if>
+    </set>
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
   </update>
 
 </mapper>

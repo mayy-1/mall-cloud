@@ -3,6 +3,7 @@ package com.mall.order.service.impl;
 import com.github.pagehelper.PageHelper;import com.mall.order.domain.dto.OmsOrderReturnApplyResult;
 import com.mall.order.domain.dto.OmsReturnApplyQueryParam;
 import com.mall.order.domain.dto.OmsUpdateStatusParam;
+import com.mall.order.mapper.OmsOrderReturnApplyMapper;
 import com.mall.order.model.OmsOrderReturnApply;import com.mall.order.service.IOrderReturnApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

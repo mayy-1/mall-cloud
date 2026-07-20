@@ -17,7 +17,6 @@ package com.mym.mall.util;
 
 import cn.dev33.satoken.SaManager;
 import cn.dev33.satoken.fun.SaFunction;
-import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
 import cn.dev33.satoken.listener.SaTokenEventCenter;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.session.SaTerminalInfo;
@@ -44,7 +43,7 @@ public class StpMemberUtil {
 	/**
 	 * 底层使用的 StpLogic 对象
 	 */
-	public static StpLogic stpLogic = new StpLogicJwtForSimple(TYPE);
+	public static StpLogic stpLogic = new StpLogic(TYPE);
 
 	/**
 	 * 获取当前 StpLogic 的账号类型

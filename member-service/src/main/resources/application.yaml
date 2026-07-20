@@ -41,7 +41,21 @@ pagehelper:
 sa-token:
   token-name: Authorization
   timeout: 2592000
-  jwt-secret-key: abcdefghijklmnopqrstuvwxyz123456
+  token-prefix: Bearer
+# ========== Seata 分布式事务 ==========
+seata:
+  enabled: false
+  application-id: ${spring.application.name}
+  tx-service-group: mall-tx-group
+  service:
+    vgroup-mapping:
+      mall-tx-group: default
+    grouplist:
+      default: localhost:8091
+  config:
+    type: file
+  registry:
+    type: file
 management:
   endpoints:
     web:

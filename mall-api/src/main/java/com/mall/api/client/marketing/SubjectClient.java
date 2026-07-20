@@ -1,5 +1,6 @@
 package com.mall.api.client.marketing;
 
+import com.mall.api.dto.CmsSubjectProductRelationDTO;
 import com.mall.api.dto.SubjectDTO;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.api.CommonResult;
@@ -23,4 +24,8 @@ public interface SubjectClient {
     CommonResult<CommonPage<SubjectDTO>> list(@RequestParam(value = "keyword", required = false) String keyword,
                                               @RequestParam("pageNum") Integer pageNum,
                                               @RequestParam("pageSize") Integer pageSize);
+
+    /** 根据商品ID查询专题关联 */
+    @GetMapping("/productRelation/{productId}")
+    CommonResult<List<CmsSubjectProductRelationDTO>> getProductRelations(@PathVariable Long productId);
 }

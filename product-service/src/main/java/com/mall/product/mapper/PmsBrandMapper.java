@@ -4,7 +4,11 @@ import com.mall.product.model.PmsBrand;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-/**品牌Mapper */
+/**
+ * 品牌Mapper
+ * 【管理端+用户端】品牌查询为共用，增删改为管理端
+ * 对应表: pms_brand
+ */
 public interface PmsBrandMapper {
 
     int deleteByPrimaryKey(Long id);

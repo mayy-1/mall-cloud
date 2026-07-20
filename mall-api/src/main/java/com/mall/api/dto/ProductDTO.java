@@ -10,10 +10,16 @@ import java.math.BigDecimal;
 @Data
 public class ProductDTO {
     private Long id;
+    private Long brandId;
+    private String brandName;
+    private Long productCategoryId;
     private String name;
+    private String subTitle;
     private String pic;
     private BigDecimal price;
     private Integer stock;
-    private String brandName;
+    private Integer sale;
+    private Integer newStatus;
+    private Integer recommandStatus;
     private String productSn;
 }

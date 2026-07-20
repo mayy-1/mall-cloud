@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Param;
 
 import org.springframework.context.annotation.Primary;
 
-/**满减Mapper */
+/**
+ * 商品满减Mapper
+ * 【管理端专用】商品创建/编辑时设置满减规则（如满100减20）
+ * 对应表: pms_product_full_reduction
+ */
 @Primary
 public interface PmsProductFullReductionMapper {
 
@@ -26,4 +30,9 @@ public interface PmsProductFullReductionMapper {
     int updateByPrimaryKeySelective(PmsProductFullReduction row);
 
     int updateByPrimaryKey(PmsProductFullReduction row);
+
+    /**
+     * 批量插入商品满减信息
+     */
+    int insertList(@Param("list") List<PmsProductFullReduction> list);
 }

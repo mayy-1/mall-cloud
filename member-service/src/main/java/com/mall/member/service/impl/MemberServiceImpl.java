@@ -8,11 +8,16 @@ import com.mall.api.dto.MemberLevelDTO;
 import com.mym.mall.common.constant.AuthConstant;
 import com.mym.mall.common.dto.UserDto;
 import com.mym.mall.common.exception.Asserts;
+import com.mall.member.mapper.UmsIntegrationChangeHistoryMapper;
+import com.mall.member.mapper.UmsMemberLoginLogMapper;
 import com.mall.member.mapper.UmsMemberMapper;
+import com.mall.member.model.UmsIntegrationChangeHistory;
 import com.mall.member.model.UmsMember;
+import com.mall.member.model.UmsMemberLoginLog;
 import com.mall.member.service.IMemberCacheService;
 import com.mall.member.service.IMemberService;
 import com.mall.member.util.StpMemberUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -21,6 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Date;
 import java.util.List;
@@ -28,7 +35,6 @@ import java.util.Random;
 
 /**
  * 会员管理Service实现类
- * Created by macro on 2018/8/3.
  */
 @Service
 @RequiredArgsConstructor
@@ -37,6 +43,10 @@ public class MemberServiceImpl implements IMemberService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
     /** 会员Mapper */
     private final UmsMemberMapper memberMapper;
+    /** 积分变动历史Mapper */
+    private final UmsIntegrationChangeHistoryMapper integrationChangeHistoryMapper;
+    /** 登录日志Mapper */
+    private final UmsMemberLoginLogMapper loginLogMapper;
     /** 会员等级 Feign 调用 */
     private final UserMemberLevelClient userMemberLevelClient;
     /** 会员缓存服务 */
@@ -137,11 +147,31 @@ public class MemberServiceImpl implements IMemberService {
     }
 
     @Override
-    public void updateIntegration(Long id, Integer integration) {
-        UmsMember record=new UmsMember();
+    public void updateIntegration(Long id, Integer integration, Integer sourceType) {
+        // 查询旧积分，计算变动量
+        UmsMember member = memberMapper.selectByPrimaryKey(id);
+        int oldIntegration = member.getIntegration() == null ? 0 : member.getIntegration();
+        int changeCount = integration - oldIntegration;
+
+        // 更新积分
+        UmsMember record = new UmsMember();
         record.setId(id);
         record.setIntegration(integration);
         memberMapper.updateByPrimaryKeySelective(record);
+
+        // 记录积分变动历史
+        UmsIntegrationChangeHistory history = new UmsIntegrationChangeHistory();
+        history.setMemberId(id);
+        history.setCreateTime(new Date());
+        history.setChangeType(changeCount > 0 ? 0 : 1);  // 0=增加，1=减少
+        history.setChangeCount(Math.abs(changeCount));
+        history.setSourceType(sourceType);
+        history.setOperateNote(String.format("积分从 %d 变为 %d，%s %d",
+                oldIntegration, integration,
+                changeCount > 0 ? "增加" : "减少",
+                Math.abs(changeCount)));
+        integrationChangeHistoryMapper.insert(history);
+
         memberCacheService.delMember(id);
     }
 
@@ -168,6 +198,8 @@ public class MemberServiceImpl implements IMemberService {
         userDto.setClientId(AuthConstant.PORTAL_CLIENT_ID);
         // 将用户信息存储到Session中
         StpMemberUtil.getSession().set(AuthConstant.STP_MEMBER_INFO,userDto);
+        // 记录登录日志
+        insertLoginLog(member);
         // 获取当前登录用户Token信息
         return StpMemberUtil.getTokenInfo();
     }
@@ -179,6 +211,23 @@ public class MemberServiceImpl implements IMemberService {
         memberCacheService.delMember(userDto.getId());
         //再调用sa-token的登出方法
         StpMemberUtil.logout();
+    }
+
+    /**
+     * 插入会员登录日志
+     */
+    private void insertLoginLog(UmsMember member) {
+        UmsMemberLoginLog loginLog = new UmsMemberLoginLog();
+        loginLog.setMemberId(member.getId());
+        loginLog.setCreateTime(new Date());
+        loginLog.setLoginType(0);  // 0=PC
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            loginLog.setIp(request.getRemoteAddr());
+        }
+        loginLogMapper.insert(loginLog);
     }
 
     //对输入的验证码进行校验

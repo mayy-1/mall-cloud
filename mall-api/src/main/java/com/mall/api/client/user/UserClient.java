@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * 用户权限服务 Feign 接口（后台管理员）
  */
-@FeignClient(name = "user-service", path = "/admin")
+@FeignClient(name = "user-service", path = "/admin", contextId = "user-admin")
 public interface UserClient {
 
     /** 根据ID查询管理员 */
