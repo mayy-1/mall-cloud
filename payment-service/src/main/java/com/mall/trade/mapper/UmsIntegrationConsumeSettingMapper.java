@@ -1,8 +1,9 @@
 package com.mall.trade.mapper;
 
 import com.mall.trade.model.UmsIntegrationConsumeSetting;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * 积分消费设置数据访问接口
@@ -19,7 +20,7 @@ public interface UmsIntegrationConsumeSettingMapper {
     int updateByPrimaryKeySelective(UmsIntegrationConsumeSetting row);
 
     int updateByPrimaryKey(UmsIntegrationConsumeSetting row);
-}
+
     List<UmsIntegrationConsumeSetting> selectByCondition(UmsIntegrationConsumeSetting record);
 
     int deleteByCondition(UmsIntegrationConsumeSetting record);

@@ -1,8 +1,9 @@
 package com.mall.trade.mapper;
 
 import com.mall.trade.model.PmsSkuStock;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * 商品SKU库存数据访问接口
@@ -19,7 +20,7 @@ public interface PmsSkuStockMapper {
     int updateByPrimaryKeySelective(PmsSkuStock row);
 
     int updateByPrimaryKey(PmsSkuStock row);
-}
+
     List<PmsSkuStock> selectByCondition(PmsSkuStock record);
 
     int deleteByCondition(PmsSkuStock record);
