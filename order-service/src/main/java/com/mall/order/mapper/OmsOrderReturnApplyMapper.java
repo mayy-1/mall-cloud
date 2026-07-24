@@ -1,5 +1,7 @@
 package com.mall.order.mapper;
 
+import com.mall.order.domain.dto.OmsOrderReturnApplyResult;
+import com.mall.order.domain.dto.OmsReturnApplyQueryParam;
 import com.mall.order.model.OmsOrderReturnApply;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -29,4 +31,10 @@ public interface OmsOrderReturnApplyMapper {
     int updateByPrimaryKeySelective(OmsOrderReturnApply row);
 
     int updateByPrimaryKey(OmsOrderReturnApply row);
+
+    /** 后台退货申请列表查询 */
+    List<OmsOrderReturnApply> getList(OmsReturnApplyQueryParam queryParam);
+
+    /** 后台退货申请详情 */
+    OmsOrderReturnApplyResult getDetail(@Param("id") Long id);
 }

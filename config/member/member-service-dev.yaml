@@ -1,0 +1,25 @@
+# Sa-Token 配置 — UUID 风格（会员登录认证，token 存 Redis）
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  is-concurrent: true
+  is-share: false
+  is-log: false
+  is-read-cookie: false
+  is-read-header: true
+  token-prefix: Bearer
+
+# Redis 配置 — 用于 token 存储和缓存
+spring:
+  data:
+    redis:
+      host: localhost
+      database: 0
+      port: 6379
+      password: 241119
+
+# 日志
+logging:
+  level:
+    root: info
+    com.mall.member: debug

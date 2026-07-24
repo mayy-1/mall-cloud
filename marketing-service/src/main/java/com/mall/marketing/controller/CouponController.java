@@ -1,5 +1,6 @@
 package com.mall.marketing.controller;
 
+import com.mall.marketing.domain.dto.SmsCouponDetail;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.api.CommonResult;
 import com.mall.marketing.domain.dto.CartPromotionItem;
@@ -21,7 +22,6 @@ import java.util.List;
 
 /**
  * 优惠券管理Controller
- * Created by macro on 2018/8/28.
  */
 @RestController
 @Tag(name = "CouponController", description = "优惠券管理")
@@ -60,14 +60,25 @@ public class CouponController {
         return CommonResult.failed();
     }
 
-    @Operation(summary = "根据优惠券名称和类型分页获取优惠券列表")
+    @Operation(summary = "修改优惠券上下架状态")
+    @PostMapping("/update/status/{id}")
+    public CommonResult updateStatus(@PathVariable Long id, @RequestParam Integer status) {
+        int count = couponService.updateStatus(id, status);
+        if(count>0){
+            return CommonResult.success(count);
+        }
+        return CommonResult.failed();
+    }
+
+    @Operation(summary = "根据优惠券名称、类型和状态分页获取优惠券列表")
     @GetMapping("/list")
     public CommonResult<CommonPage<SmsCoupon>> list(
             @RequestParam(value = "name",required = false) String name,
             @RequestParam(value = "type",required = false) Integer type,
+            @RequestParam(value = "status", required = false) Integer status,
             @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
-        List<SmsCoupon> couponList = couponService.list(name,type,pageSize,pageNum);
+        List<SmsCoupon> couponList = couponService.list(name, type, status, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(couponList));
     }
 
@@ -89,15 +100,15 @@ public class CouponController {
 
     @Operation(summary = "获取会员优惠券历史列表")
     @GetMapping("/member/listHistory")
-    public CommonResult<List<SmsCouponHistory>> listHistory(@RequestParam(value = "useStatus", required = false) Integer useStatus) {
-        List<SmsCouponHistory> list = couponService.listHistory(useStatus);
+    public CommonResult<List<SmsCouponHistoryDetail>> listHistory(@RequestParam(value = "useStatus", required = false) Integer useStatus) {
+        List<SmsCouponHistoryDetail> list = couponService.listHistory(useStatus);
         return CommonResult.success(list);
     }
 
-    @Operation(summary = "获取会员优惠券列表")
+    @Operation(summary = "获取优惠券列表")
     @GetMapping("/member/list")
-    public CommonResult<List<SmsCoupon>> memberList(@RequestParam(value = "useStatus", required = false) Integer useStatus) {
-        List<SmsCoupon> list = couponService.listMemberCoupons(useStatus);
+    public CommonResult<List<SmsCouponDetail>> couponsList() {
+        List<SmsCouponDetail> list = couponService.listAvailableCoupons();
         return CommonResult.success(list);
     }
 

@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 首页轮播广告管理Controller
- * Created by macro on 2018/11/7.
  */
 @RestController
 @Tag(name = "HomeAdvertiseController", description = "首页轮播广告管理")
@@ -44,7 +43,7 @@ public class HomeAdvertiseController {
 
     @Operation(summary = "修改上下线状态")
     @PostMapping("/update/status/{id}")
-    public CommonResult updateStatus(@PathVariable Long id, Integer status) {
+    public CommonResult updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         int count = advertiseService.updateStatus(id, status);
         if (count > 0)
             return CommonResult.success(count);
@@ -76,5 +75,12 @@ public class HomeAdvertiseController {
                                                            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
         List<SmsHomeAdvertise> advertiseList = advertiseService.list(name, type, endTime, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(advertiseList));
+    }
+
+    /** 【Feign】获取所有已上线的首页广告 */
+    @Operation(summary = "获取首页广告")
+    @GetMapping("/search")
+    public CommonResult<List<SmsHomeAdvertise>> getHomeAdvertises() {
+        return CommonResult.success(advertiseService.getHomeAdvertises());
     }
 }

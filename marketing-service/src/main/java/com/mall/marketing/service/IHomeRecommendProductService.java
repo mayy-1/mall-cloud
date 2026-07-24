@@ -35,4 +35,7 @@ public interface IHomeRecommendProductService {
      * 分页查询推荐
      */
     List<SmsHomeRecommendProduct> list(String productName, Integer recommendStatus, Integer pageSize, Integer pageNum);
+
+    /** 获取所有启用状态的人气推荐商品ID */
+    List<Long> getActiveProductIds();
 }

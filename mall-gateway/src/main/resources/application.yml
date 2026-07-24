@@ -49,7 +49,7 @@ spring:
             - id: admin-marketing-service
               uri: lb://marketing-service
               predicates:
-                - Path=/mall-admin/coupon/**,/mall-admin/couponHistory/**,/mall-admin/flash/**,/mall-admin/flashSession/**,/mall-admin/flashProductRelation/**,/mall-admin/home/**,/mall-admin/prefrenceArea/**,/mall-admin/subject/**
+                - Path=/mall-admin/coupon/**,/mall-admin/couponHistory/**,/mall-admin/flash/**,/mall-admin/flashSession/**,/mall-admin/flashProductRelation/**,/mall-admin/home/**,/mall-admin/subject/**
               filters:
                 - StripPrefix=1
             - id: admin-search-service
@@ -72,10 +72,16 @@ spring:
                 - Path=/mall-portal/sso/**,/mall-portal/member/**
               filters:
                 - StripPrefix=1
-            - id: portal-trade-service
-              uri: lb://trade-service
+            - id: portal-order-service
+              uri: lb://order-service
               predicates:
-                - Path=/mall-portal/order/**,/mall-portal/alipay/**,/mall-portal/returnApply/**
+                - Path=/mall-portal/order/**,/mall-portal/returnApply/**
+              filters:
+                - StripPrefix=1
+            - id: portal-payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/mall-portal/alipay/**
               filters:
                 - StripPrefix=1
             - id: portal-cart-service
@@ -87,7 +93,7 @@ spring:
             - id: portal-seckill-service
               uri: lb://marketing-service
               predicates:
-                - Path=/mall-portal/seckill/**
+                - Path=/mall-portal/seckill/**,/mall-portal/flash/**,/mall-portal/subject/**,/mall-portal/coupon/**
               filters:
                 - StripPrefix=1
 
@@ -132,6 +138,8 @@ secure:
       - "/mall-portal/home/**"
       - "/mall-portal/product/**"
       - "/mall-portal/brand/**"
+      - "/mall-portal/subject/**"
+      - "/mall-portal/coupon/member/listByProduct/**"
       - "/mall-portal/alipay/**"
       - "/mall-admin/admin/login"
       - "/mall-admin/admin/register"

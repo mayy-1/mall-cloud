@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 首页人气推荐管理Controller
- * Created by macro on 2018/11/6.
  */
 @RestController
 @Tag(name = "HomeRecommendProductController", description = "首页人气推荐管理")
@@ -72,5 +71,12 @@ public class HomeRecommendProductController {
                                                                   @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
         List<SmsHomeRecommendProduct> homeBrandList = recommendProductService.list(productName, recommendStatus, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(homeBrandList));
+    }
+
+    /** 【Feign】获取所有启用的人气推荐商品ID */
+    @Operation(summary = "获取启用人气推荐商品ID")
+    @GetMapping("/activeIds")
+    public CommonResult<List<Long>> getActiveProductIds() {
+        return CommonResult.success(recommendProductService.getActiveProductIds());
     }
 }

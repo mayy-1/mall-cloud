@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * 商品专题管理Service实现类
- * Created by macro on 2018/6/1.
  */
 @Service
 @RequiredArgsConstructor
@@ -32,5 +31,30 @@ public class SubjectServiceImpl implements ISubjectService {
             condition.setTitle("%" + keyword + "%");
         }
         return subjectMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public List<CmsSubject> listSome() {
+        CmsSubject condition = new CmsSubject();
+        condition.setRecommendStatus(1);
+        condition.setShowStatus(1);
+        return subjectMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public int create(CmsSubject subject) {
+        subject.setCreateTime(new java.util.Date());
+        return subjectMapper.insertSelective(subject);
+    }
+
+    @Override
+    public int update(Long id, CmsSubject subject) {
+        subject.setId(id);
+        return subjectMapper.updateByPrimaryKeySelective(subject);
+    }
+
+    @Override
+    public int delete(Long id) {
+        return subjectMapper.deleteByPrimaryKey(id);
     }
 }

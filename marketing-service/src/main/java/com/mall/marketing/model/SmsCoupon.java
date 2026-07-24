@@ -60,6 +60,9 @@ public class SmsCoupon implements Serializable {
     @Schema(title = "可领取的会员类型：0->无限时")
     private Integer memberLevel;
 
+    @Schema(title = "状态：0->下架；1->上架")
+    private Integer status;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -204,6 +207,14 @@ public class SmsCoupon implements Serializable {
 
     public void setMemberLevel(Integer memberLevel) {
         this.memberLevel = memberLevel;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     @Override

@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * 购物车管理Controller
- * Created by macro on 2018/8/2.
  */
 @RestController
 @Tag(name = "CartController", description = "购物车管理")
@@ -29,6 +28,10 @@ public class CartController {
     /** 会员信息Feign服务 */
     private final MemberClient memberClient;
 
+    /**
+     * 添加商品到购物车
+     * POST /cart/add
+     */
     @Operation(summary = "添加商品到购物车")
     @PostMapping("/add")
     public CommonResult add(@RequestBody OmsCartItem cartItem) {
@@ -39,6 +42,10 @@ public class CartController {
         return CommonResult.failed();
     }
 
+    /**
+     * 获取当前会员购物车列表
+     * GET /cart/list
+     */
     @Operation(summary = "获取某个会员的购物车列表")
     @GetMapping("/list")
     public CommonResult<List<OmsCartItem>> list() {
@@ -46,6 +53,10 @@ public class CartController {
         return CommonResult.success(cartItemList);
     }
 
+    /**
+     * 获取购物车列表（含促销信息，下单前用）
+     * GET /cart/list/promotion
+     */
     @Operation(summary = "获取某个会员的购物车列表,包括促销信息")
     @GetMapping("/list/promotion")
     public CommonResult<List<CartPromotionItemDTO>> listPromotion(@RequestParam(required = false) List<Long> cartIds) {
@@ -53,6 +64,10 @@ public class CartController {
         return CommonResult.success(cartPromotionItemList);
     }
 
+    /**
+     * 修改购物车商品数量
+     * GET /cart/update/quantity?id=1&quantity=2
+     */
     @Operation(summary = "修改购物车中某个商品的数量")
     @GetMapping("/update/quantity")
     public CommonResult updateQuantity(@RequestParam Long id,
@@ -64,6 +79,10 @@ public class CartController {
         return CommonResult.failed();
     }
 
+    /**
+     * 获取商品可重选规格（购物车规格变更用）
+     * GET /cart/getProduct/{productId}
+     */
     @Operation(summary = "获取购物车中某个商品的规格,用于重选规格")
     @GetMapping("/getProduct/{productId}")
     public CommonResult<CartProduct> getCartProduct(@PathVariable Long productId) {
@@ -71,6 +90,10 @@ public class CartController {
         return CommonResult.success(cartProduct);
     }
 
+    /**
+     * 修改购物车商品规格
+     * POST /cart/update/attr
+     */
     @Operation(summary = "修改购物车中商品的规格")
     @PostMapping("/update/attr")
     public CommonResult updateAttr(@RequestBody OmsCartItem cartItem) {
@@ -81,6 +104,10 @@ public class CartController {
         return CommonResult.failed();
     }
 
+    /**
+     * 删除购物车商品
+     * POST /cart/delete?ids=1,2,3
+     */
     @Operation(summary = "删除购物车中的某个商品")
     @PostMapping("/delete")
     public CommonResult delete(@RequestParam("ids") List<Long> ids) {
@@ -91,6 +118,10 @@ public class CartController {
         return CommonResult.failed();
     }
 
+    /**
+     * 清空当前会员购物车
+     * POST /cart/clear
+     */
     @Operation(summary = "清空购物车")
     @PostMapping("/clear")
     public CommonResult clear() {

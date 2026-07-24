@@ -1,6 +1,7 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsHomeAdvertise;
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +27,6 @@ public interface SmsHomeAdvertiseMapper {
     int updateByPrimaryKeySelective(SmsHomeAdvertise row);
 
     int updateByPrimaryKey(SmsHomeAdvertise row);
+
+    List<SmsHomeAdvertise> selectHomeAdvertises(@Param("now") Date now);
 }

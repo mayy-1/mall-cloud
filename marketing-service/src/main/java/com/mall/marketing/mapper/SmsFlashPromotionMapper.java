@@ -1,6 +1,8 @@
 package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsFlashPromotion;
+
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +28,6 @@ public interface SmsFlashPromotionMapper {
     int updateByPrimaryKeySelective(SmsFlashPromotion row);
 
     int updateByPrimaryKey(SmsFlashPromotion row);
+
+    SmsFlashPromotion selectCurrentFlashPromotion(@Param("now") Date now);
 }

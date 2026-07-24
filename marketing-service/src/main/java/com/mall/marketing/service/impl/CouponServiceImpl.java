@@ -2,15 +2,22 @@ package com.mall.marketing.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
+import com.mall.api.client.member.MemberClient;
+import com.mall.marketing.domain.dto.CartPromotionItem;
 import com.mym.mall.common.exception.Asserts;
+import com.mall.marketing.domain.dto.SmsCouponDetail;
 import com.mall.marketing.domain.dto.SmsCouponHistoryDetail;
 import com.mall.marketing.domain.dto.SmsCouponParam;
 import com.mall.marketing.mapper.*;
 import com.mall.marketing.model.*;
 import com.mall.marketing.service.ICouponService;
-import com.mall.marketing.util.StpMemberUtil;
+import com.mall.api.client.product.ProductClient;
+import com.mall.api.dto.MemberDTO;
+import com.mall.api.dto.ProductDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -20,7 +27,6 @@ import java.util.stream.Collectors;
 
 /**
  * 优惠券管理Service实现类
- * Created by macro on 2018/8/28.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,12 +39,15 @@ public class CouponServiceImpl implements ICouponService {
     private final SmsCouponProductRelationMapper productRelationMapper;
     /** 优惠券领取历史Mapper */
     private final SmsCouponHistoryMapper couponHistoryMapper;
-    /** 商品Mapper（用于查询商品分类ID） */
-    private final PmsProductMapper productMapper;
+    /** 商品服务 Feign */
+    private final ProductClient productClient;
+    /** 会员服务 Feign */
+    private final MemberClient memberClient;
 
     // ==================== 管理端 ====================
 
     @Override
+    @Transactional
     public int create(SmsCouponParam couponParam) {
         couponParam.setCount(couponParam.getPublishCount());
         couponParam.setUseCount(0);
@@ -60,6 +69,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
+    @Transactional
     public int delete(Long id) {
         int count = couponMapper.deleteByPrimaryKey(id);
         deleteProductRelation(id);
@@ -80,6 +90,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
+    @Transactional
     public int update(Long id, SmsCouponParam couponParam) {
         couponParam.setId(id);
         int count =couponMapper.updateByPrimaryKey(couponParam);
@@ -101,7 +112,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public List<SmsCoupon> list(String name, Integer type, Integer pageSize, Integer pageNum) {
+    public List<SmsCoupon> list(String name, Integer type, Integer status, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum,pageSize);
         SmsCoupon condition = new SmsCoupon();
         if(!StringUtils.isEmpty(name)){
@@ -110,19 +121,42 @@ public class CouponServiceImpl implements ICouponService {
         if(type!=null){
             condition.setType(type);
         }
+        if(status!=null){
+            condition.setStatus(status);
+        }
         return couponMapper.selectByCondition(condition);
     }
 
     @Override
+    public int updateStatus(Long id, Integer status) {
+        SmsCoupon record = new SmsCoupon();
+        record.setId(id);
+        record.setStatus(status);
+        return couponMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
     public SmsCouponParam getItem(Long id) {
-        return couponMapper.getItem(id);
+        SmsCoupon coupon = couponMapper.selectByPrimaryKey(id);
+        if (coupon == null) return null;
+        SmsCouponParam result = new SmsCouponParam();
+        BeanUtils.copyProperties(coupon, result);
+        // 加载关联数据
+        SmsCouponProductRelation cprCondition = new SmsCouponProductRelation();
+        cprCondition.setCouponId(id);
+        result.setProductRelationList(productRelationMapper.selectByCondition(cprCondition));
+        SmsCouponProductCategoryRelation cpcrCondition = new SmsCouponProductCategoryRelation();
+        cpcrCondition.setCouponId(id);
+        result.setProductCategoryRelationList(productCategoryRelationMapper.selectByCondition(cpcrCondition));
+        return result;
     }
 
     // ==================== 用户端 ====================
 
     @Override
     public void add(Long couponId) {
-        Long currentMemberId = StpMemberUtil.getLoginIdAsLong();
+        MemberDTO currentMember = getCurrentMember();
+        Long currentMemberId = currentMember.getId();
         SmsCoupon coupon = couponMapper.selectByPrimaryKey(couponId);
         if(coupon==null){
             Asserts.fail("优惠券不存在");
@@ -146,8 +180,7 @@ public class CouponServiceImpl implements ICouponService {
         couponHistory.setCouponCode(generateCouponCode(currentMemberId));
         couponHistory.setCreateTime(now);
         couponHistory.setMemberId(currentMemberId);
-        // 查询会员昵称需要 Feign 调用 member-service，此处简化处理
-        couponHistory.setMemberNickname("会员" + currentMemberId);
+        couponHistory.setMemberNickname(currentMember.getNickname() == null ? currentMember.getUsername() : currentMember.getNickname());
         couponHistory.setGetType(1);
         couponHistory.setUseStatus(0);
         couponHistoryMapper.insert(couponHistory);
@@ -175,19 +208,27 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public List<SmsCouponHistory> listHistory(Integer useStatus) {
-        Long currentMemberId = StpMemberUtil.getLoginIdAsLong();
-        SmsCouponHistory condition = new SmsCouponHistory();
-        condition.setMemberId(currentMemberId);
-        if(useStatus!=null){
-            condition.setUseStatus(useStatus);
+    public List<SmsCouponHistoryDetail> listHistory(Integer useStatus) {
+        Long currentMemberId = getCurrentMember().getId();
+        List<SmsCouponHistoryDetail> list = couponHistoryMapper.getCouponList(currentMemberId, useStatus);
+        // 加载每个券的关联数据
+        for (SmsCouponHistoryDetail detail : list) {
+            if (detail.getCoupon() == null) continue;
+            Long couponId = detail.getCoupon().getId();
+            if (couponId == null) continue;
+            SmsCouponProductRelation cprCondition = new SmsCouponProductRelation();
+            cprCondition.setCouponId(couponId);
+            detail.setProductRelationList(productRelationMapper.selectByCondition(cprCondition));
+            SmsCouponProductCategoryRelation cpcrCondition = new SmsCouponProductCategoryRelation();
+            cpcrCondition.setCouponId(couponId);
+            detail.setCategoryRelationList(productCategoryRelationMapper.selectByCondition(cpcrCondition));
         }
-        return couponHistoryMapper.selectByCondition(condition);
+        return list;
     }
 
     @Override
     public List<SmsCouponHistoryDetail> listCart(List<CartPromotionItem> cartItemList, Integer type) {
-        Long currentMemberId = StpMemberUtil.getLoginIdAsLong();
+        Long currentMemberId = getCurrentMember().getId();
         Date now = new Date();
         List<SmsCouponHistoryDetail> allList = couponHistoryMapper.getDetailList(currentMemberId);
         List<SmsCouponHistoryDetail> enableList = new ArrayList<>();
@@ -244,7 +285,7 @@ public class CouponServiceImpl implements ICouponService {
             List<Long> couponIds = cprList.stream().map(SmsCouponProductRelation::getCouponId).collect(Collectors.toList());
             allCouponIds.addAll(couponIds);
         }
-        PmsProduct product = productMapper.selectByPrimaryKey(productId);
+        ProductDTO product = productClient.getById(productId).getData();
         if(product != null) {
             SmsCouponProductCategoryRelation cpcrCondition = new SmsCouponProductCategoryRelation();
             cpcrCondition.setProductCategoryId(product.getProductCategoryId());
@@ -274,9 +315,34 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public List<SmsCoupon> listMemberCoupons(Integer useStatus) {
-        Long memberId = StpMemberUtil.getLoginIdAsLong();
-        return couponHistoryMapper.getCouponList(memberId, useStatus);
+    public List<SmsCoupon> listCoupons() {
+        return couponMapper.getCouponList();
+    }
+
+    @Override
+    public List<SmsCouponDetail> listAvailableCoupons() {
+        List<SmsCoupon> coupons = couponMapper.getCouponList();
+        List<SmsCouponDetail> result = new ArrayList<>();
+        for (SmsCoupon coupon : coupons) {
+            SmsCouponDetail detail = new SmsCouponDetail();
+            detail.setCoupon(coupon);
+            SmsCouponProductRelation cprCondition = new SmsCouponProductRelation();
+            cprCondition.setCouponId(coupon.getId());
+            detail.setProductRelationList(productRelationMapper.selectByCondition(cprCondition));
+            SmsCouponProductCategoryRelation cpcrCondition = new SmsCouponProductCategoryRelation();
+            cpcrCondition.setCouponId(coupon.getId());
+            detail.setCategoryRelationList(productCategoryRelationMapper.selectByCondition(cpcrCondition));
+            result.add(detail);
+        }
+        return result;
+    }
+
+    private MemberDTO getCurrentMember() {
+        MemberDTO member = memberClient.getCurrentMember().getData();
+        if (member == null || member.getId() == null) {
+            Asserts.fail("暂未登录或token已经过期");
+        }
+        return member;
     }
 
     @Override

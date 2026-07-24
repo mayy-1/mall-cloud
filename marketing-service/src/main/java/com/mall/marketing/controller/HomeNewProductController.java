@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 首页新品管理Controller
- * Created by macro on 2018/11/6.
  */
 @RestController
 @Tag(name = "HomeNewProductController", description = "首页新品管理")
@@ -72,5 +71,12 @@ public class HomeNewProductController {
                                                             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
         List<SmsHomeNewProduct> homeBrandList = homeNewProductService.list(productName, recommendStatus, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(homeBrandList));
+    }
+
+    /** 【Feign】获取所有启用的首页新品商品ID */
+    @Operation(summary = "获取启用的首页新品商品ID")
+    @GetMapping("/activeIds")
+    public CommonResult<List<Long>> getActiveProductIds() {
+        return CommonResult.success(homeNewProductService.getActiveProductIds());
     }
 }

@@ -420,7 +420,7 @@ public class StpMemberUtil {
     }
 
     public static void disableLevel(Object loginId, String service, int level, long time) {
-        stpLogic.disableLevel(loginId, service, level);
+        stpLogic.disableLevel(loginId, service, level, time);
     }
 
     public static boolean isDisableLevel(Object loginId, int level) {
@@ -428,7 +428,7 @@ public class StpMemberUtil {
     }
 
     public static boolean isDisableLevel(Object loginId, String service, int level) {
-        return stpLogic.isDisableLevel(loginId, service);
+        return stpLogic.isDisableLevel(loginId, service, level);
     }
 
     public static void checkDisableLevel(Object loginId, int level) {
@@ -436,7 +436,7 @@ public class StpMemberUtil {
     }
 
     public static void checkDisableLevel(Object loginId, String service, int level) {
-        stpLogic.checkDisableLevel(loginId, service);
+        stpLogic.checkDisableLevel(loginId, service, level);
     }
 
     public static int getDisableLevel(Object loginId) {

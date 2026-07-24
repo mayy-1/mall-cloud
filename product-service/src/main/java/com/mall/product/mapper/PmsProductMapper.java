@@ -48,4 +48,10 @@ public interface PmsProductMapper {
      * 获取商品更新信息（含阶梯价格、满减、会员价格、SKU、属性值、专题/优选关系）
      */
     PmsProductResult getUpdateInfo(Long id);
+
+    /** 前台商品搜索：LIKE 匹配 name/keywords，支持品牌/分类过滤和排序 */
+    List<PmsProduct> selectBySearch(@Param("keyword") String keyword,
+                                    @Param("brandId") Long brandId,
+                                    @Param("productCategoryId") Long productCategoryId,
+                                    @Param("sort") Integer sort);
 }

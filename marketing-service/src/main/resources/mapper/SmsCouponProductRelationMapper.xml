@@ -99,6 +99,10 @@
         </foreach>
     </insert>
 
+  <select id="getItem" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    SELECT <include refid="Base_Column_List"/> FROM sms_coupon_product_relation WHERE id = #{id}
+  </select>
+
   <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.mall.marketing.model.SmsCouponProductRelation">
     SELECT <include refid="Base_Column_List"/> FROM sms_coupon_product_relation
     <where>

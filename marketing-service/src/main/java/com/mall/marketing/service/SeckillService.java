@@ -1,7 +1,7 @@
 package com.mall.marketing.service;
 
-import com.mall.marketing.dto.SeckillOrderParam;
-import com.mall.marketing.dto.SeckillProductDetailDTO;
+import com.mall.marketing.domain.dto.SeckillOrderParam;
+import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 
 import java.util.List;
 

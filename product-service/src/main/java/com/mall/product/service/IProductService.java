@@ -36,10 +36,9 @@ public interface IProductService {
 
     PmsProduct getItem(Long id);
 
-    List<PmsProduct> listByIds(List<Long> ids);
+    ProductDTO getDto(Long id);
 
-    /** 前台商品搜索（模糊匹配商品名/SEO关键词/货号/品牌名/分类名，仅上架商品） */
-    List<PmsProduct> search(String keyword, Integer pageNum, Integer pageSize, Integer sort);
+    List<PmsProduct> listByIds(List<Long> ids);
 
     // ===== 首页聚合专用方法 =====
 
@@ -50,4 +49,6 @@ public interface IProductService {
     CommonResult<List<ProductDTO>> listNewProduct(Integer pageNum, Integer pageSize);
 
     List<ProductDTO> productList(PmsProductQueryParam param, Integer pageNum, Integer pageSize);
+
+    List<PmsProduct> search(String keyword, Long brandId, Long productCategoryId, Integer pageNum, Integer pageSize, Integer sort);
 }

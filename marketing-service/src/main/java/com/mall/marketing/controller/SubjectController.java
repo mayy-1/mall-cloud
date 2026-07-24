@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * 商品专题管理Controller
- * Created by macro on 2018/6/1.
  */
 @RestController
 @Tag(name = "SubjectController", description = "商品专题管理")
@@ -28,10 +27,17 @@ public class SubjectController {
     /** 专题商品关联 Mapper */
     private final CmsSubjectProductRelationMapper subjectProductRelationMapper;
 
-    @Operation(summary = "获取全部商品专题")
+    @Operation(summary = "后台：获取全部商品专题")
     @GetMapping("/listAll")
     public CommonResult<List<CmsSubject>> listAll() {
         List<CmsSubject> subjectList = subjectService.listAll();
+        return CommonResult.success(subjectList);
+    }
+
+    @Operation(summary = "前台：获取推荐+上架商品专题")
+    @GetMapping("/listSome")
+    public CommonResult<List<CmsSubject>> listSome() {
+        List<CmsSubject> subjectList = subjectService.listSome();
         return CommonResult.success(subjectList);
     }
 
@@ -44,6 +50,27 @@ public class SubjectController {
         return CommonResult.success(CommonPage.restPage(subjectList));
     }
 
+    @Operation(summary = "新增专题")
+    @PostMapping("/create")
+    public CommonResult<Integer> create(@RequestBody CmsSubject subject) {
+        int count = subjectService.create(subject);
+        return count > 0 ? CommonResult.success(count) : CommonResult.failed();
+    }
+
+    @Operation(summary = "修改专题")
+    @PostMapping("/update/{id}")
+    public CommonResult<Integer> update(@PathVariable Long id, @RequestBody CmsSubject subject) {
+        int count = subjectService.update(id, subject);
+        return count > 0 ? CommonResult.success(count) : CommonResult.failed();
+    }
+
+    @Operation(summary = "删除专题")
+    @PostMapping("/delete/{id}")
+    public CommonResult<Integer> delete(@PathVariable Long id) {
+        int count = subjectService.delete(id);
+        return count > 0 ? CommonResult.success(count) : CommonResult.failed();
+    }
+
     /** 【Feign】根据商品ID查询专题关联 */
     @Operation(summary = "根据商品ID查询专题关联")
     @GetMapping("/productRelation/{productId}")
@@ -51,5 +78,25 @@ public class SubjectController {
         CmsSubjectProductRelation condition = new CmsSubjectProductRelation();
         condition.setProductId(productId);
         return CommonResult.success(subjectProductRelationMapper.selectByCondition(condition));
+    }
+
+    /** 【Feign】根据商品ID删除所有专题关联 */
+    @Operation(summary = "根据商品ID删除专题关联")
+    @DeleteMapping("/productRelation/product/{productId}")
+    public CommonResult<Void> deleteByProductId(@PathVariable Long productId) {
+        CmsSubjectProductRelation condition = new CmsSubjectProductRelation();
+        condition.setProductId(productId);
+        subjectProductRelationMapper.deleteByCondition(condition);
+        return CommonResult.success(null);
+    }
+
+    /** 【Feign】批量新增专题商品关联 */
+    @Operation(summary = "批量新增专题商品关联")
+    @PostMapping("/productRelation/batch")
+    public CommonResult<Void> batchInsert(@RequestBody List<CmsSubjectProductRelation> list) {
+        if (list != null && !list.isEmpty()) {
+            subjectProductRelationMapper.insertList(list);
+        }
+        return CommonResult.success(null);
     }
 }

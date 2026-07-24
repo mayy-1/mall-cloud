@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * 首页广告管理Service
- * Created by macro on 2018/11/7.
  */
 public interface IHomeAdvertiseService {
     /**
@@ -38,4 +37,7 @@ public interface IHomeAdvertiseService {
      * 分页查询广告
      */
     List<SmsHomeAdvertise> list(String name, Integer type, String endTime, Integer pageSize, Integer pageNum);
+
+    /** 获取所有已上线的首页广告 */
+    List<SmsHomeAdvertise> getHomeAdvertises();
 }

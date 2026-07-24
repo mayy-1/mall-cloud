@@ -1,5 +1,6 @@
 package com.mall.product.domain.dto;
 
+import com.mall.api.dto.CmsSubjectProductRelationDTO;
 import com.mall.product.model.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -24,7 +25,5 @@ public class PmsProductParam extends PmsProduct{
     @Schema(title = "商品参数及自定义规格属性")
     private List<PmsProductAttributeValue> productAttributeValueList;
     @Schema(title = "专题和商品关系")
-    private List<CmsSubjectProductRelation> subjectProductRelationList;
-    @Schema(title = "优选专区和商品的关系")
-    private List<CmsPrefrenceAreaProductRelation> prefrenceAreaProductRelationList;
+    private List<CmsSubjectProductRelationDTO> subjectProductRelationList;
 }

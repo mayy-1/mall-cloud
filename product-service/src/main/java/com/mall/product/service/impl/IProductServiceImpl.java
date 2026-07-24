@@ -2,15 +2,19 @@ package com.mall.product.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.github.pagehelper.PageHelper;
+import com.mall.api.client.marketing.SubjectClient;
 import com.mall.api.dto.BrandDTO;
+import com.mall.api.dto.CmsSubjectProductRelationDTO;
 import com.mall.api.dto.ProductDTO;
 import com.mall.product.mapper.*;
 import com.mall.product.domain.dto.PmsProductParam;
 import com.mall.product.domain.dto.PmsProductQueryParam;
 import com.mall.product.domain.dto.PmsProductResult;
 import com.mall.product.model.*;
+import com.mall.product.service.IBrandService;
 import com.mall.product.service.IProductService;
 import com.mym.mall.common.api.CommonResult;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,7 @@ import static java.util.stream.Collectors.toList;
  * 商品管理Service实现类
  * 【管理端+用户端+订单系统】
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class IProductServiceImpl implements IProductService {
@@ -56,14 +61,11 @@ public class IProductServiceImpl implements IProductService {
     /** 商品属性值Mapper */
     private final PmsProductAttributeValueMapper productAttributeValueMapper;
 
-    /** 专题商品关系Mapper */
-    private final CmsSubjectProductRelationMapper subjectProductRelationMapper;
-
-    /** 优选商品关系Mapper */
-    private final CmsPrefrenceAreaProductRelationMapper prefrenceAreaProductRelationMapper;
-
     /** 商品审核记录Mapper */
     private final PmsProductVertifyRecordMapper productVertifyRecordMapper;
+
+
+    private final SubjectClient subjectClient;
 
     @Override
     @Transactional
@@ -87,10 +89,8 @@ public class IProductServiceImpl implements IProductService {
         relateAndInsertList(skuStockMapper, productParam.getSkuStockList(), productId);
         //添加商品参数,添加自定义商品规格
         relateAndInsertList(productAttributeValueMapper, productParam.getProductAttributeValueList(), productId);
-        //关联专题
-        relateAndInsertList(subjectProductRelationMapper, productParam.getSubjectProductRelationList(), productId);
-        //关联优选
-        relateAndInsertList(prefrenceAreaProductRelationMapper, productParam.getPrefrenceAreaProductRelationList(), productId);
+        //关联专题（Feign → marketing-service）
+        relateSubjectViaFeign(productParam.getSubjectProductRelationList(), productId);
         count = 1;
         return count;
     }
@@ -114,8 +114,25 @@ public class IProductServiceImpl implements IProductService {
     }
 
     @Override
-    public PmsProductResult getUpdateInfo(Long id) {
-        return productMapper.getUpdateInfo(id);
+    public List<PmsProduct> search(String keyword, Long brandId, Long productCategoryId, Integer pageNum, Integer pageSize, Integer sort) {
+        PageHelper.startPage(pageNum, pageSize);
+        return productMapper.selectBySearch(keyword, brandId, productCategoryId, sort);
+    }
+
+    @Override
+    public PmsProductResult getUpdateInfo(Long productId) {
+        PmsProductResult result = productMapper.getUpdateInfo(productId);
+        if (result == null) return null;
+        try {
+            CommonResult<List<CmsSubjectProductRelationDTO>> subjectResult = subjectClient.getProductRelations(productId);
+            if (subjectResult != null && subjectResult.getData() != null) {
+                result.setSubjectProductRelationList(subjectResult.getData());
+            }
+        } catch (Exception e) {
+            log.warn("Feign查询专题关联失败 productId={}: {}", productId, e.getMessage());
+            result.setSubjectProductRelationList(new ArrayList<>());
+        }
+        return result;
     }
 
     @Override
@@ -148,16 +165,9 @@ public class IProductServiceImpl implements IProductService {
         productAttributeValueCondition.setProductId(id);
         productAttributeValueMapper.deleteByCondition(productAttributeValueCondition);
         relateAndInsertList(productAttributeValueMapper, productParam.getProductAttributeValueList(), id);
-        //关联专题
-        CmsSubjectProductRelation subjectProductRelationCondition = new CmsSubjectProductRelation();
-        subjectProductRelationCondition.setProductId(id);
-        subjectProductRelationMapper.deleteByCondition(subjectProductRelationCondition);
-        relateAndInsertList(subjectProductRelationMapper, productParam.getSubjectProductRelationList(), id);
-        //关联优选
-        CmsPrefrenceAreaProductRelation prefrenceAreaCondition = new CmsPrefrenceAreaProductRelation();
-        prefrenceAreaCondition.setProductId(id);
-        prefrenceAreaProductRelationMapper.deleteByCondition(prefrenceAreaCondition);
-        relateAndInsertList(prefrenceAreaProductRelationMapper, productParam.getPrefrenceAreaProductRelationList(), id);
+        //关联专题（Feign → marketing-service）
+        subjectClient.deleteProductRelations(id);
+        relateSubjectViaFeign(productParam.getSubjectProductRelationList(), id);
         count = 1;
         return count;
     }
@@ -283,7 +293,6 @@ public class IProductServiceImpl implements IProductService {
 
     @Override
     public int updateDeleteStatus(List<Long> ids, Integer deleteStatus) {
-        // ✅ 批量更新删除状态
         PmsProduct record = new PmsProduct();
         record.setDeleteStatus(deleteStatus);
         int count = productMapper.updateByIds(record, ids);
@@ -306,18 +315,22 @@ public class IProductServiceImpl implements IProductService {
     }
 
     @Override
+    public ProductDTO getDto(Long id) {
+        PmsProduct product = productMapper.selectByPrimaryKey(id);
+        if (product == null) return null;
+        ProductDTO dto = new ProductDTO();
+        BeanUtils.copyProperties(product, dto);
+        return dto;
+    }
+
+
+    @Override
     public List<PmsProduct> listByIds(List<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
         List<PmsProduct> products = productMapper.selectByIds(ids);
         return products;
-    }
-
-    @Override
-    public List<PmsProduct> search(String keyword, Integer pageNum, Integer pageSize, Integer sort) {
-        PageHelper.startPage(pageNum, pageSize);
-        return productMapper.selectBySearch(keyword, sort);
     }
 
     /**
@@ -342,6 +355,14 @@ public class IProductServiceImpl implements IProductService {
             LOGGER.warn("创建产品出错:{}", e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    private void relateSubjectViaFeign(List<CmsSubjectProductRelationDTO> list, Long productId) {
+        if (CollectionUtils.isEmpty(list)) return;
+        for (CmsSubjectProductRelationDTO dto : list) {
+            dto.setProductId(productId);
+        }
+        subjectClient.batchInsertProductRelations(list);
     }
 
     @Override

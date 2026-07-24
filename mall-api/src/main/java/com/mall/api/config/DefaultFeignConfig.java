@@ -3,6 +3,10 @@ package com.mall.api.config;
 import feign.Logger;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Feign 默认配置（日志 + 请求拦截器）
@@ -19,7 +23,16 @@ public class DefaultFeignConfig {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return template -> {
-            // 传递 Authorization 头到下游服务（认证token透传）
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes == null) {
+                return;
+            }
+            HttpServletRequest request = attributes.getRequest();
+            String authorization = request.getHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                template.header("Authorization", authorization);
+            }
         };
     }
 }

@@ -1,5 +1,8 @@
 package com.mall.order.mapper;
 
+import com.mall.order.domain.dto.OmsOrderDeliveryParam;
+import com.mall.order.domain.dto.OmsOrderDetail;
+import com.mall.order.domain.dto.OmsOrderQueryParam;
 import com.mall.order.model.OmsOrder;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -29,6 +32,15 @@ public interface OmsOrderMapper {
     int updateByPrimaryKeySelective(OmsOrder row);
 
     int updateByPrimaryKey(OmsOrder row);
+
+    /** 后台订单列表查询 */
+    List<OmsOrder> getList(OmsOrderQueryParam queryParam);
+
+    /** 批量发货 */
+    int delivery(@Param("list") List<OmsOrderDeliveryParam> deliveryParamList);
+
+    /** 后台订单详情 */
+    OmsOrderDetail getDetail(@Param("id") Long id);
 
     /**
      * 批量关闭订单（status=4，仅限未删除订单）

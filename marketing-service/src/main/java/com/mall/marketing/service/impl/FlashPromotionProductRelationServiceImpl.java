@@ -1,21 +1,27 @@
 package com.mall.marketing.service.impl;
 
-import com.github.pagehelper.PageHelper;import com.mall.marketing.domain.dto.SmsFlashPromotionProduct;
-import com.mall.marketing.model.SmsFlashPromotionProductRelation;import com.mall.marketing.service.IFlashPromotionProductRelationService;
+import com.github.pagehelper.PageHelper;
+import com.mall.api.client.product.ProductClient;
+import com.mall.api.dto.ProductDTO;
+import com.mall.marketing.domain.dto.SmsFlashPromotionProduct;
+import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper;
+import com.mall.marketing.model.SmsFlashPromotionProductRelation;
+import com.mall.marketing.service.IFlashPromotionProductRelationService;
+import com.mym.mall.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 限时购商品关联管理Service实现类
- * Created by macro on 2018/11/16.
  */
 @Service
 @RequiredArgsConstructor
 public class FlashPromotionProductRelationServiceImpl implements IFlashPromotionProductRelationService {
-    /** 限时购商品关联自定义Mapper */
     private final SmsFlashPromotionProductRelationMapper relationMapper;
+    private final ProductClient productClient;
     @Override
     public int create(List<SmsFlashPromotionProductRelation> relationList) {
         for (SmsFlashPromotionProductRelation relation : relationList) {
@@ -42,8 +48,32 @@ public class FlashPromotionProductRelationServiceImpl implements IFlashPromotion
 
     @Override
     public List<SmsFlashPromotionProduct> list(Long flashPromotionId, Long flashPromotionSessionId, Integer pageSize, Integer pageNum) {
-        PageHelper.startPage(pageNum,pageSize);
-        return relationMapper.getList(flashPromotionId,flashPromotionSessionId);
+        PageHelper.startPage(pageNum, pageSize);
+        List<SmsFlashPromotionProductRelation> relations = relationMapper.getList(flashPromotionId, flashPromotionSessionId);
+        List<SmsFlashPromotionProduct> result = new ArrayList<>();
+        for (SmsFlashPromotionProductRelation relation : relations) {
+            SmsFlashPromotionProduct item = new SmsFlashPromotionProduct();
+            // 复制关系字段
+            item.setId(relation.getId());
+            item.setProductId(relation.getProductId());
+            item.setFlashPromotionId(relation.getFlashPromotionId());
+            item.setFlashPromotionSessionId(relation.getFlashPromotionSessionId());
+            item.setFlashPromotionPrice(relation.getFlashPromotionPrice());
+            item.setFlashPromotionCount(relation.getFlashPromotionCount());
+            item.setFlashPromotionLimit(relation.getFlashPromotionLimit());
+            item.setSort(relation.getSort());
+            // Feign 查商品信息
+            try {
+                CommonResult<ProductDTO> productResult = productClient.getById(relation.getProductId());
+                if (productResult != null) {
+                    item.setProduct(productResult.getData());
+                }
+            } catch (Exception e) {
+                // 商品查不到，跳过
+            }
+            result.add(item);
+        }
+        return result;
     }
 
     @Override

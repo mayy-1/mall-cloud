@@ -20,7 +20,7 @@
         <module>marketing-service</module>  <!-- 营销+内容(Cms+Sms合并)，端口8084 -->
         <module>member-service</module>     <!-- 前台会员+地址+收藏+关注+浏览，端口8085 -->
         <module>cart-service</module>       <!-- 购物车，端口8086 -->
-        <module>trade-service</module>      <!-- 前台下单+支付，端口8090 -->
+        <module>payment-service</module>    <!-- 支付服务，端口8090 -->
         <module>search-service</module>     <!-- 全文搜索(ES)，端口8093 -->
     </modules>
 

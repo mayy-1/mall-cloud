@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ecd27e18-ff00-46c5-ae59-315787b86df7" name="Changes" comment="0720">
+      <change afterPath="$PROJECT_DIR$/.workbuddy/memory/2026-07-19.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/cart/cart-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/marketing/marketing-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/member/member-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/order/order-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/product/product-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/seata/seata-server.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/trade/trade-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/user/user-service-dev.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/document/mall-cloud-db-er-diagram.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/MarketingCouponClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/PrefrenceAreaClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/product/SkuStockClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/dto/CmsPrefrenceAreaProductRelationDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/dto/CmsSubjectProductRelationDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/dto/HomeAdvertiseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/dto/ProductCategoryDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/dto/SeckillProductDetailDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/member-service/src/main/java/com/mall/member/controller/MemberIntegrationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/controller/HomeController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/domain/dto/PmsProductCategoryFlatItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/domain/vo/HomeContentResult.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/IHomeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/impl/HomeServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/util/PinyinUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/resources/logback-springboot.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_cart.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_marketing.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_member.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_order.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_product.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/document/sql/mall_user.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/HomeClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/HomeClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/MarketingClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/MarketingClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/SubjectClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/marketing/SubjectClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/product/ProductClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/mall-api/src/main/java/com/mall/api/client/product/ProductClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/CouponController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/CouponController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/CouponHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/CouponHistoryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionProductRelationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionProductRelationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionSessionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/FlashPromotionSessionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeAdvertiseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeAdvertiseController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeBrandController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeBrandController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeNewProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeNewProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeRecommendProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeRecommendProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeRecommendSubjectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/HomeRecommendSubjectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/PrefrenceAreaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/PrefrenceAreaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/SeckillController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/SeckillController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/SubjectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/controller/SubjectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/domain/dto/CartPromotionItem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/domain/dto/SmsCouponHistoryDetail.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/domain/dto/SmsCouponParam.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/domain/dto/SmsFlashPromotionProduct.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/domain/dto/SmsFlashPromotionSessionDetail.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/dto/SeckillOrderMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/dto/SeckillOrderParam.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/dto/SeckillProductDetailDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/CmsPrefrenceAreaProductRelationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/CmsPrefrenceAreaProductRelationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/CmsSubjectProductRelationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/CmsSubjectProductRelationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/PmsProductMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsCouponProductCategoryRelationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsCouponProductCategoryRelationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsCouponProductRelationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsCouponProductRelationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsFlashPromotionMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsFlashPromotionMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsFlashPromotionProductRelationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/mapper/SmsFlashPromotionProductRelationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/model/PmsProduct.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeBrandService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeBrandService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeNewProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeNewProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeRecommendProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/IHomeRecommendProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/ISubjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/ISubjectService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/SeckillService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/SeckillService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/CouponServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/CouponServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/FlashPromotionProductRelationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/FlashPromotionProductRelationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/FlashPromotionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/FlashPromotionServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeBrandServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeBrandServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeNewProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeNewProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeRecommendProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/HomeRecommendProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/SeckillServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/SeckillServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/SubjectServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/java/com/mall/marketing/service/impl/SubjectServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/PmsProductMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsCouponProductCategoryRelationMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsCouponProductCategoryRelationMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsCouponProductRelationMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsCouponProductRelationMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsFlashPromotionMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsFlashPromotionMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsFlashPromotionProductRelationMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketing-service/src/main/resources/mapper/SmsFlashPromotionProductRelationMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/domain/dto/PmsProductParam.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/domain/dto/PmsProductParam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/mapper/CmsPrefrenceAreaProductRelationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/mapper/CmsSubjectProductRelationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/mapper/PmsProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/mapper/PmsProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/model/CmsPrefrenceAreaProductRelation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/model/CmsSubjectProductRelation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/IProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/IProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/impl/IProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/mall/product/service/impl/IProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/resources/mapper/CmsPrefrenceAreaProductRelationMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/resources/mapper/CmsSubjectProductRelationMapper.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product-service/src/main/resources/mapper/PmsProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/resources/mapper/PmsProductMapper.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;mayy-1&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:mayy-1/mall-cloud.git&quot;,
+    &quot;accountId&quot;: &quot;e360583d-1732-4d1c-9865-8830325b4395&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3G49cMskuFSBD2zsIOWg1wKzhq6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.mall-api [clean].executor": "Run",
+    "Maven.mall-api [compile].executor": "Run",
+    "Maven.mall-auth [compile].executor": "Run",
+    "Maven.mall-cloud [clean].executor": "Run",
+    "Maven.mall-cloud [compile].executor": "Run",
+    "Maven.mall-cloud [install].executor": "Run",
+    "Maven.mall-common [compile].executor": "Run",
+    "Maven.mall-gateway [compile].executor": "Run",
+    "Maven.marketing-service [clean].executor": "Run",
+    "Maven.marketing-service [compile].executor": "Run",
+    "Maven.member-service [clean].executor": "Run",
+    "Maven.member-service [compile].executor": "Run",
+    "Maven.product-service [compile].executor": "Run",
+    "Maven.user-service [clean].executor": "Run",
+    "Maven.user-service [compile].executor": "Run",
+    "Maven.user-service [install].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.MallAdminApplication.executor": "Run",
+    "Spring Boot.MallAuthApplication (1).executor": "Run",
+    "Spring Boot.MallAuthApplication.executor": "Run",
+    "Spring Boot.MallGatewayApplication (1).executor": "Run",
+    "Spring Boot.MallGatewayApplication.executor": "Run",
+    "Spring Boot.MallMonitorApplication.executor": "Run",
+    "Spring Boot.MallPortalApplication.executor": "Run",
+    "Spring Boot.MallSearchApplication.executor": "Run",
+    "Spring Boot.MarketingApplication.executor": "Run",
+    "Spring Boot.MemberApplication.executor": "Run",
+    "Spring Boot.PortalApplication.executor": "Run",
+    "Spring Boot.ProductApplication.executor": "Run",
+    "Spring Boot.SearchApplication.executor": "Run",
+    "Spring Boot.UserApplication.executor": "Run",
+    "git-widget-placeholder": "mym",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "D:/project/mall-cloud",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\project\mall-cloud\marketing-service\src\main\java\com\mall\marketing\domain\dto" />
+      <recent name="D:\project\mall-cloud\document\study" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.mall.api.dto" />
+      <recent name="com.mall.product.model" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.ProductApplication">
+    <configuration name="CartApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="cart-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.cart.CartApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MallGatewayApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="mall-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mym.mall.MallGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MallMonitorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="mall-monitor" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mym.mall.MallMonitorApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MarketingApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="marketing-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.marketing.MarketingApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MemberApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="member-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.member.MemberApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mall.member.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OrderApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="order-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.order.OrderApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProductApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="product-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.product.ProductApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SearchApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="search-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.search.SearchApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TradeApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="trade-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.trade.TradeApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="user-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mall.user.UserApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Spring Boot.CartApplication" />
+      <item itemvalue="Spring Boot.MallGatewayApplication (1)" />
+      <item itemvalue="Spring Boot.MallMonitorApplication" />
+      <item itemvalue="Spring Boot.MarketingApplication" />
+      <item itemvalue="Spring Boot.OrderApplication" />
+      <item itemvalue="Spring Boot.ProductApplication" />
+      <item itemvalue="Spring Boot.SearchApplication" />
+      <item itemvalue="Spring Boot.TradeApplication" />
+      <item itemvalue="Spring Boot.UserApplication" />
+      <item itemvalue="Spring Boot.MemberApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.MemberApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ecd27e18-ff00-46c5-ae59-315787b86df7" name="Changes" comment="" />
+      <created>1783220053683</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1783220053683</updated>
+      <workItem from="1783220055162" duration="470000" />
+      <workItem from="1783226420077" duration="22000" />
+      <workItem from="1783315103905" duration="9250000" />
+      <workItem from="1783347273731" duration="311000" />
+      <workItem from="1783398485411" duration="16497000" />
+      <workItem from="1783416181511" duration="1251000" />
+      <workItem from="1783419229116" duration="11484000" />
+      <workItem from="1783480602847" duration="6188000" />
+      <workItem from="1783490808551" duration="13200000" />
+      <workItem from="1783573980736" duration="19841000" />
+      <workItem from="1783654046991" duration="797000" />
+      <workItem from="1783656596899" duration="29000" />
+      <workItem from="1783662754821" duration="775000" />
+      <workItem from="1783749854000" duration="6018000" />
+      <workItem from="1783756105140" duration="13082000" />
+      <workItem from="1783822848715" duration="7949000" />
+      <workItem from="1783910817222" duration="62000" />
+      <workItem from="1784186830454" duration="540000" />
+      <workItem from="1784259192773" duration="12348000" />
+      <workItem from="1784432632671" duration="16742000" />
+      <workItem from="1784524323607" duration="19582000" />
+      <workItem from="1784547793770" duration="2927000" />
+      <workItem from="1784551996178" duration="1111000" />
+      <workItem from="1784607336903" duration="13349000" />
+      <workItem from="1784694164916" duration="5424000" />
+      <workItem from="1784699614219" duration="55000" />
+      <workItem from="1784699723462" duration="29000" />
+      <workItem from="1784699757023" duration="57000" />
+      <workItem from="1784699829627" duration="74000" />
+      <workItem from="1784699909206" duration="9000" />
+      <workItem from="1784699946999" duration="243000" />
+      <workItem from="1784700208049" duration="75000" />
+      <workItem from="1784700329821" duration="321000" />
+    </task>
+    <task id="LOCAL-00001" summary="初始化">
+      <option name="closed" value="true" />
+      <created>1783405295937</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783405295937</updated>
+    </task>
+    <task id="LOCAL-00002" summary="初始化准备拆分">
+      <option name="closed" value="true" />
+      <created>1783416657068</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1783416657068</updated>
+    </task>
+    <task id="LOCAL-00003" summary="添加秒杀功能">
+      <option name="closed" value="true" />
+      <created>1783501842206</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1783501842206</updated>
+    </task>
+    <task id="LOCAL-00004" summary="0711">
+      <option name="closed" value="true" />
+      <created>1783756070209</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1783756070209</updated>
+    </task>
+    <task id="LOCAL-00005" summary="0711">
+      <option name="closed" value="true" />
+      <created>1783760064342</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1783760064342</updated>
+    </task>
+    <task id="LOCAL-00006" summary="0720">
+      <option name="closed" value="true" />
+      <created>1784552384523</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784552384524</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="初始化" />
+    <MESSAGE value="初始化准备拆分" />
+    <MESSAGE value="添加秒杀功能" />
+    <MESSAGE value="0711" />
+    <MESSAGE value="0720" />
+    <option name="LAST_COMMIT_MESSAGE" value="0720" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.util.concurrent.ExecutionException" package="java.util.concurrent" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

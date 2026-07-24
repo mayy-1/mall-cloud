@@ -29,4 +29,7 @@ public interface SmsFlashPromotionProductRelationMapper {
     int updateByPrimaryKeySelective(SmsFlashPromotionProductRelation row);
 
     int updateByPrimaryKey(SmsFlashPromotionProductRelation row);
+
+    List<SmsFlashPromotionProductRelation> getList(@Param("flashPromotionId") Long flashPromotionId,
+                                                    @Param("flashPromotionSessionId") Long flashPromotionSessionId);
 }

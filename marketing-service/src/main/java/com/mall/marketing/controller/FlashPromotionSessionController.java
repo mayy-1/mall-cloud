@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 限时购场次管理Controller
- * Created by macro on 2018/11/16.
  */
 @RestController
 @Tag(name = "FlashPromotionSessionController", description = "限时购场次管理")
@@ -46,7 +45,7 @@ public class FlashPromotionSessionController {
 
     @Operation(summary = "修改启用状态")
     @PostMapping("/update/status/{id}")
-    public CommonResult updateStatus(@PathVariable Long id, Integer status) {
+    public CommonResult updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         int count = flashPromotionSessionService.updateStatus(id, status);
         if (count > 0) {
             return CommonResult.success(count);
@@ -80,7 +79,7 @@ public class FlashPromotionSessionController {
 
     @Operation(summary = "获取全部可选场次及其数量")
     @GetMapping("/selectList")
-    public CommonResult<List<SmsFlashPromotionSessionDetail>> selectList(Long flashPromotionId) {
+    public CommonResult<List<SmsFlashPromotionSessionDetail>> selectList(@RequestParam Long flashPromotionId) {
         List<SmsFlashPromotionSessionDetail> promotionSessionList = flashPromotionSessionService.selectList(flashPromotionId);
         return CommonResult.success(promotionSessionList);
     }

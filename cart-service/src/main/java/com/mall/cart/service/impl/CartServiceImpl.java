@@ -4,14 +4,18 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.mall.api.client.member.MemberClient;
 import com.mall.api.client.marketing.PromotionClient;
+import com.mall.api.client.product.ProductClient;
 import com.mall.api.dto.CartItemDTO;
 import com.mall.api.dto.CartPromotionItemDTO;
 import com.mall.api.dto.MemberDTO;
+import com.mall.api.dto.ProductDTO;
+import com.mall.api.dto.ProductAttributeDTO;
+import com.mall.api.dto.SkuStockDTO;
 import com.mall.cart.domain.dto.CartProduct;
 import com.mall.cart.mapper.OmsCartItemMapper;
-import com.mall.cart.mapper.PortalProductMapper;
 import com.mall.cart.model.OmsCartItem;
 import com.mall.cart.service.ICartService;
+import com.mym.mall.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,7 +27,6 @@ import java.util.stream.Collectors;
 
 /**
  * 购物车管理Service实现类
- * Created by macro on 2018/8/2.
  */
 @Service
 @RequiredArgsConstructor
@@ -31,8 +34,8 @@ public class CartServiceImpl implements ICartService {
 
     /** 购物车Mapper */
     private final OmsCartItemMapper cartItemMapper;
-    /** 前台商品Mapper */
-    private final PortalProductMapper productMapper;
+    /** 商品服务Feign调用 */
+    private final ProductClient productClient;
     /** 促销服务Feign调用 */
     private final PromotionClient promotionClient;
     /** 会员服务Feign调用 */
@@ -128,7 +131,17 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public CartProduct getCartProduct(Long productId) {
-        return productMapper.getCartProduct(productId);
+        // Feign 调 product-service 获取商品详情
+        CommonResult<ProductDTO> result = productClient.getById(productId);
+        if (result == null || result.getData() == null) return null;
+        ProductDTO product = result.getData();
+        CartProduct cartProduct = new CartProduct();
+        cartProduct.setProductId(product.getId());
+        cartProduct.setName(product.getName());
+        cartProduct.setSubTitle(product.getSubTitle());
+        cartProduct.setPic(product.getPic());
+        cartProduct.setBrandName(product.getBrandName());
+        return cartProduct;
     }
 
     @Override

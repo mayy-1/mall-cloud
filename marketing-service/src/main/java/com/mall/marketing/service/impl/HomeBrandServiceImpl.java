@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * 首页品牌管理Service实现类
- * Created by macro on 2018/11/6.
  */
 @Service
 @RequiredArgsConstructor
@@ -66,5 +65,11 @@ public class HomeBrandServiceImpl implements IHomeBrandService {
             condition.setRecommendStatus(recommendStatus);
         }
         return homeBrandMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public List<SmsHomeBrand> search() {
+        SmsHomeBrand condition = new SmsHomeBrand();
+        return List.of();
     }
 }

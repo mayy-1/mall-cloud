@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * 首页品牌管理Controller
- * Created by macro on 2018/11/6.
  */
 @RestController
 @Tag(name = "HomeBrandController", description = "首页品牌管理")
@@ -36,7 +35,7 @@ public class HomeBrandController {
 
     @Operation(summary = "修改品牌排序")
     @PostMapping("/update/sort/{id}")
-    public CommonResult updateSort(@PathVariable Long id, Integer sort) {
+    public CommonResult updateSort(@PathVariable Long id, @RequestParam Integer sort) {
         int count = homeBrandService.updateSort(id, sort);
         if (count > 0) {
             return CommonResult.success(count);
@@ -73,4 +72,13 @@ public class HomeBrandController {
         List<SmsHomeBrand> homeBrandList = homeBrandService.list(brandName, recommendStatus, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(homeBrandList));
     }
+
+    @Operation(summary = "查询推荐品牌")
+    @GetMapping("/search")
+    public CommonResult<List<SmsHomeBrand>> search() {
+        List<SmsHomeBrand> homeBrandList = homeBrandService.search();
+        return CommonResult.success(homeBrandList);
+    }
+
+
 }

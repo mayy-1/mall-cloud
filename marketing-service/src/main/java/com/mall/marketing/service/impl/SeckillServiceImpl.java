@@ -1,15 +1,17 @@
 package com.mall.marketing.service.impl;
 
 import com.mall.marketing.domain.QueueEnum;
-import com.mall.marketing.dto.SeckillOrderMessage;
-import com.mall.marketing.dto.SeckillOrderParam;
-import com.mall.marketing.dto.SeckillProductDetailDTO;
-import com.mall.marketing.mapper.PmsProductMapper;
+import com.mall.marketing.domain.dto.SeckillOrderMessage;
+import com.mall.marketing.domain.dto.SeckillOrderParam;
+import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
 import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper;
-import com.mall.marketing.model.PmsProduct;
 import com.mall.marketing.model.SmsFlashPromotion;
-import com.mall.marketing.model.SmsFlashPromotionProductRelation;import com.mall.marketing.service.SeckillService;
+import com.mall.marketing.model.SmsFlashPromotionProductRelation;
+import com.mall.marketing.service.SeckillService;
+import com.mall.api.client.product.ProductClient;
+import com.mall.api.dto.ProductDTO;
+import com.mym.mall.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,16 +51,11 @@ public class SeckillServiceImpl implements SeckillService {
     private final RabbitTemplate rabbitTemplate;
     private final SmsFlashPromotionMapper flashPromotionMapper;
     private final SmsFlashPromotionProductRelationMapper productRelationMapper;
-    private final PmsProductMapper productMapper;
+    /** 商品服务 Feign */
+    private final ProductClient productClient;
 
     /** 预加载 Lua 脚本 */
-    private final DefaultRedisScript<Long> seckillScript;
-
-    {
-        seckillScript = new DefaultRedisScript<>();
-        seckillScript.setLocation(new ClassPathResource("lua/seckill.lua"));
-        seckillScript.setResultType(Long.class);
-    }
+    private final DefaultRedisScript<Long> seckillScript = createSeckillScript();
 
     @Override
     public int executeSeckill(SeckillOrderParam param) {
@@ -105,7 +102,7 @@ public class SeckillServiceImpl implements SeckillService {
                     .promotionId(promotionId)
                     .sessionId(param.getSessionId())
                     .productId(productId)
-                    .productName(relation.getProductName())
+                    .productName(getProductName(productId))
                     .memberId(memberId)
                     .seckillPrice(relation.getFlashPromotionPrice())
                     .quantity(1)
@@ -201,12 +198,12 @@ public class SeckillServiceImpl implements SeckillService {
             List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
 
             for (SmsFlashPromotionProductRelation relation : relations) {
-                PmsProduct product = productMapper.selectByPrimaryKey(relation.getProductId());
+                ProductDTO product = productClient.getById(relation.getProductId()).getData();
                 SeckillProductDetailDTO dto = new SeckillProductDetailDTO();
                 dto.setPromotionId(promotion.getId());
                 dto.setPromotionTitle(promotion.getTitle());
                 dto.setProductId(relation.getProductId());
-                dto.setProductName(relation.getProductName());
+                dto.setProductName(product != null ? product.getName() : null);
                 dto.setOriginalPrice(product != null ? product.getPrice() : BigDecimal.ZERO);
                 dto.setSeckillPrice(relation.getFlashPromotionPrice());
                 dto.setSeckillStock(relation.getFlashPromotionCount());
@@ -232,13 +229,13 @@ public class SeckillServiceImpl implements SeckillService {
         if (relations.isEmpty()) return null;
 
         SmsFlashPromotionProductRelation relation = relations.get(0);
-        PmsProduct product = productMapper.selectByPrimaryKey(productId);
+        ProductDTO product = productClient.getById(productId).getData();
 
         SeckillProductDetailDTO dto = new SeckillProductDetailDTO();
         dto.setPromotionId(promotionId);
         dto.setPromotionTitle(promotion.getTitle());
         dto.setProductId(productId);
-        dto.setProductName(relation.getProductName());
+        dto.setProductName(product != null ? product.getName() : null);
         dto.setProductPic(product != null ? product.getPic() : null);
         dto.setOriginalPrice(product != null ? product.getPrice() : BigDecimal.ZERO);
         dto.setSeckillPrice(relation.getFlashPromotionPrice());
@@ -275,5 +272,18 @@ public class SeckillServiceImpl implements SeckillService {
                 LOGGER.info("秒杀活动已自动下线, promotionId={}, title={}", promotion.getId(), promotion.getTitle());
             }
         }
+    }
+
+    private String getProductName(Long productId) {
+        CommonResult<ProductDTO> result = productClient.getById(productId);
+        ProductDTO product = result != null ? result.getData() : null;
+        return product != null ? product.getName() : null;
+    }
+
+    private static DefaultRedisScript<Long> createSeckillScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setLocation(new ClassPathResource("lua/seckill.lua"));
+        script.setResultType(Long.class);
+        return script;
     }
 }

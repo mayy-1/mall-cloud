@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,5 +65,10 @@ public class HomeAdvertiseServiceImpl implements IHomeAdvertiseService {
             condition.setType(type);
         }
         return advertiseMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public List<SmsHomeAdvertise> getHomeAdvertises() {
+        return advertiseMapper.selectHomeAdvertises(new Date());
     }
 }

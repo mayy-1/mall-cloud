@@ -35,4 +35,7 @@ public interface IHomeNewProductService {
      * 分页查询推荐
      */
     List<SmsHomeNewProduct> list(String productName, Integer recommendStatus, Integer pageSize, Integer pageNum);
+
+    /** 获取所有启用状态的首页新品商品ID */
+    List<Long> getActiveProductIds();
 }

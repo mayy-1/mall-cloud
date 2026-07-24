@@ -29,4 +29,6 @@ public interface SmsCouponMapper {
     int updateByPrimaryKeySelective(SmsCoupon row);
 
     int updateByPrimaryKey(SmsCoupon row);
+
+    List<SmsCoupon> getCouponList();
 }

@@ -114,6 +114,15 @@
     </where>
   </select>
 
+  <select id="selectCurrentFlashPromotion" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sms_flash_promotion
+    WHERE status = 1
+    AND start_date &lt;= #{now}
+    AND end_date &gt;= #{now}
+    LIMIT 1
+  </select>
+
   <delete id="deleteByCondition" parameterType="com.mall.marketing.model.SmsFlashPromotion">
     DELETE FROM sms_flash_promotion
     <where>

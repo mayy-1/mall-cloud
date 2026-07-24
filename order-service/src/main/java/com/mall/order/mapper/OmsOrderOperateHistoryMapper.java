@@ -29,4 +29,7 @@ public interface OmsOrderOperateHistoryMapper {
     int updateByPrimaryKeySelective(OmsOrderOperateHistory row);
 
     int updateByPrimaryKey(OmsOrderOperateHistory row);
+
+    /** 批量插入操作记录 */
+    int insertList(@Param("list") List<OmsOrderOperateHistory> list);
 }

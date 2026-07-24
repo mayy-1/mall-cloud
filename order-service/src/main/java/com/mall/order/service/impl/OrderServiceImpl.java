@@ -1,8 +1,11 @@
 package com.mall.order.service.impl;
 
-import com.github.pagehelper.PageHelper;import com.mall.order.mapper.OmsOrderOperateHistoryMapper;
+import com.github.pagehelper.PageHelper;
 import com.mall.order.domain.dto.*;
-import com.mall.order.model.OmsOrder;import com.mall.order.model.OmsOrderOperateHistory;
+import com.mall.order.mapper.OmsOrderMapper;
+import com.mall.order.mapper.OmsOrderOperateHistoryMapper;
+import com.mall.order.model.OmsOrder;
+import com.mall.order.model.OmsOrderOperateHistory;
 import com.mall.order.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -69,7 +72,6 @@ public class OrderServiceImpl implements IOrderService {
     public int delete(List<Long> ids) {
         // ✅ 批量逻辑删除订单，1次SQL替代 N 次 updateSelectiveByCondition
         return orderMapper.deleteByIds(ids);
-        return count;
     }
 
     @Override

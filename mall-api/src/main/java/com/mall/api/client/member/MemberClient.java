@@ -1,5 +1,6 @@
 package com.mall.api.client.member;
 
+import com.mall.api.config.DefaultFeignConfig;
 import com.mall.api.dto.IntegrationConsumeSettingDTO;
 import com.mall.api.dto.MemberDTO;
 import com.mym.mall.common.api.CommonResult;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * 会员服务 Feign 接口
  */
-@FeignClient(name = "member-service", contextId = "member-default")
+@FeignClient(name = "member-service", contextId = "member-default", configuration = DefaultFeignConfig.class)
 public interface MemberClient {
 
     /** 获取当前登录会员 */

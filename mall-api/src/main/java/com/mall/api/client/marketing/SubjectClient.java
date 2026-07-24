@@ -15,9 +15,9 @@ import java.util.List;
 @FeignClient(name = "marketing-service", path = "/subject", contextId = "marketing-subject")
 public interface SubjectClient {
 
-    /** 获取全部专题 */
-    @GetMapping("/listAll")
-    CommonResult<List<SubjectDTO>> listAll();
+    /** 获取前台展示专题 */
+    @GetMapping("/listSome")
+    CommonResult<List<SubjectDTO>> listSome();
 
     /** 分页搜索专题 */
     @GetMapping("/list")
@@ -28,4 +28,12 @@ public interface SubjectClient {
     /** 根据商品ID查询专题关联 */
     @GetMapping("/productRelation/{productId}")
     CommonResult<List<CmsSubjectProductRelationDTO>> getProductRelations(@PathVariable Long productId);
+
+    /** 根据商品ID删除所有专题关联 */
+    @DeleteMapping("/productRelation/product/{productId}")
+    CommonResult<Void> deleteProductRelations(@PathVariable Long productId);
+
+    /** 批量新增专题商品关联 */
+    @PostMapping("/productRelation/batch")
+    CommonResult<Void> batchInsertProductRelations(@RequestBody List<CmsSubjectProductRelationDTO> list);
 }

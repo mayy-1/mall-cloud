@@ -16,13 +16,9 @@ import java.util.List;
 @FeignClient(name = "product-service", path = "/product", contextId = "product-product")
 public interface ProductClient {
 
-    /** 根据ID查询商品 */
-    @GetMapping("/{id}")
+    /** 根据ID查询商品DTO（Feign 内部调用） */
+    @GetMapping("/feign/{id}")
     CommonResult<ProductDTO> getById(@PathVariable Long id);
-
-    /** 查询商品详情 */
-    @GetMapping("/detail/{id}")
-    CommonResult<Object> getDetail(@PathVariable Long id);
 
     /** 批量查询商品 */
     @GetMapping("/batch")

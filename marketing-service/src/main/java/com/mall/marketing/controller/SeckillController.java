@@ -1,7 +1,7 @@
 package com.mall.marketing.controller;
 
-import com.mall.marketing.dto.SeckillOrderParam;
-import com.mall.marketing.dto.SeckillProductDetailDTO;
+import com.mall.marketing.domain.dto.SeckillOrderParam;
+import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 import com.mall.marketing.service.SeckillService;
 import com.mym.mall.common.api.CommonResult;
 import io.swagger.v3.oas.annotations.Operation;

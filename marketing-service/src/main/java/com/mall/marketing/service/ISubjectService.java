@@ -6,16 +6,17 @@ import java.util.List;
 
 /**
  * 商品专题管理Service
- * Created by macro on 2018/6/1.
  */
 public interface ISubjectService {
-    /**
-     * 查询所有专题
-     */
     List<CmsSubject> listAll();
 
-    /**
-     * 分页查询专题
-     */
     List<CmsSubject> list(String keyword, Integer pageNum, Integer pageSize);
+
+    List<CmsSubject> listSome();
+
+    int create(CmsSubject subject);
+
+    int update(Long id, CmsSubject subject);
+
+    int delete(Long id);
 }

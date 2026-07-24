@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * 首页品牌管理Service
- * Created by macro on 2018/11/6.
  */
 public interface IHomeBrandService {
     /**
@@ -35,4 +34,6 @@ public interface IHomeBrandService {
      * 分页查询品牌推荐
      */
     List<SmsHomeBrand> list(String brandName, Integer recommendStatus, Integer pageSize, Integer pageNum);
+
+    List<SmsHomeBrand> search();
 }

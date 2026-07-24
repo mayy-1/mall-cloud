@@ -63,17 +63,6 @@ public class FlashPromotionServiceImpl implements IFlashPromotionService {
     @Override
     public SmsFlashPromotion getCurrentFlashPromotion() {
         Date now = new Date();
-        SmsFlashPromotion condition = new SmsFlashPromotion();
-        condition.setStatus(1);
-        List<SmsFlashPromotion> flashPromotionList = flashPromotionMapper.selectByCondition(condition);
-        if (flashPromotionList != null && !flashPromotionList.isEmpty()) {
-            for (SmsFlashPromotion p : flashPromotionList) {
-                if (p.getStartDate() != null && !now.before(p.getStartDate())
-                        && p.getEndDate() != null && !now.after(p.getEndDate())) {
-                    return p;
-                }
-            }
-        }
-        return null;
+        return flashPromotionMapper.selectCurrentFlashPromotion(now);
     }
 }

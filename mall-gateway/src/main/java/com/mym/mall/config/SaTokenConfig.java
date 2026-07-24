@@ -44,6 +44,15 @@ public class SaTokenConfig {
                 .setExcludeList(ignoreUrlsConfig.getUrls())
                 // 鉴权方法：每次访问进入
                 .setAuth(obj -> {
+                    String requestPath = SaHolder.getRequest().getRequestPath();
+                    PathMatcher pathMatcher = new AntPathMatcher();
+                    if (ignoreUrlsConfig.getUrls() != null) {
+                        for (String ignoreUrl : ignoreUrlsConfig.getUrls()) {
+                            if (pathMatcher.match(ignoreUrl, requestPath)) {
+                                SaRouter.stop();
+                            }
+                        }
+                    }
                     // 对于OPTIONS预检请求直接放行
                     SaRouter.match(SaHttpMethod.OPTIONS).stop();
                     // 登录认证：商城前台会员认证
@@ -57,9 +66,6 @@ public class SaTokenConfig {
                     // 获取到访问当前接口所需权限（一个路径对应多个资源时，拥有任意一个资源都可以访问该路径）
                     List<String> needPermissionList = new ArrayList<>();
                     // 获取当前请求路径
-                    String requestPath = SaHolder.getRequest().getRequestPath();
-                    // 创建路径匹配器
-                    PathMatcher pathMatcher = new AntPathMatcher();
                     Set<Map.Entry<Object, Object>> entrySet = pathResourceMap.entrySet();
                     for (Map.Entry<Object, Object> entry : entrySet) {
                         String pattern = (String) entry.getKey();

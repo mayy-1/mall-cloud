@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mall-Cloud 数据库 ER 关系图（含表说明）</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f0f2f5; color: #333; overflow: auto; }
+  .container { width: 100%; min-width: 1600px; padding: 20px; }
+  .header { text-align: center; padding: 24px 0 16px; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); color: white; border-radius: 12px; margin-bottom: 24px; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+  .header p { font-size: 14px; margin-top: 6px; opacity: 0.85; }
+  .legend { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 16px; background: #fff; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+  .module-section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: relative; overflow: visible; }
+  .module-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+  .module-badge { padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .module-title { font-size: 18px; font-weight: 700; }
+  .module-db { font-size: 12px; color: #999; margin-left: auto; }
+  .module-service { font-size: 12px; color: #666; background: #f5f5f5; padding: 3px 10px; border-radius: 4px; }
+  .table-grid { display: flex; flex-wrap: wrap; gap: 14px; position: relative; }
+  .table-card { background: #fafafa; border: 2px solid #e0e0e0; border-radius: 8px; padding: 0; min-width: 178px; max-width: 220px; flex-shrink: 0; transition: all 0.2s; position: relative; }
+  .table-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); z-index: 10; }
+  .table-name { padding: 8px 12px 4px; font-weight: 700; font-size: 13px; color: #fff; border-radius: 6px 6px 0 0; text-align: center; white-space: nowrap; }
+  .table-desc { padding: 1px 10px 6px; font-size: 10px; color: rgba(255,255,255,0.85); text-align: center; line-height: 1.3; }
+  .table-cols { padding: 6px 10px 8px; font-size: 11px; line-height: 1.7; }
+  .col-row { display: flex; justify-content: space-between; }
+  .col-name { color: #555; }
+  .col-type { color: #999; font-size: 10px; }
+  .col-fk { color: #e65100; font-weight: 600; }
+  .col-pk { color: #c62828; font-weight: 600; }
+  .cross-module-indicator { position: absolute; top: -8px; right: -8px; background: #e65100; color: #fff; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; }
+  .sub-group-label { width: 100%; font-size: 12px; font-weight: 700; color: #888; padding: 6px 12px; margin-top: 8px; background: #f5f5f5; border-radius: 4px; border-left: 3px solid #ccc; }
+  .footer-note { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+
+  .user-color { background: #1565c0; }
+  .member-color { background: #2e7d32; }
+  .product-color { background: #e65100; }
+  .order-color { background: #c62828; }
+  .cart-color { background: #6a1b9a; }
+  .marketing-color { background: #f9a825; color: #333; }
+  .cms-color { background: #00838f; }
+
+  .table-card.user-table { border-color: #90caf9; }
+  .table-card.user-table .table-name { background: #1565c0; }
+  .table-card.user-table .table-desc { background: #1565c0; }
+  .table-card.member-table { border-color: #a5d6a7; }
+  .table-card.member-table .table-name { background: #2e7d32; }
+  .table-card.member-table .table-desc { background: #2e7d32; }
+  .table-card.product-table { border-color: #ffcc80; }
+  .table-card.product-table .table-name { background: #e65100; }
+  .table-card.product-table .table-desc { background: #e65100; }
+  .table-card.order-table { border-color: #ef9a9a; }
+  .table-card.order-table .table-name { background: #c62828; }
+  .table-card.order-table .table-desc { background: #c62828; }
+  .table-card.cart-table { border-color: #ce93d8; }
+  .table-card.cart-table .table-name { background: #6a1b9a; }
+  .table-card.cart-table .table-desc { background: #6a1b9a; }
+  .table-card.marketing-table { border-color: #fff59d; }
+  .table-card.marketing-table .table-name { background: #f9a825; color: #333; }
+  .table-card.marketing-table .table-desc { background: #f9a825; color: rgba(0,0,0,0.7); }
+  .table-card.cms-table { border-color: #80deea; }
+  .table-card.cms-table .table-name { background: #00838f; }
+  .table-card.cms-table .table-desc { background: #00838f; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>Mall-Cloud 微服务数据库 ER 关系图</h1>
+  <p>Database-per-Service 架构 | 6 个数据库 · 70+ 张表 · MongoDB + Elasticsearch | 每张表均标注用途</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1565c0"></div> 用户权限 (mall_user)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div> 会员中心 (mall_member)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> 商品中心 (mall_product)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c62828"></div> 订单中心 (mall_order)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6a1b9a"></div> 购物车 (mall_cart)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f9a825"></div> 营销中心</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00838f"></div> 内容管理</div>
+</div>
+<div class="legend" style="margin-top:-16px; background:transparent; box-shadow:none; padding-top:4px;">
+  <div class="legend-item" style="font-size:11px; color:#c62828;">🔑 PK</div>
+  <div class="legend-item" style="font-size:11px; color:#e65100;">🔗 FK</div>
+  <div class="legend-item" style="font-size:11px; color:#999;">⤳ 跨库</div>
+  <div class="legend-item" style="font-size:11px; color:#888;">📦 MongoDB</div>
+  <div class="legend-item" style="font-size:11px; color:#888;">🔍 ES</div>
+  <div class="legend-item" style="font-size:11px; color:#666;">〖〗= 用途说明</div>
+</div>
+
+<!-- ==================== 1. 用户权限 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge user-color">RBAC</span>
+    <span class="module-title">用户权限系统</span>
+    <span class="module-service">user-service</span>
+    <span class="module-db">📁 mall_user</span>
+  </div>
+  <div class="table-grid">
+    <!-- 核心 -->
+    <div class="table-card user-table pk-table">
+      <div class="table-name" style="background:#0d47a1;">ums_admin</div>
+      <div class="table-desc">后台管理员账户</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">username</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">password</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">email</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table pk-table">
+      <div class="table-name">ums_role</div>
+      <div class="table-desc">后台角色定义</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">description</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table pk-table">
+      <div class="table-name">ums_menu</div>
+      <div class="table-desc">后台菜单树(自关联)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 parent_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">level</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table pk-table">
+      <div class="table-name">ums_resource</div>
+      <div class="table-desc">后台资源(接口/按钮)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">url</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table">
+      <div class="table-name">ums_resource_category</div>
+      <div class="table-desc">资源分类</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">sort</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table">
+      <div class="table-name">ums_permission</div>
+      <div class="table-desc">权限定义(树形自关联)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 pid</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">value</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">🔗 关联表（多对多中间表）</div>
+
+    <div class="table-card user-table" style="background:#e3f2fd;">
+      <div class="table-name" style="font-size:11px;">ums_admin_role_relation</div>
+      <div class="table-desc">管理员⇄角色 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 admin_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 role_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table" style="background:#e3f2fd;">
+      <div class="table-name" style="font-size:11px;">ums_role_menu_relation</div>
+      <div class="table-desc">角色⇄菜单 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 role_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 menu_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table" style="background:#e3f2fd;">
+      <div class="table-name" style="font-size:11px;">ums_role_resource_relation</div>
+      <div class="table-desc">角色⇄资源 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 role_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 resource_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table" style="background:#e3f2fd;">
+      <div class="table-name" style="font-size:11px;">ums_admin_permission_relation</div>
+      <div class="table-desc">管理员⇄权限 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 admin_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 permission_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table" style="background:#e3f2fd;">
+      <div class="table-name" style="font-size:11px;">ums_role_permission_relation</div>
+      <div class="table-desc">角色⇄权限 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 role_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 permission_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📋 日志 & 等级</div>
+
+    <div class="table-card user-table">
+      <div class="table-name">ums_admin_login_log</div>
+      <div class="table-desc">管理员登录日志</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 admin_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">ip</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card user-table pk-table" style="border-color:#a5d6a7; border-width:2px;">
+      <div class="table-name" style="background:#1565c0;">ums_member_level ⤳</div>
+      <div class="table-desc">会员等级定义(跨库引用)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">growth_point</span><span class="col-type">int</span></div>
+        <div class="col-row"><span class="col-name">discount</span><span class="col-type">decimal</span></div>
+      </div>
+      <div class="cross-module-indicator" title="跨库被会员/商品模块引用">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. 会员中心 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge member-color">会员</span>
+    <span class="module-title">会员中心</span>
+    <span class="module-service">member-service</span>
+    <span class="module-db">📁 mall_member + MongoDB</span>
+  </div>
+  <div class="table-grid">
+    <div class="table-card member-table pk-table">
+      <div class="table-name" style="background:#1b5e20;">ums_member</div>
+      <div class="table-desc">C端会员（核心主表）</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_level_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">username</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">phone</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">integration</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_receive_address</div>
+      <div class="table-desc">会员收货地址</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">province</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_login_log</div>
+      <div class="table-desc">会员登录日志</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_statistics_info</div>
+      <div class="table-desc">会员消费统计数据</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">order_count</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">🏷 标签 & 任务</div>
+
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_tag</div>
+      <div class="table-desc">会员标签定义</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table" style="background:#e8f5e9;">
+      <div class="table-name" style="font-size:11px;">ums_member_member_tag_relation</div>
+      <div class="table-desc">会员⇄标签 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 tag_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_task</div>
+      <div class="table-desc">会员任务定义</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_member_rule_setting</div>
+      <div class="table-desc">积分/成长值规则配置</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">rule_type</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table" style="background:#e8f5e9;">
+      <div class="table-name" style="font-size:11px;">ums_member_product_category_relation</div>
+      <div class="table-desc">会员⇄商品分类 偏好</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_category_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📈 积分 & 成长值记录</div>
+
+    <div class="table-card member-table">
+      <div class="table-name">ums_integration_change_history</div>
+      <div class="table-desc">积分变动流水记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">change_count</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_growth_change_history</div>
+      <div class="table-desc">成长值变动流水记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">change_count</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card member-table">
+      <div class="table-name">ums_integration_consume_setting</div>
+      <div class="table-desc">积分抵扣规则设置</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">deduction_per</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📦 MongoDB 集合（非关系型）</div>
+    <div class="table-card" style="border-color:#a5d6a7; background:#f1f8e9;">
+      <div class="table-name" style="background:#558b2f;">memberBrandAttention</div>
+      <div class="table-desc" style="background:#558b2f;">会员品牌关注</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 memberId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 brandId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name">brandName</span><span class="col-type">String</span></div>
+      </div>
+    </div>
+    <div class="table-card" style="border-color:#a5d6a7; background:#f1f8e9;">
+      <div class="table-name" style="background:#558b2f;">memberReadHistory</div>
+      <div class="table-desc" style="background:#558b2f;">会员浏览历史</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 memberId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 productId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name">productName</span><span class="col-type">String</span></div>
+      </div>
+    </div>
+    <div class="table-card" style="border-color:#a5d6a7; background:#f1f8e9;">
+      <div class="table-name" style="background:#558b2f;">memberProductCollection</div>
+      <div class="table-desc" style="background:#558b2f;">会员商品收藏</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 memberId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 productId</span><span class="col-type">Long</span></div>
+        <div class="col-row"><span class="col-name">productName</span><span class="col-type">String</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 3. 商品中心 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge product-color">商品</span>
+    <span class="module-title">商品中心</span>
+    <span class="module-service">product-service</span>
+    <span class="module-db">📁 mall_product + ES</span>
+  </div>
+  <div class="table-grid">
+    <div class="table-card product-table pk-table" style="min-width:200px;">
+      <div class="table-name" style="background:#bf360c;">pms_product</div>
+      <div class="table-desc" style="background:#bf360c;">商品SPU（核心主表）</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 brand_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 feight_template_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">price</span><span class="col-type">decimal</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_brand</div>
+      <div class="table-desc">品牌</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">logo</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_category</div>
+      <div class="table-desc">商品分类(树形自关联)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 parent_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_sku_stock</div>
+      <div class="table-desc">SKU库存(规格×库存)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">price</span><span class="col-type">decimal</span></div>
+        <div class="col-row"><span class="col-name">stock</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_feight_template</div>
+      <div class="table-desc">运费模板</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📐 属性系统</div>
+
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_attribute</div>
+      <div class="table-desc">商品属性定义(颜色/尺码等)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 attribute_category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_attribute_category</div>
+      <div class="table-desc">属性分类</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_attribute_value</div>
+      <div class="table-desc">商品⇄属性值</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_attribute_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table" style="background:#fff3e0;">
+      <div class="table-name" style="font-size:11px;">pms_product_category_attribute_relation</div>
+      <div class="table-desc">分类⇄属性 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 product_category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_attribute_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">💰 价格策略</div>
+
+    <div class="table-card product-table">
+      <div class="table-name">pms_member_price</div>
+      <div class="table-desc">会员等级专属价格</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_level_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_ladder</div>
+      <div class="table-desc">阶梯价格(买多优惠)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">count</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_full_reduction</div>
+      <div class="table-desc">满减价格(满多少减多少)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">full_price</span><span class="col-type">decimal</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📷 评论 & 相册 & 日志</div>
+
+    <div class="table-card product-table">
+      <div class="table-name">pms_comment</div>
+      <div class="table-desc">商品评价</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">content</span><span class="col-type">text</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_comment_replay</div>
+      <div class="table-desc">评价回复(商家回复)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 comment_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_album</div>
+      <div class="table-desc">商品相册</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_album_pic</div>
+      <div class="table-desc">相册图片</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 album_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_operate_log</div>
+      <div class="table-desc">商品操作日志</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card product-table">
+      <div class="table-name">pms_product_vertify_record</div>
+      <div class="table-desc">商品审核记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. 订单 + 购物车 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge order-color">订单</span>
+    <span class="module-title">订单中心 & 购物车</span>
+    <span class="module-service">order-service + trade-service + cart-service</span>
+    <span class="module-db">📁 mall_order + mall_cart</span>
+  </div>
+  <div class="table-grid">
+    <div class="table-card order-table pk-table" style="min-width:210px;">
+      <div class="table-name" style="background:#b71c1c;">oms_order</div>
+      <div class="table-desc" style="background:#b71c1c;">订单主表（核心）</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 coupon_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name">order_sn</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">total_amount</span><span class="col-type">decimal</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_order_item</div>
+      <div class="table-desc">订单商品明细</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 order_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name">product_price</span><span class="col-type">decimal</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_order_operate_history</div>
+      <div class="table-desc">订单操作历史(全生命周期)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 order_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">operate_man</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_order_return_apply</div>
+      <div class="table-desc">退货/退款申请</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 order_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_order_return_reason</div>
+      <div class="table-desc">退货原因字典</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_order_setting</div>
+      <div class="table-desc">订单流程设置(超时/自动确认等)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">finish_overtime</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card order-table">
+      <div class="table-name">oms_company_address</div>
+      <div class="table-desc">公司发货地址</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">address_name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">🛒 购物车（独立数据库 mall_cart）</div>
+    <div class="table-card cart-table pk-table">
+      <div class="table-name">oms_cart_item</div>
+      <div class="table-desc">购物车商品项</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name">quantity</span><span class="col-type">int</span></div>
+        <div class="col-row"><span class="col-name">price</span><span class="col-type">decimal</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 5. 营销 + 内容管理 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge marketing-color">营销</span>
+    <span class="module-title">营销中心 & 内容管理</span>
+    <span class="module-service">marketing-service</span>
+    <span class="module-db">📁 mall_marketing</span>
+  </div>
+  <div class="table-grid">
+    <div class="sub-group-label">🎫 优惠券系统</div>
+
+    <div class="table-card marketing-table pk-table">
+      <div class="table-name" style="background:#f57f17;">sms_coupon</div>
+      <div class="table-desc" style="background:#f57f17;">优惠券定义</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">amount</span><span class="col-type">decimal</span></div>
+        <div class="col-row"><span class="col-name">type</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_coupon_history</div>
+      <div class="table-desc">优惠券领取/使用记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 coupon_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 order_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table" style="background:#fffde7;">
+      <div class="table-name" style="font-size:11px; color:#333;">sms_coupon_product_relation</div>
+      <div class="table-desc">优惠券⇄商品 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 coupon_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table" style="background:#fffde7;">
+      <div class="table-name" style="font-size:11px; color:#333;">sms_coupon_product_category_relation</div>
+      <div class="table-desc">优惠券⇄分类 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 coupon_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_category_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">⚡ 秒杀系统</div>
+
+    <div class="table-card marketing-table pk-table">
+      <div class="table-name">sms_flash_promotion</div>
+      <div class="table-desc">秒杀活动</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">start_date</span><span class="col-type">date</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_flash_promotion_session</div>
+      <div class="table-desc">秒杀时间段(场次)</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">start_time</span><span class="col-type">time</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table" style="background:#fffde7;">
+      <div class="table-name" style="font-size:11px; color:#333;">sms_flash_promotion_product_relation</div>
+      <div class="table-desc">秒杀活动⇄商品 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 flash_promotion_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 session_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_flash_promotion_log</div>
+      <div class="table-desc">秒杀参与记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 member_id</span><span class="col-type">bigint ⤳</span></div>
+        <div class="col-row"><span class="col-name">product_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table pk-table">
+      <div class="table-name" style="font-size:11px;">sms_seckill_order</div>
+      <div class="table-desc">秒杀成功订单记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 promotion_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 session_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 order_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">🏠 首页推荐</div>
+
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_home_advertise</div>
+      <div class="table-desc">首页轮播广告</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="col-row"><span class="col-name">pic</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_home_brand</div>
+      <div class="table-desc">首页推荐品牌</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 brand_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_home_new_product</div>
+      <div class="table-desc">首页新品推荐</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_home_recommend_product</div>
+      <div class="table-desc">首页人气推荐商品</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card marketing-table">
+      <div class="table-name">sms_home_recommend_subject</div>
+      <div class="table-desc">首页推荐专题</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 subject_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+
+    <div class="sub-group-label">📰 内容管理 CMS</div>
+
+    <div class="table-card cms-table">
+      <div class="table-name">cms_subject</div>
+      <div class="table-desc">商品专题</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_subject_category</div>
+      <div class="table-desc">专题分类</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_subject_comment</div>
+      <div class="table-desc">专题评论</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 subject_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_topic</div>
+      <div class="table-desc">话题</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_topic_category</div>
+      <div class="table-desc">话题分类</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_topic_comment</div>
+      <div class="table-desc">话题评论</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 topic_id</span><span class="col-type">bigint</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_help</div>
+      <div class="table-desc">帮助文档</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 category_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_help_category</div>
+      <div class="table-desc">帮助分类</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_prefrence_area</div>
+      <div class="table-desc">优选专区</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table" style="background:#e0f2f1;">
+      <div class="table-name" style="font-size:11px;">cms_prefrence_area_product_relation</div>
+      <div class="table-desc">优选专区⇄商品 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 prefrence_area_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table" style="background:#e0f2f1;">
+      <div class="table-name" style="font-size:11px;">cms_subject_product_relation</div>
+      <div class="table-desc">专题⇄商品 关联</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-fk">🔗 subject_id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name col-fk">🔗 product_id</span><span class="col-type">bigint ⤳</span></div>
+      </div>
+    </div>
+    <div class="table-card cms-table">
+      <div class="table-name">cms_member_report</div>
+      <div class="table-desc">用户举报记录</div>
+      <div class="table-cols">
+        <div class="col-row"><span class="col-name col-pk">🔑 id</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">report_type</span><span class="col-type">int</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. 跨库总览图 ==================== -->
+<div class="module-section">
+  <div class="module-header">
+    <span class="module-badge" style="background:#e65100;">跨库</span>
+    <span class="module-title">跨数据库核心关联总览</span>
+    <span class="module-db">📁 6 数据库关联关系</span>
+  </div>
+  <div style="display:flex; justify-content:center;">
+    <svg width="1100" height="580" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aG" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/></marker>
+        <marker id="aR" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/></marker>
+        <marker id="aP" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6a1b9a"/></marker>
+        <marker id="aY" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f9a825"/></marker>
+        <marker id="aO" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#e65100"/></marker>
+      </defs>
+
+      <!-- mall_user -->
+      <rect x="20" y="20" width="200" height="250" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5"/>
+      <text x="120" y="48" text-anchor="middle" font-size="14" font-weight="700" fill="#1565c0">mall_user</text>
+      <text x="120" y="66" text-anchor="middle" font-size="10" fill="#555">user-service · RBAC</text>
+      <text x="35" y="92" font-size="11" fill="#333">👤 ums_admin</text><text x="170" y="92" font-size="9" fill="#888">管理员账户</text>
+      <text x="35" y="112" font-size="11" fill="#333">🔐 ums_role</text><text x="170" y="112" font-size="9" fill="#888">角色定义</text>
+      <text x="35" y="132" font-size="11" fill="#333">📋 ums_menu</text><text x="170" y="132" font-size="9" fill="#888">菜单树</text>
+      <text x="35" y="152" font-size="11" fill="#333">🔗 ums_resource</text><text x="170" y="152" font-size="9" fill="#888">接口/按钮</text>
+      <text x="35" y="172" font-size="11" fill="#333">🔑 ums_permission</text><text x="170" y="172" font-size="9" fill="#888">权限树</text>
+      <text x="35" y="200" font-size="11" fill="#333">⭐ ums_member_level</text><text x="170" y="200" font-size="9" fill="#e65100">会员等级</text>
+      <text x="35" y="225" font-size="10" fill="#999">+ 6 张关联表 + 登录日志</text>
+
+      <!-- mall_member -->
+      <rect x="260" y="20" width="210" height="250" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2.5"/>
+      <text x="365" y="48" text-anchor="middle" font-size="14" font-weight="700" fill="#2e7d32">mall_member</text>
+      <text x="365" y="66" text-anchor="middle" font-size="10" fill="#555">member-service</text>
+      <text x="275" y="92" font-size="11" fill="#333">⭐ ums_member</text><text x="420" y="92" font-size="9" fill="#888">C端会员</text>
+      <text x="275" y="112" font-size="11" fill="#333">📍 收货地址</text>
+      <text x="275" y="132" font-size="11" fill="#333">📊 统计信息</text>
+      <text x="275" y="152" font-size="11" fill="#333">🏷 标签/任务/偏好</text>
+      <text x="275" y="172" font-size="11" fill="#333">📈 积分+成长值流水</text>
+      <text x="275" y="192" font-size="11" fill="#333">⚙ 积分抵扣设置</text>
+      <text x="275" y="220" font-size="10" fill="#558b2f">📦 MongoDB: 关注·浏览·收藏</text>
+
+      <!-- mall_product -->
+      <rect x="510" y="20" width="220" height="250" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2.5"/>
+      <text x="620" y="48" text-anchor="middle" font-size="14" font-weight="700" fill="#e65100">mall_product</text>
+      <text x="620" y="66" text-anchor="middle" font-size="10" fill="#555">product-service</text>
+      <text x="525" y="92" font-size="11" fill="#333">⭐ pms_product</text><text x="680" y="92" font-size="9" fill="#888">商品SPU</text>
+      <text x="525" y="112" font-size="11" fill="#333">🏭 pms_brand</text><text x="680" y="112" font-size="9" fill="#888">品牌</text>
+      <text x="525" y="132" font-size="11" fill="#333">📂 商品分类(树形)</text>
+      <text x="525" y="152" font-size="11" fill="#333">📦 SKU库存</text>
+      <text x="525" y="172" font-size="11" fill="#333">📐 属性+属性值</text>
+      <text x="525" y="192" font-size="11" fill="#333">💰 阶梯/满减/会员价</text>
+      <text x="525" y="212" font-size="11" fill="#333">💬 评价·相册·日志</text>
+      <text x="525" y="232" font-size="10" fill="#e65100">🔍 ES: pms 商品搜索索引</text>
+
+      <!-- mall_order -->
+      <rect x="770" y="20" width="200" height="250" rx="10" fill="#ffebee" stroke="#c62828" stroke-width="2.5"/>
+      <text x="870" y="48" text-anchor="middle" font-size="14" font-weight="700" fill="#c62828">mall_order</text>
+      <text x="870" y="66" text-anchor="middle" font-size="10" fill="#555">order + trade service</text>
+      <text x="785" y="92" font-size="11" fill="#333">⭐ oms_order</text><text x="920" y="92" font-size="9" fill="#888">订单主表</text>
+      <text x="785" y="112" font-size="11" fill="#333">📋 oms_order_item</text><text x="920" y="112" font-size="9" fill="#888">订单明细</text>
+      <text x="785" y="132" font-size="11" fill="#333">📝 操作历史</text>
+      <text x="785" y="152" font-size="11" fill="#333">🔄 退货/退款申请</text>
+      <text x="785" y="172" font-size="11" fill="#333">ℹ 退货原因字典</text>
+      <text x="785" y="192" font-size="11" fill="#333">⚙ 订单流程设置</text>
+      <text x="785" y="212" font-size="11" fill="#333">🏢 公司发货地址</text>
+
+      <!-- mall_cart -->
+      <rect x="880" y="290" width="190" height="100" rx="10" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2.5"/>
+      <text x="975" y="318" text-anchor="middle" font-size="14" font-weight="700" fill="#6a1b9a">mall_cart</text>
+      <text x="975" y="336" text-anchor="middle" font-size="10" fill="#555">cart-service</text>
+      <text x="895" y="365" font-size="11" fill="#333">🛒 oms_cart_item</text><text x="1020" y="365" font-size="9" fill="#888">购物车</text>
+
+      <!-- mall_marketing -->
+      <rect x="20" y="290" width="820" height="120" rx="10" fill="#fffde7" stroke="#f9a825" stroke-width="2.5"/>
+      <text x="430" y="318" text-anchor="middle" font-size="14" font-weight="700" fill="#f57f17">mall_marketing</text>
+      <text x="430" y="336" text-anchor="middle" font-size="10" fill="#555">marketing-service</text>
+      <text x="35" y="365" font-size="11" fill="#333">🎫 优惠券: sms_coupon, sms_coupon_history, 商品关联, 分类关联</text>
+      <text x="35" y="385" font-size="11" fill="#333">⚡ 秒杀: sms_flash_promotion, 场次, 商品关联, 秒杀记录, 秒杀订单</text>
+      <text x="35" y="405" font-size="11" fill="#333">🏠 首页: 广告·推荐品牌·新品·人气商品·推荐专题</text>
+      <text x="420" y="365" font-size="11" fill="#00838f">📰 CMS: 专题·话题·帮助·优选专区·举报</text>
+
+      <!-- Arrows -->
+      <!-- member_level: mall_member -> mall_user -->
+      <line x1="365" y1="80" x2="220" y2="155" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aG)"/>
+      <text x="250" y="115" font-size="8" fill="#e65100" font-weight="600">member_level_id</text>
+
+      <!-- order -> member (member_id) -->
+      <line x1="870" y1="82" x2="470" y2="100" stroke="#c62828" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aR)"/>
+      <text x="620" y="78" font-size="8" fill="#e65100" font-weight="600">member_id</text>
+
+      <!-- order -> product (product_id via item) -->
+      <line x1="770" y1="110" x2="730" y2="110" stroke="#c62828" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aR)"/>
+      <text x="640" y="104" font-size="8" fill="#e65100" font-weight="600">product_id (via order_item)</text>
+
+      <!-- order -> marketing (coupon_id) -->
+      <line x1="870" y1="82" x2="800" y2="290" stroke="#c62828" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aR)"/>
+      <text x="920" y="270" font-size="8" fill="#e65100" font-weight="600">coupon_id</text>
+
+      <!-- cart -> product -->
+      <line x1="880" y1="350" x2="730" y2="250" stroke="#6a1b9a" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aP)"/>
+      <text x="790" y="310" font-size="8" fill="#e65100" font-weight="600">product_id</text>
+
+      <!-- cart -> member -->
+      <line x1="880" y1="330" x2="470" y2="180" stroke="#6a1b9a" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aP)"/>
+      <text x="620" y="260" font-size="8" fill="#e65100" font-weight="600">member_id</text>
+
+      <!-- marketing coupon history -> order + member -->
+      <line x1="350" y1="290" x2="830" y2="180" stroke="#f9a825" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aY)"/>
+      <text x="550" y="255" font-size="8" fill="#e65100" font-weight="600">order_id, member_id ⤳</text>
+
+      <!-- marketing * -> product -->
+      <line x1="500" y1="290" x2="610" y2="270" stroke="#f9a825" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aY)"/>
+      <text x="530" y="285" font-size="8" fill="#e65100" font-weight="600">product_id / brand_id</text>
+
+      <!-- product member_price -> member_level -->
+      <line x1="510" y1="195" x2="220" y2="195" stroke="#e65100" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aO)"/>
+      <text x="350" y="190" font-size="8" fill="#e65100" font-weight="600">member_level_id</text>
+
+      <!-- ES -->
+      <rect x="1010" y="70" width="140" height="55" rx="8" fill="#e0f2f1" stroke="#00838f" stroke-width="1.5"/>
+      <text x="1080" y="92" text-anchor="middle" font-size="11" font-weight="700" fill="#00838f">🔍 Elasticsearch</text>
+      <text x="1080" y="112" text-anchor="middle" font-size="10" fill="#555">pms 商品索引</text>
+      <line x1="730" y1="120" x2="1010" y2="98" stroke="#e65100" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="820" y="110" font-size="8" fill="#e65100">数据同步</text>
+
+      <!-- MongoDB -->
+      <rect x="1010" y="330" width="140" height="55" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="1080" y="352" text-anchor="middle" font-size="11" font-weight="700" fill="#2e7d32">📦 MongoDB</text>
+      <text x="1080" y="372" text-anchor="middle" font-size="10" fill="#555">关注·浏览·收藏</text>
+      <line x1="470" y1="230" x2="1010" y2="350" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="700" y="305" font-size="8" fill="#2e7d32">memberId, productId, brandId</text>
+
+      <!-- Legend -->
+      <rect x="20" y="450" width="380" height="95" rx="8" fill="#f5f5f5" stroke="#ddd"/>
+      <text x="35" y="472" font-size="12" font-weight="700" fill="#555">图例</text>
+      <line x1="35" y1="495" x2="70" y2="495" stroke="#c62828" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="78" y="498" font-size="10" fill="#555">------ 跨库关联</text>
+      <text x="35" y="514" font-size="10" fill="#555">⭐ 核心业务主表 | ⤳ 跨库外键 | 📦/🔍 非关系型存储</text>
+      <text x="35" y="535" font-size="10" fill="#555">每张表右侧灰色小字 = 表的用途说明</text>
+    </svg>
+  </div>
+</div>
+
+<div class="footer-note">Mall-Cloud 微服务商城 · Database-per-Service 架构 · 共 6 个数据库 70+ 张表 · Feign 远程调用实现跨服务数据访问</div>
+</div>
+</body>
+</html>

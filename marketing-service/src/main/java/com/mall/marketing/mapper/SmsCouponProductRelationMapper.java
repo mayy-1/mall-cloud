@@ -29,4 +29,8 @@ public interface SmsCouponProductRelationMapper {
     int updateByPrimaryKeySelective(SmsCouponProductRelation row);
 
     int updateByPrimaryKey(SmsCouponProductRelation row);
+
+    int insertList(@Param("list") List<SmsCouponProductRelation> list);
+
+    SmsCouponProductRelation getItem(@Param("id") Long id);
 }

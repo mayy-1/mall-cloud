@@ -240,4 +240,12 @@
     </where>
   </update>
 
+  <select id="selectHomeAdvertises" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM sms_home_advertise
+    WHERE status = 1
+      AND (start_time IS NULL OR start_time &lt;= #{now})
+      AND (end_time IS NULL OR end_time &gt;= #{now})
+    ORDER BY sort DESC
+  </select>
+
 </mapper>

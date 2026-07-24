@@ -55,7 +55,7 @@ public class OmsCartItem implements Serializable {
 
     private String productSn;
 
-    @Schema(title = "商品销售属性:[{'key':'颜色','value':'颜色'},{'key':'容量','value':'4G'}]")
+    @Schema(title = "商品销售属性:[{'key':'颜色','value':'红色'},{'key':'容量','value':'4G'}]")
     private String productAttr;
 
     private static final long serialVersionUID = 1L;

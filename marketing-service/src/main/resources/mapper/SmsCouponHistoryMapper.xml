@@ -225,7 +225,7 @@
     </where>
   </update>
 
-<resultMap id="couponHistoryDetailMap" type="com.mall.marketing.domain.dto.SmsCouponHistoryDetail"
+    <resultMap id="couponHistoryDetailMap" type="com.mall.marketing.domain.dto.SmsCouponHistoryDetail"
                extends="com.mall.marketing.mapper.SmsCouponHistoryMapper.BaseResultMap">
         <association property="coupon" resultMap="com.mall.marketing.mapper.SmsCouponMapper.BaseResultMap" columnPrefix="c_">
         </association>
@@ -258,9 +258,52 @@
         AND ch.use_status = 0
     </select>
 
-    <select id="getCouponList" resultMap="com.mall.marketing.mapper.SmsCouponMapper.BaseResultMap">
+    <resultMap id="CouponHistoryDetailMap" type="com.mall.marketing.domain.dto.SmsCouponHistoryDetail">
+        <id column="h_id" jdbcType="BIGINT" property="id" />
+        <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
+        <result column="member_id" jdbcType="BIGINT" property="memberId" />
+        <result column="coupon_code" jdbcType="VARCHAR" property="couponCode" />
+        <result column="member_nickname" jdbcType="VARCHAR" property="memberNickname" />
+        <result column="get_type" jdbcType="INTEGER" property="getType" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="use_status" jdbcType="INTEGER" property="useStatus" />
+        <result column="use_time" jdbcType="TIMESTAMP" property="useTime" />
+        <result column="order_id" jdbcType="BIGINT" property="orderId" />
+        <result column="order_sn" jdbcType="VARCHAR" property="orderSn" />
+        <association property="coupon" javaType="com.mall.marketing.model.SmsCoupon">
+            <id column="c_id" jdbcType="BIGINT" property="id" />
+            <result column="c_type" jdbcType="INTEGER" property="type" />
+            <result column="c_name" jdbcType="VARCHAR" property="name" />
+            <result column="c_platform" jdbcType="INTEGER" property="platform" />
+            <result column="c_count" jdbcType="INTEGER" property="count" />
+            <result column="c_amount" jdbcType="DECIMAL" property="amount" />
+            <result column="c_per_limit" jdbcType="INTEGER" property="perLimit" />
+            <result column="c_min_point" jdbcType="DECIMAL" property="minPoint" />
+            <result column="c_start_time" jdbcType="TIMESTAMP" property="startTime" />
+            <result column="c_end_time" jdbcType="TIMESTAMP" property="endTime" />
+            <result column="c_use_type" jdbcType="INTEGER" property="useType" />
+            <result column="c_note" jdbcType="VARCHAR" property="note" />
+            <result column="c_publish_count" jdbcType="INTEGER" property="publishCount" />
+            <result column="c_use_count" jdbcType="INTEGER" property="useCount" />
+            <result column="c_receive_count" jdbcType="INTEGER" property="receiveCount" />
+            <result column="c_enable_time" jdbcType="TIMESTAMP" property="enableTime" />
+            <result column="c_code" jdbcType="VARCHAR" property="code" />
+            <result column="c_member_level" jdbcType="INTEGER" property="memberLevel" />
+            <result column="c_status" jdbcType="INTEGER" property="status" />
+        </association>
+    </resultMap>
+
+    <select id="getCouponList" resultMap="CouponHistoryDetailMap">
         SELECT
-          c.*
+          ch.id AS h_id, ch.coupon_id, ch.member_id, ch.coupon_code, ch.member_nickname,
+          ch.get_type, ch.create_time, ch.use_status, ch.use_time, ch.order_id, ch.order_sn,
+          c.id AS c_id, c.type AS c_type, c.name AS c_name, c.platform AS c_platform,
+          c.count AS c_count, c.amount AS c_amount, c.per_limit AS c_per_limit,
+          c.min_point AS c_min_point, c.start_time AS c_start_time,
+          c.end_time AS c_end_time, c.use_type AS c_use_type, c.note AS c_note,
+          c.publish_count AS c_publish_count, c.use_count AS c_use_count,
+          c.receive_count AS c_receive_count, c.enable_time AS c_enable_time,
+          c.code AS c_code, c.member_level AS c_member_level, c.status AS c_status
         FROM
             sms_coupon_history ch
                 LEFT JOIN sms_coupon c ON ch.coupon_id = c.id

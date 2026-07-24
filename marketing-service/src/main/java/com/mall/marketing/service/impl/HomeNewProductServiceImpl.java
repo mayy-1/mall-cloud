@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 首页新品推荐管理Service实现类
@@ -66,5 +67,13 @@ public class HomeNewProductServiceImpl implements IHomeNewProductService {
             condition.setRecommendStatus(recommendStatus);
         }
         return homeNewProductMapper.selectByCondition(condition);
+    }
+
+    @Override
+    public List<Long> getActiveProductIds() {
+        SmsHomeNewProduct condition = new SmsHomeNewProduct();
+        condition.setRecommendStatus(1);
+        List<SmsHomeNewProduct> list = homeNewProductMapper.selectByCondition(condition);
+        return list.stream().map(SmsHomeNewProduct::getProductId).collect(Collectors.toList());
     }
 }

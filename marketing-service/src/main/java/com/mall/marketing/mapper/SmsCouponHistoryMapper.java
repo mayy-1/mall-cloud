@@ -31,5 +31,5 @@ public interface SmsCouponHistoryMapper {
 
     List<SmsCouponHistoryDetail> getDetailList(@Param("memberId") Long memberId);
 
-    List<SmsCoupon> getCouponList(@Param("memberId") Long memberId, @Param("useStatus") Integer useStatus);
+    List<SmsCouponHistoryDetail> getCouponList(@Param("memberId") Long memberId, @Param("useStatus") Integer useStatus);
 }
