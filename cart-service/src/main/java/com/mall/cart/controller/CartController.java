@@ -1,7 +1,7 @@
 package com.mall.cart.controller;
 
 import com.mall.api.client.member.MemberClient;
-import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
 import com.mall.cart.domain.dto.CartProduct;
 import com.mall.cart.model.OmsCartItem;
 import com.mall.cart.service.ICartService;
@@ -44,7 +44,6 @@ public class CartController {
 
     /**
      * 获取当前会员购物车列表
-     * GET /cart/list
      */
     @Operation(summary = "获取某个会员的购物车列表")
     @GetMapping("/list")
@@ -54,19 +53,17 @@ public class CartController {
     }
 
     /**
-     * 获取购物车列表（含促销信息，下单前用）
-     * GET /cart/list/promotion
+     * 获取购物车列表
      */
-    @Operation(summary = "获取某个会员的购物车列表,包括促销信息")
-    @GetMapping("/list/promotion")
-    public CommonResult<List<CartPromotionItemDTO>> listPromotion(@RequestParam(required = false) List<Long> cartIds) {
-        List<CartPromotionItemDTO> cartPromotionItemList = cartItemService.listPromotion(memberClient.getCurrentMember().getData().getId(), cartIds);
+    @Operation(summary = "获取某个会员的购物车列表")
+    @GetMapping("/list/byIds")
+    public CommonResult<List<CartItemDetailDTO>> listCart(@RequestParam(required = false) List<Long> cartIds) {
+        List<CartItemDetailDTO> cartPromotionItemList = cartItemService.listCart(memberClient.getCurrentMember().getData().getId(), cartIds);
         return CommonResult.success(cartPromotionItemList);
     }
 
     /**
      * 修改购物车商品数量
-     * GET /cart/update/quantity?id=1&quantity=2
      */
     @Operation(summary = "修改购物车中某个商品的数量")
     @GetMapping("/update/quantity")
@@ -81,7 +78,6 @@ public class CartController {
 
     /**
      * 获取商品可重选规格（购物车规格变更用）
-     * GET /cart/getProduct/{productId}
      */
     @Operation(summary = "获取购物车中某个商品的规格,用于重选规格")
     @GetMapping("/getProduct/{productId}")
@@ -92,7 +88,6 @@ public class CartController {
 
     /**
      * 修改购物车商品规格
-     * POST /cart/update/attr
      */
     @Operation(summary = "修改购物车中商品的规格")
     @PostMapping("/update/attr")
@@ -106,7 +101,6 @@ public class CartController {
 
     /**
      * 删除购物车商品
-     * POST /cart/delete?ids=1,2,3
      */
     @Operation(summary = "删除购物车中的某个商品")
     @PostMapping("/delete")
@@ -120,7 +114,6 @@ public class CartController {
 
     /**
      * 清空当前会员购物车
-     * POST /cart/clear
      */
     @Operation(summary = "清空购物车")
     @PostMapping("/clear")

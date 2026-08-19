@@ -13,3 +13,7 @@ spring:
         ignored-services: ${spring.application.name}
 server:
   port: 8101
+
+logging:
+  level:
+    com.alibaba.nacos: WARN

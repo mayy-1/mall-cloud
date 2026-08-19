@@ -1,8 +1,9 @@
 package com.mall.order.controller;
 
+import com.mall.order.domain.dto.ConfirmOrderResult;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.api.CommonResult;
-import com.mall.order.domain.dto.ConfirmOrderResult;
+import com.mall.order.domain.dto.BuyNowParam;
 import com.mall.order.domain.dto.OmsOrderDetail;
 import com.mall.order.domain.dto.OrderParam;
 import com.mall.order.service.IPortalOrderService;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 订单管理Controller
+ * 前台订单控制器 —— 管理三种下单模式中的两种：购物车下单 + 立即购买
  */
 @RestController
 @Tag(name = "PortalOrderController", description = "前台订单管理")
@@ -29,6 +30,9 @@ public class PortalOrderController {
     /** 订单业务服务 */
     private final IPortalOrderService orderService;
 
+    /**
+     *根据勾选的购物车 ID 生成确认单预览
+     */
     @Operation(summary = "根据购物车信息生成确认单信息")
     @PostMapping("/generateConfirmOrder")
     public CommonResult<ConfirmOrderResult> generateConfirmOrder(@RequestBody List<Long> cartIds) {
@@ -36,12 +40,49 @@ public class PortalOrderController {
         return CommonResult.success(confirmOrderResult);
     }
 
+    /**
+     * 提交购物车订单
+     */
     @Operation(summary = "根据购物车信息生成订单")
     @PostMapping("/generateOrder")
     public CommonResult generateOrder(@RequestBody OrderParam orderParam) {
         Map<String, Object> result = orderService.generateOrder(orderParam);
         return CommonResult.success(result, "下单成功");
     }
+
+
+    /**
+     * 生成立即购买确认单
+     */
+    @Operation(summary = "立即购买-生成确认单")
+    @PostMapping("/buyNow/confirm")
+    public CommonResult<ConfirmOrderResult> buyNowConfirm(@RequestBody BuyNowParam buyNowParam) {
+        ConfirmOrderResult result = orderService.buyNowConfirm(buyNowParam);
+        return CommonResult.success(result);
+    }
+
+    /**
+     * 提交立即购买订单
+     */
+    @Operation(summary = "立即购买-创建订单")
+    @PostMapping("/buyNow/create")
+    public CommonResult buyNow(@RequestBody BuyNowParam buyNowParam,
+                                @RequestParam Long memberReceiveAddressId,
+                                @RequestParam(defaultValue = "0") Integer payType,
+                                @RequestParam(required = false) Long couponId,
+                                @RequestParam(defaultValue = "0") Integer useIntegration) {
+        OrderParam orderParam = new OrderParam();
+        orderParam.setMemberReceiveAddressId(memberReceiveAddressId);
+        orderParam.setPayType(payType);
+        orderParam.setCouponId(couponId);
+        orderParam.setUseIntegration(useIntegration);
+        Map<String, Object> result = orderService.buyNow(orderParam, buyNowParam);
+        return CommonResult.success(result, "下单成功");
+    }
+
+    // ════════════════════════════════════════════════════
+    //  统一支付 & 订单管理（三种下单模式共用）
+    // ════════════════════════════════════════════════════
 
     @Operation(summary = "用户支付成功的回调")
     @PostMapping("/paySuccess")
@@ -110,4 +151,3 @@ public class PortalOrderController {
         return CommonResult.success(null);
     }
 }
-

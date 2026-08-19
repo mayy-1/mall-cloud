@@ -10,3 +10,7 @@ management:
     web:
       exposure:
         include: '*'
+
+logging:
+  level:
+    com.alibaba.nacos: WARN

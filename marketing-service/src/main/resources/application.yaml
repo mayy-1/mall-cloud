@@ -15,6 +15,7 @@ spring:
       max-active: 20
   data:
     redis:
+      client-type: jedis
       host: localhost
       port: 6379
       password: 241119
@@ -22,9 +23,9 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
+    username: mall
+    password: mall
+    virtual-host: /mall
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
@@ -51,3 +52,9 @@ management:
     web:
       exposure:
         include: '*'
+logging:
+  level:
+    root: INFO
+    com.alibaba.nacos: WARN
+    org.redisson.connection.DNSMonitor: WARN
+    org.apache.ibatis: WARN

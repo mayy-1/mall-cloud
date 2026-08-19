@@ -3,14 +3,10 @@ package com.mall.cart.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.mall.api.client.member.MemberClient;
-import com.mall.api.client.marketing.PromotionClient;
 import com.mall.api.client.product.ProductClient;
-import com.mall.api.dto.CartItemDTO;
-import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
 import com.mall.api.dto.MemberDTO;
 import com.mall.api.dto.ProductDTO;
-import com.mall.api.dto.ProductAttributeDTO;
-import com.mall.api.dto.SkuStockDTO;
 import com.mall.cart.domain.dto.CartProduct;
 import com.mall.cart.mapper.OmsCartItemMapper;
 import com.mall.cart.model.OmsCartItem;
@@ -36,8 +32,6 @@ public class CartServiceImpl implements ICartService {
     private final OmsCartItemMapper cartItemMapper;
     /** 商品服务Feign调用 */
     private final ProductClient productClient;
-    /** 促销服务Feign调用 */
-    private final PromotionClient promotionClient;
     /** 会员服务Feign调用 */
     private final MemberClient memberClient;
 
@@ -87,21 +81,24 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public List<CartPromotionItemDTO> listPromotion(Long memberId, List<Long> cartIds) {
+    public List<CartItemDetailDTO> listCart(Long memberId, List<Long> cartIds) {
+        // 1. 查询会员购物车列表
         List<OmsCartItem> cartItemList = list(memberId);
-        if(CollUtil.isNotEmpty(cartIds)){
-            cartItemList = cartItemList.stream().filter(item->cartIds.contains(item.getId())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(cartIds)) {
+            cartItemList = cartItemList.stream()
+                    .filter(item -> cartIds.contains(item.getId()))
+                    .collect(Collectors.toList());
         }
-        List<CartPromotionItemDTO> cartPromotionItemList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(cartItemList)){
-            List<CartItemDTO> cartItemDTOList = cartItemList.stream().map(item -> {
-                CartItemDTO dto = new CartItemDTO();
-                BeanUtil.copyProperties(item, dto);
-                return dto;
-            }).collect(Collectors.toList());
-            cartPromotionItemList = promotionClient.calcCartPromotion(cartItemDTOList).getData();
+        if (CollectionUtils.isEmpty(cartItemList)) {
+            return List.of();
         }
-        return cartPromotionItemList;
+        List<CartItemDetailDTO> result = new ArrayList<>();
+        for (OmsCartItem item : cartItemList) {
+            CartItemDetailDTO dto = new CartItemDetailDTO();
+            BeanUtil.copyProperties(item, dto);
+            result.add(dto);
+        }
+        return result;
     }
 
     @Override

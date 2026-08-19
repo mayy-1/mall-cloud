@@ -2,6 +2,7 @@ package com.mall.marketing.mapper;
 
 import com.mall.marketing.model.SmsFlashPromotionProductRelation;
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 import org.springframework.context.annotation.Primary;
@@ -32,4 +33,6 @@ public interface SmsFlashPromotionProductRelationMapper {
 
     List<SmsFlashPromotionProductRelation> getList(@Param("flashPromotionId") Long flashPromotionId,
                                                     @Param("flashPromotionSessionId") Long flashPromotionSessionId);
+
+    List<Map<String, Object>> selectCurrentSeckillProducts();
 }

@@ -1,7 +1,7 @@
 package com.mall.marketing.service;
 
+import com.mall.api.dto.SeckillProductDetailDTO;
 import com.mall.marketing.domain.dto.SeckillOrderParam;
-import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 
 import java.util.List;
 
@@ -60,6 +60,14 @@ public interface SeckillService {
      * @return 秒杀商品详情
      */
     SeckillProductDetailDTO getSeckillProductDetail(Long promotionId, Long productId);
+
+    /**
+     * 预热即将开始的秒杀活动库存
+     * 定时任务调用：在活动开始前 leadMs 毫秒内自动预热。
+     *
+     * @param leadMs 提前量（毫秒），如 5 分钟 = 300000
+     */
+    void preWarmNearbyPromotions(long leadMs);
 
     /**
      * 自动上下线秒杀活动

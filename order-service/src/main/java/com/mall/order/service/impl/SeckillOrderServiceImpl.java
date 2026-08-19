@@ -9,6 +9,7 @@ import com.mall.order.mapper.OmsOrderItemMapper;
 import com.mall.order.mapper.OmsOrderMapper;
 import com.mall.order.model.OmsOrder;
 import com.mall.order.model.OmsOrderItem;
+import com.mall.order.mq.CancelOrderSender;
 import com.mall.order.service.ISeckillOrderService;
 import com.mym.mall.common.service.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     private final SkuStockClient skuStockClient;
     private final MemberClient memberClient;
     private final RedisService redisService;
+    private final CancelOrderSender cancelOrderSender;
 
     @Value("${redis.key.orderId}")
     private String REDIS_KEY_ORDER_ID;
@@ -65,20 +67,16 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
                 LOGGER.warn("获取分布式锁失败, memberId={}, productId={}", memberId, productId);
                 throw new RuntimeException("系统繁忙，请稍后重试");
             }
-
             // 2. 获取会员信息
             MemberDTO member = memberClient.getById(memberId).getData();
-
-            // 3. 查找商品 SKU（取第一个 SKU）
+            // 3. 查找商品 SKU
             List<SkuStockDTO> skuList = skuStockClient.getSkuStockByProductId(productId).getData();
             if (skuList == null || skuList.isEmpty()) {
                 throw new RuntimeException("商品SKU不存在, productId=" + productId);
             }
             SkuStockDTO skuStock = skuList.get(0);
-
             // 4. 锁定库存（lock_stock + 1）
             skuStockClient.lockStock(skuStock.getId(), message.getQuantity());
-
             // 5. 构建订单对象
             OmsOrder order = new OmsOrder();
             order.setMemberId(memberId);
@@ -90,10 +88,10 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             order.setIntegrationAmount(BigDecimal.ZERO);
             order.setCouponAmount(BigDecimal.ZERO);
             order.setDiscountAmount(BigDecimal.ZERO);
-            order.setPayType(0);          // 待支付
-            order.setSourceType(1);       // App
-            order.setStatus(0);           // 待付款
-            order.setOrderType(1);        // 秒杀订单
+            order.setPayType(0);
+            order.setSourceType(1);
+            order.setStatus(0);
+            order.setOrderType(1);
             order.setCreateTime(message.getCreateTime() != null ? message.getCreateTime() : new Date());
             order.setConfirmStatus(0);
             order.setDeleteStatus(0);
@@ -101,10 +99,8 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             order.setGrowth(0);
             order.setPromotionInfo("秒杀活动ID:" + message.getPromotionId());
             order.setOrderSn(generateOrderSn(order));
-
             // 6. 插入订单
             orderMapper.insert(order);
-
             // 7. 构建订单商品项
             OmsOrderItem orderItem = new OmsOrderItem();
             orderItem.setOrderId(order.getId());
@@ -123,10 +119,10 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             orderItem.setGiftIntegration(0);
             orderItem.setGiftGrowth(0);
             orderItemMapper.insert(orderItem);
-
+            // 8. 发送延时取消消息：秒杀订单 5 分钟未支付自动取消
+            cancelOrderSender.sendMessage(order.getId(), 5 * 60 * 1000);
             LOGGER.info("秒杀订单创建成功, orderId={}, orderSn={}", order.getId(), order.getOrderSn());
             return order.getId();
-
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("获取分布式锁被中断", e);

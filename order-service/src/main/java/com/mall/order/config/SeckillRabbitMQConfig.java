@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 交易服务秒杀 RabbitMQ 配置
- * 声明秒杀订单队列、交换机及绑定关系（与 marketing-service 保持一致）
  */
 @Configuration
 public class SeckillRabbitMQConfig {

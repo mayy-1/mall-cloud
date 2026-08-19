@@ -1,8 +1,8 @@
 package com.mall.marketing.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.mall.marketing.mapper.SmsFlashPromotionMapper;
-import com.mall.marketing.model.SmsFlashPromotion;import com.mall.marketing.service.IFlashPromotionService;
+import com.mall.api.dto.SmsFlashPromotion;
+import com.mall.marketing.mapper.SmsFlashPromotionMapper;import com.mall.marketing.service.IFlashPromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,7 +12,6 @@ import java.util.List;
 
 /**
  * 限时购活动管理Service实现类
- * Created by macro on 2018/11/16.
  */
 @Service
 @RequiredArgsConstructor

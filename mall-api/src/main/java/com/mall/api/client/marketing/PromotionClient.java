@@ -1,7 +1,7 @@
 package com.mall.api.client.marketing;
 
 import com.mall.api.dto.CartItemDTO;
-import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,5 +17,5 @@ public interface PromotionClient {
 
     /** 计算购物车促销信息 */
     @PostMapping("/calcCartPromotion")
-    CommonResult<List<CartPromotionItemDTO>> calcCartPromotion(@RequestBody List<CartItemDTO> cartItemList);
+    CommonResult<List<CartItemDetailDTO>> calcCartPromotion(@RequestBody List<CartItemDTO> cartItemList);
 }

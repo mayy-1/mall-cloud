@@ -21,5 +21,9 @@ public class ProductDTO {
     private Integer sale;
     private Integer newStatus;
     private Integer recommandStatus;
+    /** 上架状态：0->下架；1->上架 */
+    private Integer publishStatus;
+    /** 删除状态：0->未删除；1->已删除 */
+    private Integer deleteStatus;
     private String productSn;
 }

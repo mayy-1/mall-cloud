@@ -1,7 +1,7 @@
 package com.mall.marketing.task;
 
+import com.mall.api.dto.SmsFlashPromotion;
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
-import com.mall.marketing.model.SmsFlashPromotion;
 import com.mall.marketing.service.SeckillService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

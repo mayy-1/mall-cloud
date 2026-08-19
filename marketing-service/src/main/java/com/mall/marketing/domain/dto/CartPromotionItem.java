@@ -3,14 +3,13 @@ package com.mall.marketing.domain.dto;
 import java.math.BigDecimal;
 
 /**
- * 购物车促销商品项 DTO
+ * 购物车商品项 DTO（内部使用，无促销减免字段）
  */
 public class CartPromotionItem {
     private Long productId;
     private Long productCategoryId;
     private Integer quantity;
     private BigDecimal price;
-    private BigDecimal reduceAmount;
 
     public Long getProductId() { return productId; }
     public void setProductId(Long productId) { this.productId = productId; }
@@ -20,6 +19,4 @@ public class CartPromotionItem {
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
-    public BigDecimal getReduceAmount() { return reduceAmount; }
-    public void setReduceAmount(BigDecimal reduceAmount) { this.reduceAmount = reduceAmount; }
 }

@@ -1,7 +1,9 @@
 package com.mall.marketing.controller;
 
+import com.mall.api.client.member.MemberClient;
+import com.mall.api.dto.MemberDTO;
+import com.mall.api.dto.SeckillProductDetailDTO;
 import com.mall.marketing.domain.dto.SeckillOrderParam;
-import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 import com.mall.marketing.service.SeckillService;
 import com.mym.mall.common.api.CommonResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 秒杀控制器（会员端）
- * 提供秒杀下单、库存查询接口
+ * 秒杀控制器
  */
 @Tag(name = "秒杀管理", description = "秒杀活动下单与库存查询")
 @RestController
@@ -26,15 +27,18 @@ public class SeckillController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeckillController.class);
     private final SeckillService seckillService;
+    private final MemberClient memberClient;
 
+    //  执行秒杀下单（Redis + Lua + MQ）
     @Operation(summary = "执行秒杀下单")
     @PostMapping("/execute")
     public CommonResult<String> executeSeckill(@Valid @RequestBody SeckillOrderParam param) {
-        LOGGER.info("秒杀请求, memberId={}, productId={}, promotionId={}",
-                param.getMemberId(), param.getProductId(), param.getPromotionId());
-
+        // 重新获取当前登录会员
+        MemberDTO currentMember = memberClient.getCurrentMember().getData();
+        param.setMemberId(currentMember.getId());
+        LOGGER.info("秒杀请求, memberId={}, productId={}, promotionId={}", param.getMemberId(), param.getProductId(), param.getPromotionId());
+        //  进入秒杀核心流程：Lua 预扣库存 + 一人一单 + MQ 异步落库，返回值：1=抢购成功排队中 | 0=库存不足 | -1=已参与过 | 其他=失败
         int result = seckillService.executeSeckill(param);
-
         if (result == 1) {
             return CommonResult.success("秒杀成功，订单处理中");
         } else if (result == 0) {

@@ -15,6 +15,7 @@ spring:
       max-active: 20
   data:
     redis:
+      client-type: jedis
       host: localhost
       port: 6379
       password: 241119
@@ -40,6 +41,7 @@ sa-token:
   is-read-header: true
   token-prefix: Bearer
 redis:
+
   database: mall
   expire:
     common: 86400
@@ -59,3 +61,7 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+logging:
+  level:
+    com.alibaba.nacos: WARN

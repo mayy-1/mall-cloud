@@ -1,12 +1,12 @@
 package com.mall.marketing.service;
 
-import com.mall.marketing.model.SmsFlashPromotion;
+
+import com.mall.api.dto.SmsFlashPromotion;
 
 import java.util.List;
 
 /**
  * 限时购活动管理Service
- * Created by macro on 2018/11/16.
  */
 public interface IFlashPromotionService {
     /**

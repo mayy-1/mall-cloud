@@ -181,4 +181,26 @@
     </where>
   </update>
 
+
+  <!-- 三表联查：当前进行中的秒杀商品（含活动+场次信息） -->
+  <select id="selectCurrentSeckillProducts" resultType="java.util.HashMap">
+    SELECT
+      sr.product_id                AS productId,
+      sr.flash_promotion_price     AS seckillPrice,
+      sr.flash_promotion_count     AS seckillStock,
+      sr.flash_promotion_limit     AS limitPerUser,
+      s.id                         AS promotionId,
+      s.title                      AS promotionTitle,
+      DATE_FORMAT(s.start_date, '%Y-%m-%d %H:%i:%s') AS startTime,
+      DATE_FORMAT(s.end_date,   '%Y-%m-%d %H:%i:%s') AS endTime
+    FROM sms_flash_promotion_product_relation sr
+    LEFT JOIN sms_flash_promotion s ON s.id = sr.flash_promotion_id
+    LEFT JOIN sms_flash_promotion_session ss ON sr.flash_promotion_session_id = ss.id
+    WHERE s.start_date &lt; NOW()
+      AND s.end_date &gt; NOW()
+      AND s.status = 1
+      AND ss.end_time &gt; NOW()
+      AND ss.start_time &lt; NOW()
+  </select>
+
 </mapper>

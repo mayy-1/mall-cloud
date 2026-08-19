@@ -16,28 +16,15 @@ public class SmsCouponDetail {
     private List<SmsCouponProductRelation> productRelationList;
     /** 关联分类列表（useType=1） */
     private List<SmsCouponProductCategoryRelation> categoryRelationList;
+    /** 当前会员是否已领取（或库存为0），前端用于置灰按钮 */
+    private boolean claimed;
 
-    public SmsCoupon getCoupon() {
-        return coupon;
-    }
-
-    public void setCoupon(SmsCoupon coupon) {
-        this.coupon = coupon;
-    }
-
-    public List<SmsCouponProductRelation> getProductRelationList() {
-        return productRelationList;
-    }
-
-    public void setProductRelationList(List<SmsCouponProductRelation> productRelationList) {
-        this.productRelationList = productRelationList;
-    }
-
-    public List<SmsCouponProductCategoryRelation> getCategoryRelationList() {
-        return categoryRelationList;
-    }
-
-    public void setCategoryRelationList(List<SmsCouponProductCategoryRelation> categoryRelationList) {
-        this.categoryRelationList = categoryRelationList;
-    }
+    public SmsCoupon getCoupon() { return coupon; }
+    public void setCoupon(SmsCoupon coupon) { this.coupon = coupon; }
+    public List<SmsCouponProductRelation> getProductRelationList() { return productRelationList; }
+    public void setProductRelationList(List<SmsCouponProductRelation> productRelationList) { this.productRelationList = productRelationList; }
+    public List<SmsCouponProductCategoryRelation> getCategoryRelationList() { return categoryRelationList; }
+    public void setCategoryRelationList(List<SmsCouponProductCategoryRelation> categoryRelationList) { this.categoryRelationList = categoryRelationList; }
+    public boolean isClaimed() { return claimed; }
+    public void setClaimed(boolean claimed) { this.claimed = claimed; }
 }

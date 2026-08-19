@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 申请退货管理Controller
- * Created by macro on 2018/10/17.
  */
 @RestController
 @Tag(name = "PortalReturnApplyController", description = "前台申请退货管理")

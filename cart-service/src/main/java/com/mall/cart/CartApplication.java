@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import com.mall.api.config.DefaultFeignConfig;
 
 /**
  * 购物车服务启动类
@@ -14,7 +15,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @MapperScan("com.mall.cart.mapper")
-@EnableFeignClients(basePackages = {"com.mall.api.client", "com.mall.cart.feign"})
+@EnableFeignClients(basePackages = {"com.mall.api.client", "com.mall.cart.feign"}, defaultConfiguration = DefaultFeignConfig.class)
 public class CartApplication {
     public static void main(String[] args) {
         SpringApplication.run(CartApplication.class, args);

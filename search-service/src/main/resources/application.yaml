@@ -47,3 +47,7 @@ springdoc:
   group-configs:
     - group: 'search-service'
       packages-to-scan: com.mall.search.controller
+
+logging:
+  level:
+    com.alibaba.nacos: WARN

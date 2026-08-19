@@ -15,6 +15,7 @@ spring:
       max-active: 20
   data:
     redis:
+      client-type: jedis
       host: localhost
       port: 6379
       password: 241119
@@ -26,6 +27,10 @@ mybatis:
 pagehelper:
   helper-dialect: mysql
   reasonable: true
+logging:
+  level:
+    com.alibaba.nacos: WARN
+    com.mall.product.mapper: DEBUG
 # ========== 阿里云 OSS 对象存储 ==========
 # 生产环境请在 Nacos (product-service-dev.yaml) 中覆盖真实值
 aliyun:

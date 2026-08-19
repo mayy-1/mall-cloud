@@ -1,33 +1,33 @@
 package com.mall.marketing.controller;
 
+import com.mall.api.dto.CartItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
+import com.mall.marketing.service.PromotionService;
+import com.mym.mall.common.api.CommonResult;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 促销活动Feign调用Controller
- * 供cart-service通过Feign调用计算购物车促销信息
+ * 购物车促销计算 Controller
  */
 @RestController
 @RequestMapping("/promotion")
+@RequiredArgsConstructor
 public class PromotionController {
 
+    /** 促销计算服务 */
+    private final PromotionService promotionService;
+
     /**
-     * 计算购物车促销信息（stub实现）
-     * 当前直接返回输入列表，并设置默认促销字段
+     * 计算购物车每件商品的促销信息
+     * @param cartItemList 购物车商品列表（由 cart-service 组装）
+     * @return 含促销信息的购物车商品列表
      */
     @PostMapping("/calcCartPromotion")
-    @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> calcCartPromotion(@RequestBody List<Map<String, Object>> cartItemList) {
-        for (Map<String, Object> item : cartItemList) {
-            item.put("promotionMessage", "");
-            item.put("reduceAmount", BigDecimal.ZERO);
-            item.put("realStock", item.getOrDefault("stock", 0));
-            item.put("integration", 0);
-            item.put("growth", 0);
-        }
-        return cartItemList;
+    public CommonResult<List<CartItemDetailDTO>> calcCartPromotion(@RequestBody List<CartItemDTO> cartItemList) {
+        List<CartItemDetailDTO> result = promotionService.calcCartPromotion(cartItemList);
+        return CommonResult.success(result);
     }
 }

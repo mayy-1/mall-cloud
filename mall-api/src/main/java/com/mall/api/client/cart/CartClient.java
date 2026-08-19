@@ -1,7 +1,7 @@
 package com.mall.api.client.cart;
 
 import com.mall.api.dto.CartItemDTO;
-import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +23,8 @@ public interface CartClient {
     CommonResult<Void> clear();
 
     /** 获取含促销信息的购物车列表 */
-    @GetMapping("/list/promotion")
-    CommonResult<List<CartPromotionItemDTO>> listPromotion(@RequestParam Long memberId, @RequestParam List<Long> cartIds);
+    @GetMapping("/list/byIds")
+    CommonResult<List<CartItemDetailDTO>> listCart(@RequestParam Long memberId, @RequestParam List<Long> cartIds);
 
     /** 删除购物车商品 */
     @PostMapping("/delete")

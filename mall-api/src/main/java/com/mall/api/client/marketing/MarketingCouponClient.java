@@ -1,6 +1,6 @@
 package com.mall.api.client.marketing;
 
-import com.mall.api.dto.CartPromotionItemDTO;
+import com.mall.api.dto.CartItemDetailDTO;
 import com.mall.api.dto.CouponHistoryDetailDTO;
 import com.mym.mall.common.api.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -19,7 +19,7 @@ public interface MarketingCouponClient {
 
     /** 获取购物车可用优惠券列表 */
     @PostMapping("/list/cart/{type}")
-    CommonResult<List<CouponHistoryDetailDTO>> listCart(@RequestBody List<CartPromotionItemDTO> items,
+    CommonResult<List<CouponHistoryDetailDTO>> listCart(@RequestBody List<CartItemDetailDTO> items,
                                                         @PathVariable("type") Integer type);
 
     /** 更新优惠券使用状态 */

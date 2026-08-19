@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import com.mall.api.config.DefaultFeignConfig;
 
 /**
  * 营销服务启动类
@@ -14,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableDiscoveryClient
 @MapperScan("com.mall.marketing.mapper")
-@EnableFeignClients(basePackages = "com.mall.api.client")
+@EnableFeignClients(basePackages = "com.mall.api.client", defaultConfiguration = DefaultFeignConfig.class)
 @EnableScheduling
 public class MarketingApplication {
     public static void main(String[] args) {

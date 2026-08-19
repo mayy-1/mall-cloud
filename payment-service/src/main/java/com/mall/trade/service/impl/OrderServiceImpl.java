@@ -82,7 +82,7 @@ public class OrderServiceImpl implements IOrderService {
     public ConfirmOrderResult generateConfirmOrder(List<Long> cartIds) {
         ConfirmOrderResult result = new ConfirmOrderResult();
         MemberDTO currentMember = memberClient.getCurrentMember().getData();
-        List<CartPromotionItemDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), cartIds).getData();
+        List<CartItemDetailDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), cartIds).getData();
         result.setCartPromotionItemList(cartPromotionItemList);
         List<MemberAddressDTO> memberReceiveAddressList = memberAddressClient.list().getData();
         result.setMemberReceiveAddressList(memberReceiveAddressList);
@@ -104,8 +104,8 @@ public class OrderServiceImpl implements IOrderService {
             Asserts.fail("请选择收货地址！");
         }
         MemberDTO currentMember = memberClient.getCurrentMember().getData();
-        List<CartPromotionItemDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), orderParam.getCartIds()).getData();
-        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
+        List<CartItemDetailDTO> cartPromotionItemList = cartClient.listPromotion(currentMember.getId(), orderParam.getCartIds()).getData();
+        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
             OmsOrderItem orderItem = new OmsOrderItem();
             orderItem.setProductId(cartPromotionItem.getProductId());
             orderItem.setProductName(cartPromotionItem.getProductName());
@@ -118,10 +118,10 @@ public class OrderServiceImpl implements IOrderService {
             orderItem.setProductSkuId(cartPromotionItem.getProductSkuId());
             orderItem.setProductSkuCode(cartPromotionItem.getProductSkuCode());
             orderItem.setProductCategoryId(cartPromotionItem.getProductCategoryId());
-            orderItem.setPromotionAmount(cartPromotionItem.getReduceAmount());
-            orderItem.setPromotionName(cartPromotionItem.getPromotionMessage());
-            orderItem.setGiftIntegration(cartPromotionItem.getIntegration());
-            orderItem.setGiftGrowth(cartPromotionItem.getGrowth());
+            orderItem.setPromotionAmount(BigDecimal.ZERO);
+            orderItem.setPromotionName("");
+            orderItem.setGiftIntegration(0);
+            orderItem.setGiftGrowth(0);
             orderItemList.add(orderItem);
         }
         if (!hasStock(cartPromotionItemList)) {
@@ -433,9 +433,9 @@ public class OrderServiceImpl implements IOrderService {
         return sb.toString();
     }
 
-    private void deleteCartItemList(List<CartPromotionItemDTO> cartPromotionItemList, MemberDTO currentMember) {
+    private void deleteCartItemList(List<CartItemDetailDTO> cartPromotionItemList, MemberDTO currentMember) {
         List<Long> ids = new ArrayList<>();
-        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
+        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
             ids.add(cartPromotionItem.getId());
         }
         cartClient.delete(currentMember.getId(), ids);
@@ -595,7 +595,7 @@ public class OrderServiceImpl implements IOrderService {
         return result;
     }
 
-    private CouponHistoryDetailDTO getUseCoupon(List<CartPromotionItemDTO> cartPromotionItemList, Long couponId) {
+    private CouponHistoryDetailDTO getUseCoupon(List<CartItemDetailDTO> cartPromotionItemList, Long couponId) {
         List<CouponHistoryDetailDTO> couponHistoryDetailList = marketingCouponClient.listCart(cartPromotionItemList, 1).getData();
         for (CouponHistoryDetailDTO couponHistoryDetail : couponHistoryDetailList) {
             if (couponHistoryDetail.getCoupon().getId().equals(couponId)) {
@@ -613,14 +613,14 @@ public class OrderServiceImpl implements IOrderService {
         return totalAmount;
     }
 
-    private void lockStock(List<CartPromotionItemDTO> cartPromotionItemList) {
-        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
+    private void lockStock(List<CartItemDetailDTO> cartPromotionItemList) {
+        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
             skuStockClient.lockStock(cartPromotionItem.getProductSkuId(), cartPromotionItem.getQuantity());
         }
     }
 
-    private boolean hasStock(List<CartPromotionItemDTO> cartPromotionItemList) {
-        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
+    private boolean hasStock(List<CartItemDetailDTO> cartPromotionItemList) {
+        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
             if (cartPromotionItem.getRealStock()==null
                     ||cartPromotionItem.getRealStock() <= 0
                     || cartPromotionItem.getRealStock() < cartPromotionItem.getQuantity())
@@ -631,18 +631,17 @@ public class OrderServiceImpl implements IOrderService {
         return true;
     }
 
-    private ConfirmOrderResult.CalcAmount calcCartAmount(List<CartPromotionItemDTO> cartPromotionItemList) {
+    private ConfirmOrderResult.CalcAmount calcCartAmount(List<CartItemDetailDTO> cartPromotionItemList) {
         ConfirmOrderResult.CalcAmount calcAmount = new ConfirmOrderResult.CalcAmount();
         calcAmount.setFreightAmount(new BigDecimal(0));
         BigDecimal totalAmount = new BigDecimal("0");
-        BigDecimal promotionAmount = new BigDecimal("0");
-        for (CartPromotionItemDTO cartPromotionItem : cartPromotionItemList) {
+        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
             totalAmount = totalAmount.add(cartPromotionItem.getPrice().multiply(new BigDecimal(cartPromotionItem.getQuantity())));
-            promotionAmount = promotionAmount.add(cartPromotionItem.getReduceAmount().multiply(new BigDecimal(cartPromotionItem.getQuantity())));
         }
         calcAmount.setTotalAmount(totalAmount);
-        calcAmount.setPromotionAmount(promotionAmount);
-        calcAmount.setPayAmount(totalAmount.subtract(promotionAmount));
+        // 普通商品无促销减免
+        calcAmount.setPromotionAmount(BigDecimal.ZERO);
+        calcAmount.setPayAmount(totalAmount);
         return calcAmount;
     }
 

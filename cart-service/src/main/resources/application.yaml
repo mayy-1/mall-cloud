@@ -15,9 +15,10 @@ spring:
       max-active: 20
   data:
     redis:
+      client-type: jedis
       host: localhost
       port: 6379
-      password:
+      password: 241119
       database: 0
 mybatis:
   mapper-locations: classpath:mapper/*.xml
@@ -45,3 +46,7 @@ management:
     web:
       exposure:
         include: '*'
+
+logging:
+  level:
+    com.alibaba.nacos: WARN

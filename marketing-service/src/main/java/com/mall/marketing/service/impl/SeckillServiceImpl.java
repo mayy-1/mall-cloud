@@ -1,12 +1,12 @@
 package com.mall.marketing.service.impl;
 
+import com.mall.api.dto.SeckillProductDetailDTO;
+import com.mall.api.dto.SmsFlashPromotion;
 import com.mall.marketing.domain.QueueEnum;
 import com.mall.marketing.domain.dto.SeckillOrderMessage;
 import com.mall.marketing.domain.dto.SeckillOrderParam;
-import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
 import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper;
-import com.mall.marketing.model.SmsFlashPromotion;
 import com.mall.marketing.model.SmsFlashPromotionProductRelation;
 import com.mall.marketing.service.SeckillService;
 import com.mall.api.client.product.ProductClient;
@@ -20,12 +20,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 秒杀服务实现
@@ -62,14 +62,12 @@ public class SeckillServiceImpl implements SeckillService {
         Long promotionId = param.getPromotionId();
         Long productId = param.getProductId();
         Long memberId = param.getMemberId();
-
         // 1. 校验秒杀活动状态
         SmsFlashPromotion promotion = flashPromotionMapper.selectByPrimaryKey(promotionId);
         if (promotion == null || promotion.getStatus() != 1) {
             LOGGER.warn("秒杀活动不存在或已下线, promotionId={}", promotionId);
-            return SECKILL_STOCK_EMPTY;
+            return 0;
         }
-
         // 2. 校验秒杀商品关联
         SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
         condition.setFlashPromotionId(promotionId);
@@ -77,9 +75,8 @@ public class SeckillServiceImpl implements SeckillService {
         List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
         if (relations.isEmpty()) {
             LOGGER.warn("秒杀商品关联不存在, promotionId={}, productId={}", promotionId, productId);
-            return SECKILL_STOCK_EMPTY;
+            return 0;
         }
-
         SmsFlashPromotionProductRelation relation = relations.get(0);
 
         // 3. 构造 Redis Key
@@ -93,7 +90,6 @@ public class SeckillServiceImpl implements SeckillService {
                 memberId.toString(),
                 String.valueOf(relation.getFlashPromotionLimit())
         );
-
         int seckillResult = result != null ? result.intValue() : SECKILL_STOCK_EMPTY;
 
         if (seckillResult == SECKILL_SUCCESS) {
@@ -120,8 +116,31 @@ public class SeckillServiceImpl implements SeckillService {
         } else if (seckillResult == SECKILL_REPEAT) {
             LOGGER.info("秒杀失败，用户重复购买, memberId={}, productId={}", memberId, productId);
         }
-
         return seckillResult;
+    }
+
+    @Override
+    public void preWarmNearbyPromotions(long leadMs) {
+        Date now = new Date();
+        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByCondition(null);
+
+        for (SmsFlashPromotion promotion : promotions) {
+            if (promotion.getStartDate() == null || promotion.getEndDate() == null) continue;
+            long timeUntilStart = promotion.getStartDate().getTime() - now.getTime();
+
+            // 距离开始还有 leadMs 以内，且还未开始，且已启用 → 预热
+            if (timeUntilStart > 0 && timeUntilStart <= leadMs
+                    && promotion.getStatus() != null && promotion.getStatus() == 1) {
+                String preWarmedKey = String.format("seckill:prewarmed:%d", promotion.getId());
+                if (!redisTemplate.hasKey(preWarmedKey)) {
+                    warmUpStock(promotion.getId());
+                    // 标记已预热，避免重复执行
+                    redisTemplate.opsForValue().set(preWarmedKey, "1");
+                    LOGGER.info("秒杀活动库存已预热(距开始{}分钟), promotionId={}, title={}",
+                            timeUntilStart / 60000, promotion.getId(), promotion.getTitle());
+                }
+            }
+        }
     }
 
     @Override
@@ -182,37 +201,33 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public List<SeckillProductDetailDTO> getCurrentSeckillProducts() {
+        List<Map<String, Object>> rows = productRelationMapper.selectCurrentSeckillProducts();
+        if (rows.isEmpty()) return List.of();
+
+        List<Long> productIds = rows.stream()
+                .map(r -> ((Number) r.get("productId")).longValue())
+                .distinct().collect(Collectors.toList());
+        Map<Long, ProductDTO> productMap = productClient.getByIds(productIds).getData()
+                .stream().collect(Collectors.toMap(ProductDTO::getId, p -> p));
+
         List<SeckillProductDetailDTO> result = new ArrayList<>();
-        Date now = new Date();
-
-        // 查询所有启用状态的秒杀活动
-        List<SmsFlashPromotion> promotions = flashPromotionMapper.selectByCondition(null);
-        for (SmsFlashPromotion promotion : promotions) {
-            if (promotion.getStatus() != 1) continue;
-            if (promotion.getStartDate() == null || promotion.getEndDate() == null) continue;
-            if (now.before(promotion.getStartDate()) || now.after(promotion.getEndDate())) continue;
-
-            // 查询活动下的商品
-            SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
-            condition.setFlashPromotionId(promotion.getId());
-            List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
-
-            for (SmsFlashPromotionProductRelation relation : relations) {
-                ProductDTO product = productClient.getById(relation.getProductId()).getData();
-                SeckillProductDetailDTO dto = new SeckillProductDetailDTO();
-                dto.setPromotionId(promotion.getId());
-                dto.setPromotionTitle(promotion.getTitle());
-                dto.setProductId(relation.getProductId());
-                dto.setProductName(product != null ? product.getName() : null);
-                dto.setOriginalPrice(product != null ? product.getPrice() : BigDecimal.ZERO);
-                dto.setSeckillPrice(relation.getFlashPromotionPrice());
-                dto.setSeckillStock(relation.getFlashPromotionCount());
-                dto.setLimitPerUser(relation.getFlashPromotionLimit());
-                dto.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(promotion.getStartDate()));
-                dto.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(promotion.getEndDate()));
-                dto.setStatus(1); // 进行中
-                result.add(dto);
-            }
+        for (Map<String, Object> row : rows) {
+            Long pid = ((Number) row.get("productId")).longValue();
+            ProductDTO product = productMap.get(pid);
+            SeckillProductDetailDTO dto = new SeckillProductDetailDTO();
+            dto.setPromotionId(((Number) row.get("promotionId")).longValue());
+            dto.setPromotionTitle((String) row.get("promotionTitle"));
+            dto.setProductId(pid);
+            dto.setProductName(product != null ? product.getName() : null);
+            dto.setProductPic(product != null ? product.getPic() : null);
+            dto.setOriginalPrice(product != null ? product.getPrice() : BigDecimal.ZERO);
+            dto.setSeckillPrice(new BigDecimal(row.get("seckillPrice").toString()));
+            dto.setSeckillStock(((Number) row.get("seckillStock")).intValue());
+            dto.setLimitPerUser(row.get("limitPerUser") != null ? ((Number) row.get("limitPerUser")).intValue() : 1);
+            dto.setStartTime((String) row.get("startTime"));
+            dto.setEndTime((String) row.get("endTime"));
+            dto.setStatus(1);
+            result.add(dto);
         }
         return result;
     }

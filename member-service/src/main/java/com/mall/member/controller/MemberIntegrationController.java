@@ -3,6 +3,7 @@ package com.mall.member.controller;
 import com.mall.member.mapper.UmsIntegrationConsumeSettingMapper;
 import com.mall.member.model.UmsIntegrationConsumeSetting;
 import com.mall.member.service.IMemberService;
+import com.mym.mall.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,9 +37,10 @@ public class MemberIntegrationController {
 
     /**
      * 获取积分消费设置（抵扣比例、最小单位、能否与优惠券共用）
+     * <p>返回统一 CommonResult 包装，与 Feign 客户端 {@code CommonResult<IntegrationConsumeSettingDTO>} 声明对齐</p>
      */
     @GetMapping("/integrationConsumeSetting")
-    public UmsIntegrationConsumeSetting getIntegrationConsumeSetting() {
-        return integrationConsumeSettingMapper.selectByPrimaryKey(1L);
+    public CommonResult<UmsIntegrationConsumeSetting> getIntegrationConsumeSetting() {
+        return CommonResult.success(integrationConsumeSettingMapper.selectByPrimaryKey(1L));
     }
 }

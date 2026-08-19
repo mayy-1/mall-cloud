@@ -1,8 +1,7 @@
 package com.mall.marketing.controller;
 
 import com.mall.api.dto.HomeFlashPromotionDTO;
-import com.mall.marketing.domain.dto.SeckillProductDetailDTO;
-import com.mall.marketing.model.SmsFlashPromotion;
+import com.mall.api.dto.SmsFlashPromotion;
 import com.mall.marketing.service.IFlashPromotionService;
 import com.mall.marketing.service.SeckillService;
 import com.mym.mall.common.api.CommonPage;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,30 +113,12 @@ public class FlashPromotionController {
         dto.setCreateTime(flashPromotion.getCreateTime());
         dto.setProductList(seckillService.getCurrentSeckillProducts().stream()
                 .filter(item -> flashPromotion.getId().equals(item.getPromotionId()))
-                .map(this::toApiSeckillProduct)
                 .collect(Collectors.toList()));
         return dto;
     }
 
-    private com.mall.api.dto.SeckillProductDetailDTO toApiSeckillProduct(SeckillProductDetailDTO source) {
-        com.mall.api.dto.SeckillProductDetailDTO target = new com.mall.api.dto.SeckillProductDetailDTO();
-        target.setPromotionId(source.getPromotionId());
-        target.setPromotionTitle(source.getPromotionTitle());
-        target.setSessionId(source.getSessionId());
-        target.setProductId(source.getProductId());
-        target.setProductName(source.getProductName());
-        target.setProductPic(source.getProductPic());
-        target.setOriginalPrice(source.getOriginalPrice());
-        target.setSeckillPrice(source.getSeckillPrice());
-        target.setSeckillStock(source.getSeckillStock());
-        target.setLimitPerUser(source.getLimitPerUser());
-        target.setStartTime(source.getStartTime());
-        target.setEndTime(source.getEndTime());
-        target.setStatus(source.getStatus());
-        return target;
-    }
 
-    private String formatDate(java.util.Date date) {
+    private String formatDate(Date date) {
         if (date == null) {
             return null;
         }

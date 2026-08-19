@@ -1,36 +1,37 @@
 package com.mall.order.service;
 
 import com.mym.mall.common.api.CommonPage;
+import com.mall.order.domain.dto.BuyNowParam;
 import com.mall.order.domain.dto.ConfirmOrderResult;
 import com.mall.order.domain.dto.OmsOrderDetail;
 import com.mall.order.domain.dto.OrderParam;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * 前台订单管理Service
- * Created by macro on 2018/8/30.
  */
 public interface IPortalOrderService {
     /** 根据购物车生成确认单 */
     ConfirmOrderResult generateConfirmOrder(List<Long> cartIds);
 
     /** 生成订单 */
-    @Transactional
     Map<String, Object> generateOrder(OrderParam orderParam);
 
+    /** 立即购买-生成确认单 */
+    ConfirmOrderResult buyNowConfirm(BuyNowParam buyNowParam);
+
+    /** 立即购买-创建订单 */
+    Map<String, Object> buyNow(OrderParam orderParam, BuyNowParam buyNowParam);
+
     /** 支付成功回调 */
-    @Transactional
     Integer paySuccess(Long orderId, Integer payType);
 
     /** 批量取消超时订单 */
-    @Transactional
     Integer cancelTimeOutOrder();
 
     /** 取消单个订单 */
-    @Transactional
     void cancelOrder(Long orderId);
 
     /** 发送延迟取消订单消息 */
@@ -49,7 +50,6 @@ public interface IPortalOrderService {
     void deleteOrder(Long orderId);
 
     /** 根据订单号支付成功回调 */
-    @Transactional
     void paySuccessByOrderSn(String orderSn, Integer payType);
 }
 

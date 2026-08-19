@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import com.mall.api.config.DefaultFeignConfig;
 
 /**
  * 交易服务启动类
@@ -14,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableDiscoveryClient
 @MapperScan({"com.mall.trade.mapper"})
-@EnableFeignClients(basePackages = {"com.mall.api.client", "com.mall.trade.feign"})
+@EnableFeignClients(basePackages = {"com.mall.api.client", "com.mall.trade.feign"}, defaultConfiguration = DefaultFeignConfig.class)
 @EnableScheduling
 public class TradeApplication {
     public static void main(String[] args) {

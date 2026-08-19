@@ -1,9 +1,10 @@
 package com.mall.marketing.mapper;
 
-import com.mall.marketing.model.SmsFlashPromotion;
 
 import java.util.Date;
 import java.util.List;
+
+import com.mall.api.dto.SmsFlashPromotion;
 import org.apache.ibatis.annotations.Param;
 
 /**
