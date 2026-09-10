@@ -26,4 +26,8 @@ public class ProductDTO {
     /** 删除状态：0->未删除；1->已删除 */
     private Integer deleteStatus;
     private String productSn;
+    /** 赠送的积分 */
+    private Integer giftPoint;
+    /** 赠送的成长值 */
+    private Integer giftGrowth;
 }

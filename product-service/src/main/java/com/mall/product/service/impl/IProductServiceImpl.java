@@ -14,11 +14,13 @@ import com.mall.product.model.*;
 import com.mall.product.service.IBrandService;
 import com.mall.product.service.IProductService;
 import com.mym.mall.common.api.CommonResult;
+import com.mym.mall.common.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -67,6 +69,18 @@ public class IProductServiceImpl implements IProductService {
 
     private final SubjectClient subjectClient;
 
+    /** Redis缓存服务 */
+    private final RedisService redisService;
+    /** Redis数据库前缀 */
+    @Value("${redis.database}")
+    private String REDIS_DATABASE;
+    /** 商品详情缓存过期时间（秒） */
+    @Value("${redis.expire.productDetail}")
+    private long REDIS_EXPIRE_PRODUCT_DETAIL;
+    /** 商品详情缓存key前缀 */
+    @Value("${redis.key.productDetail}")
+    private String REDIS_KEY_PRODUCT_DETAIL;
+
     @Override
     @Transactional
     public int create(PmsProductParam productParam) {
@@ -114,13 +128,12 @@ public class IProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<PmsProduct> search(String keyword, Long brandId, Long productCategoryId, Integer pageNum, Integer pageSize, Integer sort) {
-        PageHelper.startPage(pageNum, pageSize);
-        return productMapper.selectBySearch(keyword, brandId, productCategoryId, sort);
-    }
-
-    @Override
     public PmsProductResult getUpdateInfo(Long productId) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_PRODUCT_DETAIL + ":" + productId;
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (PmsProductResult) cached;
+        }
         PmsProductResult result = productMapper.getUpdateInfo(productId);
         if (result == null) return null;
         try {
@@ -132,7 +145,22 @@ public class IProductServiceImpl implements IProductService {
             log.warn("Feign查询专题关联失败 productId={}: {}", productId, e.getMessage());
             result.setSubjectProductRelationList(new ArrayList<>());
         }
+        redisService.set(key, result, REDIS_EXPIRE_PRODUCT_DETAIL);
         return result;
+    }
+
+    /** 删除单个商品的详情缓存 */
+    private void deleteProductDetailCache(Long productId) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_PRODUCT_DETAIL + ":" + productId;
+        redisService.del(key);
+    }
+
+    /** 批量删除商品详情缓存 */
+    private void deleteProductDetailCache(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        for (Long id : ids) {
+            deleteProductDetailCache(id);
+        }
     }
 
     @Override
@@ -169,6 +197,7 @@ public class IProductServiceImpl implements IProductService {
         subjectClient.deleteProductRelations(id);
         relateSubjectViaFeign(productParam.getSubjectProductRelationList(), id);
         count = 1;
+        deleteProductDetailCache(id);
         return count;
     }
 
@@ -264,6 +293,7 @@ public class IProductServiceImpl implements IProductService {
             list.add(Precord);
         }
         productVertifyRecordMapper.insertList(list);
+        deleteProductDetailCache(ids);
         return count;
     }
 
@@ -272,6 +302,7 @@ public class IProductServiceImpl implements IProductService {
         PmsProduct record = new PmsProduct();
         record.setPublishStatus(publishStatus);
         int count = productMapper.updateByIds(record, ids);
+        deleteProductDetailCache(ids);
         return count;
     }
 
@@ -280,6 +311,7 @@ public class IProductServiceImpl implements IProductService {
         PmsProduct record = new PmsProduct();
         record.setRecommandStatus(recommendStatus);
         int count = productMapper.updateByIds(record, ids);
+        deleteProductDetailCache(ids);
         return count;
     }
 
@@ -288,6 +320,7 @@ public class IProductServiceImpl implements IProductService {
         PmsProduct record = new PmsProduct();
         record.setNewStatus(newStatus);
         int count = productMapper.updateByIds(record, ids);
+        deleteProductDetailCache(ids);
         return count;
     }
 
@@ -296,6 +329,7 @@ public class IProductServiceImpl implements IProductService {
         PmsProduct record = new PmsProduct();
         record.setDeleteStatus(deleteStatus);
         int count = productMapper.updateByIds(record, ids);
+        deleteProductDetailCache(ids);
         return count;
     }
 
@@ -307,11 +341,6 @@ public class IProductServiceImpl implements IProductService {
             condition.setName("%" + keyword + "%");
         }
         return productMapper.selectByCondition(condition);
-    }
-
-    @Override
-    public PmsProduct getItem(Long id) {
-        return productMapper.selectByPrimaryKey(id);
     }
 
     @Override
@@ -331,6 +360,19 @@ public class IProductServiceImpl implements IProductService {
         }
         List<PmsProduct> products = productMapper.selectByIds(ids);
         return products;
+    }
+
+    @Override
+    public List<ProductDTO> listDtos(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+        List<PmsProduct> products = productMapper.selectByIds(ids);
+        return products.stream().map(p -> {
+            ProductDTO dto = new ProductDTO();
+            BeanUtils.copyProperties(p, dto);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     /**

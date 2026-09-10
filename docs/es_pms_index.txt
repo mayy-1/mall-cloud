@@ -1,0 +1,39 @@
+curl -X PUT "http://localhost:9200/pms" -H 'Content-Type: application/json' -d '{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "properties": {
+      "_class": {"type": "keyword", "index": false, "doc_values": false},
+      "id": {"type": "long"},
+      "productSn": {"type": "keyword"},
+      "brandId": {"type": "long"},
+      "brandName": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart",
+        "fields": {"keyword": {"type": "keyword"}}
+      },
+      "productCategoryId": {"type": "long"},
+      "productCategoryName": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart",
+        "fields": {"keyword": {"type": "keyword"}}
+      },
+      "pic": {"type": "keyword", "index": false},
+      "name": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_max_word"},
+      "subTitle": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
+      "keywords": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
+      "price": {"type": "double"},
+      "sale": {"type": "integer"},
+      "newStatus": {"type": "integer"},
+      "recommandStatus": {"type": "integer"},
+      "promotionType": {"type": "integer"},
+      "sort": {"type": "integer"}
+    }
+  }
+}'
+
+

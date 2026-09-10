@@ -6,13 +6,14 @@
     <result column="flash_promotion_id" jdbcType="BIGINT" property="flashPromotionId" />
     <result column="flash_promotion_session_id" jdbcType="BIGINT" property="flashPromotionSessionId" />
     <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="sku_id" jdbcType="BIGINT" property="skuId" />
     <result column="flash_promotion_price" jdbcType="DECIMAL" property="flashPromotionPrice" />
     <result column="flash_promotion_count" jdbcType="INTEGER" property="flashPromotionCount" />
     <result column="flash_promotion_limit" jdbcType="INTEGER" property="flashPromotionLimit" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, flash_promotion_id, flash_promotion_session_id, product_id, flash_promotion_price, flash_promotion_count, flash_promotion_limit, sort
+    id, flash_promotion_id, flash_promotion_session_id, product_id, sku_id, flash_promotion_price, flash_promotion_count, flash_promotion_limit, sort
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -28,8 +29,8 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into sms_flash_promotion_product_relation (flash_promotion_id, flash_promotion_session_id, product_id, flash_promotion_price, flash_promotion_count, flash_promotion_limit, sort)
-    values (#{flashPromotionId,jdbcType=BIGINT}, #{flashPromotionSessionId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, #{flashPromotionPrice,jdbcType=DECIMAL}, #{flashPromotionCount,jdbcType=INTEGER}, #{flashPromotionLimit,jdbcType=INTEGER}, #{sort,jdbcType=INTEGER})
+    insert into sms_flash_promotion_product_relation (flash_promotion_id, flash_promotion_session_id, product_id, sku_id, flash_promotion_price, flash_promotion_count, flash_promotion_limit, sort)
+    values (#{flashPromotionId,jdbcType=BIGINT}, #{flashPromotionSessionId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, #{skuId,jdbcType=BIGINT}, #{flashPromotionPrice,jdbcType=DECIMAL}, #{flashPromotionCount,jdbcType=INTEGER}, #{flashPromotionLimit,jdbcType=INTEGER}, #{sort,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.mall.marketing.model.SmsFlashPromotionProductRelation">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -45,6 +46,9 @@
       </if>
       <if test="productId != null">
         product_id,
+      </if>
+      <if test="skuId != null">
+        sku_id,
       </if>
       <if test="flashPromotionPrice != null">
         flash_promotion_price,
@@ -68,6 +72,9 @@
       </if>
       <if test="productId != null">
         #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null">
+        #{skuId,jdbcType=BIGINT},
       </if>
       <if test="flashPromotionPrice != null">
         #{flashPromotionPrice,jdbcType=DECIMAL},
@@ -95,6 +102,9 @@
       <if test="productId != null">
         product_id = #{productId,jdbcType=BIGINT},
       </if>
+      <if test="skuId != null">
+        sku_id = #{skuId,jdbcType=BIGINT},
+      </if>
       <if test="flashPromotionPrice != null">
         flash_promotion_price = #{flashPromotionPrice,jdbcType=DECIMAL},
       </if>
@@ -115,6 +125,7 @@
     set flash_promotion_id = #{flashPromotionId,jdbcType=BIGINT},
       flash_promotion_session_id = #{flashPromotionSessionId,jdbcType=BIGINT},
       product_id = #{productId,jdbcType=BIGINT},
+      sku_id = #{skuId,jdbcType=BIGINT},
       flash_promotion_price = #{flashPromotionPrice,jdbcType=DECIMAL},
       flash_promotion_count = #{flashPromotionCount,jdbcType=INTEGER},
       flash_promotion_limit = #{flashPromotionLimit,jdbcType=INTEGER},
@@ -137,6 +148,7 @@
       <if test="flashPromotionId != null">AND flash_promotion_id = #{flashPromotionId}</if>
       <if test="flashPromotionSessionId != null">AND flash_promotion_session_id = #{flashPromotionSessionId}</if>
       <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="skuId != null">AND sku_id = #{skuId}</if>
       <if test="flashPromotionPrice != null">AND flash_promotion_price = #{flashPromotionPrice}</if>
       <if test="flashPromotionCount != null">AND flash_promotion_count = #{flashPromotionCount}</if>
       <if test="flashPromotionLimit != null">AND flash_promotion_limit = #{flashPromotionLimit}</if>
@@ -151,6 +163,7 @@
       <if test="flashPromotionId != null">AND flash_promotion_id = #{flashPromotionId}</if>
       <if test="flashPromotionSessionId != null">AND flash_promotion_session_id = #{flashPromotionSessionId}</if>
       <if test="productId != null">AND product_id = #{productId}</if>
+      <if test="skuId != null">AND sku_id = #{skuId}</if>
       <if test="flashPromotionPrice != null">AND flash_promotion_price = #{flashPromotionPrice}</if>
       <if test="flashPromotionCount != null">AND flash_promotion_count = #{flashPromotionCount}</if>
       <if test="flashPromotionLimit != null">AND flash_promotion_limit = #{flashPromotionLimit}</if>
@@ -164,6 +177,7 @@
       <if test="record.flashPromotionId != null">flash_promotion_id = #{record.flashPromotionId},</if>
       <if test="record.flashPromotionSessionId != null">flash_promotion_session_id = #{record.flashPromotionSessionId},</if>
       <if test="record.productId != null">product_id = #{record.productId},</if>
+      <if test="record.skuId != null">sku_id = #{record.skuId},</if>
       <if test="record.flashPromotionPrice != null">flash_promotion_price = #{record.flashPromotionPrice},</if>
       <if test="record.flashPromotionCount != null">flash_promotion_count = #{record.flashPromotionCount},</if>
       <if test="record.flashPromotionLimit != null">flash_promotion_limit = #{record.flashPromotionLimit},</if>
@@ -174,6 +188,7 @@
       <if test="condition.flashPromotionId != null">AND flash_promotion_id = #{condition.flashPromotionId}</if>
       <if test="condition.flashPromotionSessionId != null">AND flash_promotion_session_id = #{condition.flashPromotionSessionId}</if>
       <if test="condition.productId != null">AND product_id = #{condition.productId}</if>
+      <if test="condition.skuId != null">AND sku_id = #{condition.skuId}</if>
       <if test="condition.flashPromotionPrice != null">AND flash_promotion_price = #{condition.flashPromotionPrice}</if>
       <if test="condition.flashPromotionCount != null">AND flash_promotion_count = #{condition.flashPromotionCount}</if>
       <if test="condition.flashPromotionLimit != null">AND flash_promotion_limit = #{condition.flashPromotionLimit}</if>

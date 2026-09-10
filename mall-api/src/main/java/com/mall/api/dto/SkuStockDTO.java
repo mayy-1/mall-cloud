@@ -12,4 +12,5 @@ public class SkuStockDTO {
     private String skuCode;
     private Integer stock;
     private Integer lockStock;
+    private String spData;
 }

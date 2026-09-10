@@ -22,6 +22,9 @@ public class SmsFlashPromotionProductRelation implements Serializable {
 
     private Long productId;
 
+    @Schema(title = "SKU编号")
+    private Long skuId;
+
     @Schema(title = "限时购价格")
     private BigDecimal flashPromotionPrice;
 

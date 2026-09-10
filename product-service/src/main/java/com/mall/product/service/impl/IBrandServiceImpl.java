@@ -9,8 +9,10 @@ import com.mall.product.model.PmsBrand;
 import com.mall.product.model.PmsProduct;
 import com.mall.product.service.IBrandService;
 import com.mall.product.util.PinyinUtil;
+import com.mym.mall.common.service.RedisService;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,9 +35,34 @@ public class IBrandServiceImpl implements IBrandService {
 
     private final PmsProductMapper productMapper;
 
+    /** Redis缓存服务 */
+    private final RedisService redisService;
+    /** Redis数据库前缀 */
+    @Value("${redis.database}")
+    private String REDIS_DATABASE;
+    /** 品牌缓存过期时间（秒） */
+    @Value("${redis.expire.brand}")
+    private long REDIS_EXPIRE_BRAND;
+    /** 品牌缓存key前缀 */
+    @Value("${redis.key.brand}")
+    private String REDIS_KEY_BRAND;
+
     @Override
     public List<PmsBrand> listAllBrand() {
-        return brandMapper.selectByCondition(new PmsBrand());
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_BRAND + ":all";
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (List<PmsBrand>) cached;
+        }
+        List<PmsBrand> list = brandMapper.selectByCondition(new PmsBrand());
+        redisService.set(key, list, REDIS_EXPIRE_BRAND);
+        return list;
+    }
+
+    /** 删除所有品牌缓存 */
+    private void deleteBrandCache() {
+        String prefix = REDIS_DATABASE + ":" + REDIS_KEY_BRAND + ":";
+        redisService.delByPrefix(prefix);
     }
 
     @Override
@@ -49,7 +76,9 @@ public class IBrandServiceImpl implements IBrandService {
             String firstLetter = PinyinUtil.getFirstLetter(brandName);
             pmsBrand.setFirstLetter(firstLetter);
         }
-        return brandMapper.insertSelective(pmsBrand);
+        int count = brandMapper.insertSelective(pmsBrand);
+        deleteBrandCache();
+        return count;
     }
 
     @Override
@@ -70,7 +99,9 @@ public class IBrandServiceImpl implements IBrandService {
         PmsProduct condition = new PmsProduct();
         condition.setBrandId(id);
         productMapper.updateSelectiveByCondition(product, condition);
-        return brandMapper.updateByPrimaryKeySelective(pmsBrand);
+        int count = brandMapper.updateByPrimaryKeySelective(pmsBrand);
+        deleteBrandCache();
+        return count;
     }
 
     @Override
@@ -81,7 +112,9 @@ public class IBrandServiceImpl implements IBrandService {
         if (CollectionUtils.isNotEmpty(pmsProductList)) {
             return 0;
         }
-        return brandMapper.deleteByPrimaryKey(id);
+        int count = brandMapper.deleteByPrimaryKey(id);
+        deleteBrandCache();
+        return count;
     }
 
     @Override
@@ -99,6 +132,7 @@ public class IBrandServiceImpl implements IBrandService {
         for (Long id : ids) {
             count += brandMapper.deleteByPrimaryKey(id);
         }
+        deleteBrandCache();
         return count;
     }
 
@@ -127,6 +161,7 @@ public class IBrandServiceImpl implements IBrandService {
             brand.setShowStatus(showStatus);
             count += brandMapper.updateByPrimaryKeySelective(brand);
         }
+        deleteBrandCache();
         return count;
     }
 
@@ -139,15 +174,23 @@ public class IBrandServiceImpl implements IBrandService {
             brand.setFactoryStatus(factoryStatus);
             count += brandMapper.updateByPrimaryKeySelective(brand);
         }
+        deleteBrandCache();
         return count;
     }
 
     @Override
     public List<PmsBrand> listRecommendBrand(int pageNum, int pageSize) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_BRAND + ":recommend:" + pageNum + ":" + pageSize;
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (List<PmsBrand>) cached;
+        }
         PageHelper.startPage(pageNum, pageSize);
         PageHelper.orderBy("sort desc");
         PmsBrand condition = new PmsBrand();
         condition.setShowStatus(1);
-        return brandMapper.selectByCondition(condition);
+        List<PmsBrand> list = brandMapper.selectByCondition(condition);
+        redisService.set(key, list, REDIS_EXPIRE_BRAND);
+        return list;
     }
 }

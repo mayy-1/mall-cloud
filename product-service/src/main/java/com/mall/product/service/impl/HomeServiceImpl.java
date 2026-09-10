@@ -13,11 +13,17 @@ import com.mall.product.service.ICategoryService;
 import com.mall.product.service.IHomeService;
 import com.mall.product.service.IProductService;
 import com.mym.mall.common.api.CommonResult;
+import com.mym.mall.common.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -35,15 +41,60 @@ public class HomeServiceImpl implements IHomeService {
     private final SubjectClient subjectClient;
     private final HomeClient homeClient;
 
+    /** Redis缓存服务 */
+    private final RedisService redisService;
+    /** Redis数据库前缀 */
+    @Value("${redis.database}")
+    private String REDIS_DATABASE;
+    /** 首页聚合缓存过期时间（秒） */
+    @Value("${redis.expire.homeContent}")
+    private long REDIS_EXPIRE_HOME_CONTENT;
+    /** 首页聚合缓存key */
+    @Value("${redis.key.homeContent}")
+    private String REDIS_KEY_HOME_CONTENT;
+    /** 分类列表缓存过期时间（秒），复用分类树过期时间 */
+    @Value("${redis.expire.categoryTree}")
+    private long REDIS_EXPIRE_CATEGORY_LIST;
+    /** 分类列表缓存key前缀 */
+    @Value("${redis.key.categoryList}")
+    private String REDIS_KEY_CATEGORY_LIST;
+
+    /** 首页聚合查询线程池 */
+    @Autowired
+    @Qualifier("homeContentExecutor")
+    private Executor homeContentExecutor;
+
     @Override
     public HomeContentResult content() {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_HOME_CONTENT;
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (HomeContentResult) cached;
+        }
+
+        // 6 路独立数据源并行加载
+        CompletableFuture<List<BrandDTO>> brandFuture =
+                CompletableFuture.supplyAsync(this::getRecommendBrands, homeContentExecutor);
+        CompletableFuture<List<ProductDTO>> newProductFuture =
+                CompletableFuture.supplyAsync(this::getHomeNewProducts, homeContentExecutor);
+        CompletableFuture<List<ProductDTO>> hotProductFuture =
+                CompletableFuture.supplyAsync(this::getHomeRecommendProducts, homeContentExecutor);
+        CompletableFuture<List<SubjectDTO>> subjectFuture =
+                CompletableFuture.supplyAsync(this::getSubjects, homeContentExecutor);
+        CompletableFuture<HomeFlashPromotionDTO> flashFuture =
+                CompletableFuture.supplyAsync(this::getHomeFlashPromotion, homeContentExecutor);
+        CompletableFuture<List<HomeAdvertiseDTO>> advertiseFuture =
+                CompletableFuture.supplyAsync(this::getHomeAdvertises, homeContentExecutor);
+
         HomeContentResult result = new HomeContentResult();
-        try { result.setBrandList(getRecommendBrands()); } catch (Exception e) { log.error("brands failed", e); }
-        try { result.setNewProductList(getHomeNewProducts()); } catch (Exception e) { log.error("new products failed", e); }
-        try { result.setHotProductList(getHomeRecommendProducts()); } catch (Exception e) { log.error("hot products failed", e); }
-        try { result.setSubjectList(getSubjects()); } catch (Exception e) { log.error("subjects failed", e); }
-        try { result.setHomeFlashPromotion(getHomeFlashPromotion()); } catch (Exception e) { log.error("flash failed", e); }
-        try { result.setAdvertiseList(getHomeAdvertises()); } catch (Exception e) { log.error("ads failed", e); }
+        result.setBrandList(brandFuture.join());
+        result.setNewProductList(newProductFuture.join());
+        result.setHotProductList(hotProductFuture.join());
+        result.setSubjectList(subjectFuture.join());
+        result.setHomeFlashPromotion(flashFuture.join());
+        result.setAdvertiseList(advertiseFuture.join());
+
+        redisService.set(key, result, REDIS_EXPIRE_HOME_CONTENT);
         return result;
     }
 
@@ -60,8 +111,15 @@ public class HomeServiceImpl implements IHomeService {
 
     @Override
     public List<ProductCategoryDTO> getProductCateList(Long parentId) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_CATEGORY_LIST + ":" + parentId;
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (List<ProductCategoryDTO>) cached;
+        }
         List<PmsProductCategory> list = categoryService.getList(parentId, 100, 1);
-        return list.stream().map(this::toDto).collect(Collectors.toList());
+        List<ProductCategoryDTO> result = list.stream().map(this::toDto).collect(Collectors.toList());
+        redisService.set(key, result, REDIS_EXPIRE_CATEGORY_LIST);
+        return result;
     }
 
     @Override
@@ -132,15 +190,20 @@ public class HomeServiceImpl implements IHomeService {
     }
 
     private List<BrandDTO> getRecommendBrands() {
-        List<PmsBrand> brands = brandService.listRecommendBrand(0, 6);
-        return brands.stream().map(b -> {
-            BrandDTO dto = new BrandDTO();
-            dto.setId(b.getId());
-            dto.setName(b.getName());
-            dto.setLogo(b.getLogo());
-            dto.setShowStatus(b.getShowStatus());
-            return dto;
-        }).collect(Collectors.toList());
+        try {
+            List<PmsBrand> brands = brandService.listRecommendBrand(0, 6);
+            return brands.stream().map(b -> {
+                BrandDTO dto = new BrandDTO();
+                dto.setId(b.getId());
+                dto.setName(b.getName());
+                dto.setLogo(b.getLogo());
+                dto.setShowStatus(b.getShowStatus());
+                return dto;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("getRecommendBrands failed", e);
+            return List.of();
+        }
     }
 
     private List<SubjectDTO> getSubjects() {

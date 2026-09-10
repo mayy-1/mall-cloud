@@ -20,13 +20,27 @@ spring:
       port: 6379
       password: 241119
       database: 0
+redis:
+  database: mall
+  expire:
+    common: 86400
+    productDetail: 1800
+    categoryTree: 3600
+    brand: 3600
+    homeContent: 300
+  key:
+    productDetail: product:detail
+    categoryTree: product:category:tree
+    categoryList: product:category:list
+    brand: product:brand
+    homeContent: home:content
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
 pagehelper:
   helper-dialect: mysql
-  reasonable: true
+  reasonable: false
 logging:
   level:
     com.alibaba.nacos: WARN

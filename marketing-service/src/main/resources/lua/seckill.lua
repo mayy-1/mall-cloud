@@ -1,5 +1,5 @@
 -- 秒杀 Lua 原子脚本
--- 功能：单条 Lua 完成三步原子操作，杜绝超卖
+-- 功能：单条 Lua 完成原子操作，杜绝超卖
 -- KEYS[1]: seckill:stock:{promotionId}:{productId}  库存 key
 -- KEYS[2]: seckill:users:{promotionId}:{productId}  已购买用户 Set
 -- ARGV[1]: memberId                                  当前用户ID

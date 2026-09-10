@@ -254,4 +254,45 @@
     </foreach>
   </delete>
 
+  <select id="selectBySkuIds" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM pms_sku_stock
+    WHERE id IN
+    <foreach collection="skuIds" item="id" open="(" close=")" separator=",">#{id}</foreach>
+  </select>
+
+  <update id="deductStock">
+    UPDATE pms_sku_stock
+    SET stock = stock - #{quantity}
+    WHERE id = #{skuId}
+      AND stock >= #{quantity}
+  </update>
+
+  <update id="lockStock">
+    UPDATE pms_sku_stock
+    SET lock_stock = IFNULL(lock_stock, 0) + #{quantity}
+    WHERE id = #{skuId}
+      AND stock - IFNULL(lock_stock, 0) >= #{quantity}
+  </update>
+
+  <update id="releaseStock">
+    UPDATE pms_sku_stock
+    SET lock_stock = GREATEST(IFNULL(lock_stock, 0) - #{quantity}, 0)
+    WHERE id = #{skuId}
+  </update>
+
+  <update id="paySuccessDeductStock">
+    UPDATE pms_sku_stock
+    SET stock = stock - #{quantity},
+        lock_stock = GREATEST(IFNULL(lock_stock, 0) - #{quantity}, 0),
+        sale = IFNULL(sale, 0) + #{quantity}
+    WHERE id = #{skuId}
+      AND stock >= #{quantity}
+  </update>
+
+  <select id="selectByProductIds" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM pms_sku_stock
+    WHERE product_id IN
+    <foreach collection="productIds" item="id" open="(" close=")" separator=",">#{id}</foreach>
+  </select>
+
 </mapper>

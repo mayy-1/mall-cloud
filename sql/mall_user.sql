@@ -1,18 +1,3 @@
-/*
- Navicat Premium Data Transfer
-
- Source Server         : localhost
- Source Server Type    : MySQL
- Source Server Version : 80034 (8.0.34)
- Source Host           : localhost:3306
- Source Schema         : mall_user
-
- Target Server Type    : MySQL
- Target Server Version : 80034 (8.0.34)
- File Encoding         : 65001
-
- Date: 21/07/2026 16:11:25
-*/
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -33,19 +18,13 @@ CREATE TABLE `ums_admin`  (
   `login_time` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
   `status` int NULL DEFAULT 1 COMMENT '帐号启用状态：0->禁用；1->启用',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ums_admin
 -- ----------------------------
-INSERT INTO `ums_admin` VALUES (1, 'test', '$2a$10$NZ5o7r2E.ayT2ZoxgjlI.eJ6OEYqjH7INR/F.mXDbjZJi9HF0YCVG', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_02.png', 'test@qq.com', '测试账号', NULL, '2018-09-29 13:55:30', '2018-09-29 13:55:39', 1);
 INSERT INTO `ums_admin` VALUES (3, 'admin', '$2a$10$.E1FokumK5GIXWgKlg.Hc.i/0/2.qdAwYFL1zc5QHdyzpXOr38RZO', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_01.png', 'admin@163.com', '系统管理员', '系统管理员', '2018-10-08 13:32:47', '2019-04-20 12:45:16', 1);
-INSERT INTO `ums_admin` VALUES (4, 'macro', '$2a$10$Bx4jZPR7GhEpIQfefDQtVeS58GfT5n6mxs/b4nLLK65eMFa16topa', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_01.png', 'macro@qq.com', 'macro', 'macro专用', '2019-10-06 15:53:51', '2020-02-03 14:55:55', 1);
-INSERT INTO `ums_admin` VALUES (6, 'productAdmin', '$2a$10$6/.J.p.6Bhn7ic4GfoB5D.pGd7xSiD1a9M6ht6yO0fxzlKJPjRAGm', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_03.png', 'product@qq.com', '商品管理员', '只有商品权限', '2020-02-07 16:15:08', NULL, 1);
-INSERT INTO `ums_admin` VALUES (7, 'orderAdmin', '$2a$10$UqEhA9UZXjHHA3B.L9wNG.6aerrBjC6WHTtbv1FdvYPUI.7lkL6E.', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_04.png', 'order@qq.com', '订单管理员', '只有订单管理权限', '2020-02-07 16:15:50', NULL, 1);
-INSERT INTO `ums_admin` VALUES (8, 'test123', '$2a$10$M1qJguEzwoAN0la7PB8UO.HOGe1xZGku7xw1iTaUUpY0ZVRCxrxoO', 'string', 'abc@qq.com', 'string', 'string', '2022-08-07 14:45:42', NULL, 1);
-INSERT INTO `ums_admin` VALUES (9, 'test256', '$2a$10$kTMBrt8mkXcO8T4eHThFWOf3KuNK6tqevkiAf4YbtXtaCJ6ocYkJa', 'string', 'abc@qq.com', 'string', 'string', '2022-08-07 14:52:57', NULL, 1);
-INSERT INTO `ums_admin` VALUES (10, 'test1267', '$2a$10$VUywDhXVPY13YZxMD/uPWeDqkzSozN7o8u/3MX6sBig2NK2VaTJZ2', NULL, 'test1267@qq.com', 'test1267', 'test1267', '2023-01-04 16:13:34', NULL, 1);
+INSERT INTO `ums_admin` VALUES (11, 'aaa', '$2a$10$u/tJ2Ag3t06OIxLx4TpRQe1VZzPP4ox.Zx5duJzhRizu1wvTRozFe', NULL, '', 'aaa', NULL, '2026-07-22 17:26:55', NULL, 1);
 
 -- ----------------------------
 -- Table structure for ums_admin_login_log
@@ -59,7 +38,7 @@ CREATE TABLE `ums_admin_login_log`  (
   `address` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
   `user_agent` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '浏览器登录类型',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 415 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户登录日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 420 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户登录日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ums_admin_login_log
@@ -478,6 +457,11 @@ INSERT INTO `ums_admin_login_log` VALUES (411, 3, '2023-02-10 17:23:52', '192.16
 INSERT INTO `ums_admin_login_log` VALUES (412, 3, '2023-05-11 15:29:54', '192.168.56.1', NULL, NULL);
 INSERT INTO `ums_admin_login_log` VALUES (413, 3, '2026-07-20 15:15:08', '10.195.45.31', NULL, NULL);
 INSERT INTO `ums_admin_login_log` VALUES (414, 3, '2026-07-21 15:56:23', '10.195.45.31', NULL, NULL);
+INSERT INTO `ums_admin_login_log` VALUES (415, 3, '2026-07-22 17:27:19', '10.195.45.31', NULL, NULL);
+INSERT INTO `ums_admin_login_log` VALUES (416, 11, '2026-07-22 17:27:37', '10.195.45.31', NULL, NULL);
+INSERT INTO `ums_admin_login_log` VALUES (417, 3, '2026-07-22 17:28:18', '10.195.45.31', NULL, NULL);
+INSERT INTO `ums_admin_login_log` VALUES (418, 3, '2026-08-26 13:25:20', '10.113.29.31', NULL, NULL);
+INSERT INTO `ums_admin_login_log` VALUES (419, 3, '2026-08-30 14:01:21', '10.113.29.31', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for ums_admin_permission_relation
@@ -504,7 +488,7 @@ CREATE TABLE `ums_admin_role_relation`  (
   `admin_id` bigint NULL DEFAULT NULL,
   `role_id` bigint NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户和角色关系表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '后台用户和角色关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ums_admin_role_relation
@@ -512,9 +496,10 @@ CREATE TABLE `ums_admin_role_relation`  (
 INSERT INTO `ums_admin_role_relation` VALUES (26, 3, 5);
 INSERT INTO `ums_admin_role_relation` VALUES (27, 6, 1);
 INSERT INTO `ums_admin_role_relation` VALUES (28, 7, 2);
-INSERT INTO `ums_admin_role_relation` VALUES (29, 1, 5);
-INSERT INTO `ums_admin_role_relation` VALUES (30, 4, 5);
 INSERT INTO `ums_admin_role_relation` VALUES (31, 8, 1);
+INSERT INTO `ums_admin_role_relation` VALUES (32, 1, 1);
+INSERT INTO `ums_admin_role_relation` VALUES (33, 4, 2);
+INSERT INTO `ums_admin_role_relation` VALUES (34, 11, 1);
 
 -- ----------------------------
 -- Table structure for ums_growth_change_history
@@ -940,7 +925,7 @@ CREATE TABLE `undo_log`  (
   `log_modified` datetime NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `ux_undo_log`(`xid` ASC, `branch_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Seata AT undo_log' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Seata AT undo_log' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of undo_log

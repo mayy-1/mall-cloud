@@ -6,6 +6,8 @@
     <result column="member_id" jdbcType="BIGINT" property="memberId" />
     <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
     <result column="order_sn" jdbcType="VARCHAR" property="orderSn" />
+    <result column="promotion_id" jdbcType="BIGINT" property="promotionId" />
+    <result column="sku_id" jdbcType="BIGINT" property="skuId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="member_username" jdbcType="VARCHAR" property="memberUsername" />
     <result column="total_amount" jdbcType="DECIMAL" property="totalAmount" />
@@ -25,11 +27,6 @@
     <result column="integration" jdbcType="INTEGER" property="integration" />
     <result column="growth" jdbcType="INTEGER" property="growth" />
     <result column="promotion_info" jdbcType="VARCHAR" property="promotionInfo" />
-    <result column="bill_type" jdbcType="INTEGER" property="billType" />
-    <result column="bill_header" jdbcType="VARCHAR" property="billHeader" />
-    <result column="bill_content" jdbcType="VARCHAR" property="billContent" />
-    <result column="bill_receiver_phone" jdbcType="VARCHAR" property="billReceiverPhone" />
-    <result column="bill_receiver_email" jdbcType="VARCHAR" property="billReceiverEmail" />
     <result column="receiver_name" jdbcType="VARCHAR" property="receiverName" />
     <result column="receiver_phone" jdbcType="VARCHAR" property="receiverPhone" />
     <result column="receiver_post_code" jdbcType="VARCHAR" property="receiverPostCode" />
@@ -48,7 +45,7 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, member_id, coupon_id, order_sn, create_time, member_username, total_amount, pay_amount, freight_amount, promotion_amount, integration_amount, coupon_amount, discount_amount, pay_type, source_type, status, order_type, delivery_company, delivery_sn, auto_confirm_day, integration, growth, promotion_info, bill_type, bill_header, bill_content, bill_receiver_phone, bill_receiver_email, receiver_name, receiver_phone, receiver_post_code, receiver_province, receiver_city, receiver_region, receiver_detail_address, note, confirm_status, delete_status, use_integration, payment_time, delivery_time, receive_time, comment_time, modify_time
+    id, member_id, coupon_id, order_sn, promotion_id, sku_id, create_time, member_username, total_amount, pay_amount, freight_amount, promotion_amount, integration_amount, coupon_amount, discount_amount, pay_type, source_type, status, order_type, delivery_company, delivery_sn, auto_confirm_day, integration, growth, promotion_info, receiver_name, receiver_phone, receiver_post_code, receiver_province, receiver_city, receiver_region, receiver_detail_address, note, confirm_status, delete_status, use_integration, payment_time, delivery_time, receive_time, comment_time, modify_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -64,8 +61,8 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into oms_order (member_id, coupon_id, order_sn, create_time, member_username, total_amount, pay_amount, freight_amount, promotion_amount, integration_amount, coupon_amount, discount_amount, pay_type, source_type, status, order_type, delivery_company, delivery_sn, auto_confirm_day, integration, growth, promotion_info, bill_type, bill_header, bill_content, bill_receiver_phone, bill_receiver_email, receiver_name, receiver_phone, receiver_post_code, receiver_province, receiver_city, receiver_region, receiver_detail_address, note, confirm_status, delete_status, use_integration, payment_time, delivery_time, receive_time, comment_time, modify_time)
-    values (#{memberId,jdbcType=BIGINT}, #{couponId,jdbcType=BIGINT}, #{orderSn,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{memberUsername,jdbcType=VARCHAR}, #{totalAmount,jdbcType=DECIMAL}, #{payAmount,jdbcType=DECIMAL}, #{freightAmount,jdbcType=DECIMAL}, #{promotionAmount,jdbcType=DECIMAL}, #{integrationAmount,jdbcType=DECIMAL}, #{couponAmount,jdbcType=DECIMAL}, #{discountAmount,jdbcType=DECIMAL}, #{payType,jdbcType=INTEGER}, #{sourceType,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{orderType,jdbcType=INTEGER}, #{deliveryCompany,jdbcType=VARCHAR}, #{deliverySn,jdbcType=VARCHAR}, #{autoConfirmDay,jdbcType=INTEGER}, #{integration,jdbcType=INTEGER}, #{growth,jdbcType=INTEGER}, #{promotionInfo,jdbcType=VARCHAR}, #{billType,jdbcType=INTEGER}, #{billHeader,jdbcType=VARCHAR}, #{billContent,jdbcType=VARCHAR}, #{billReceiverPhone,jdbcType=VARCHAR}, #{billReceiverEmail,jdbcType=VARCHAR}, #{receiverName,jdbcType=VARCHAR}, #{receiverPhone,jdbcType=VARCHAR}, #{receiverPostCode,jdbcType=VARCHAR}, #{receiverProvince,jdbcType=VARCHAR}, #{receiverCity,jdbcType=VARCHAR}, #{receiverRegion,jdbcType=VARCHAR}, #{receiverDetailAddress,jdbcType=VARCHAR}, #{note,jdbcType=VARCHAR}, #{confirmStatus,jdbcType=INTEGER}, #{deleteStatus,jdbcType=INTEGER}, #{useIntegration,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{deliveryTime,jdbcType=TIMESTAMP}, #{receiveTime,jdbcType=TIMESTAMP}, #{commentTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+    insert into oms_order (member_id, coupon_id, order_sn, promotion_id, sku_id, create_time, member_username, total_amount, pay_amount, freight_amount, promotion_amount, integration_amount, coupon_amount, discount_amount, pay_type, source_type, status, order_type, delivery_company, delivery_sn, auto_confirm_day, integration, growth, promotion_info, receiver_name, receiver_phone, receiver_post_code, receiver_province, receiver_city, receiver_region, receiver_detail_address, note, confirm_status, delete_status, use_integration, payment_time, delivery_time, receive_time, comment_time, modify_time)
+    values (#{memberId,jdbcType=BIGINT}, #{couponId,jdbcType=BIGINT}, #{orderSn,jdbcType=VARCHAR}, #{promotionId,jdbcType=BIGINT}, #{skuId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{memberUsername,jdbcType=VARCHAR}, #{totalAmount,jdbcType=DECIMAL}, #{payAmount,jdbcType=DECIMAL}, #{freightAmount,jdbcType=DECIMAL}, #{promotionAmount,jdbcType=DECIMAL}, #{integrationAmount,jdbcType=DECIMAL}, #{couponAmount,jdbcType=DECIMAL}, #{discountAmount,jdbcType=DECIMAL}, #{payType,jdbcType=INTEGER}, #{sourceType,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{orderType,jdbcType=INTEGER}, #{deliveryCompany,jdbcType=VARCHAR}, #{deliverySn,jdbcType=VARCHAR}, #{autoConfirmDay,jdbcType=INTEGER}, #{integration,jdbcType=INTEGER}, #{growth,jdbcType=INTEGER}, #{promotionInfo,jdbcType=VARCHAR}, #{receiverName,jdbcType=VARCHAR}, #{receiverPhone,jdbcType=VARCHAR}, #{receiverPostCode,jdbcType=VARCHAR}, #{receiverProvince,jdbcType=VARCHAR}, #{receiverCity,jdbcType=VARCHAR}, #{receiverRegion,jdbcType=VARCHAR}, #{receiverDetailAddress,jdbcType=VARCHAR}, #{note,jdbcType=VARCHAR}, #{confirmStatus,jdbcType=INTEGER}, #{deleteStatus,jdbcType=INTEGER}, #{useIntegration,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{deliveryTime,jdbcType=TIMESTAMP}, #{receiveTime,jdbcType=TIMESTAMP}, #{commentTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.mall.order.model.OmsOrder">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -81,6 +78,12 @@
       </if>
       <if test="orderSn != null">
         order_sn,
+      </if>
+      <if test="promotionId != null">
+        promotion_id,
+      </if>
+      <if test="skuId != null">
+        sku_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -138,21 +141,6 @@
       </if>
       <if test="promotionInfo != null">
         promotion_info,
-      </if>
-      <if test="billType != null">
-        bill_type,
-      </if>
-      <if test="billHeader != null">
-        bill_header,
-      </if>
-      <if test="billContent != null">
-        bill_content,
-      </if>
-      <if test="billReceiverPhone != null">
-        bill_receiver_phone,
-      </if>
-      <if test="billReceiverEmail != null">
-        bill_receiver_email,
       </if>
       <if test="receiverName != null">
         receiver_name,
@@ -213,6 +201,12 @@
       <if test="orderSn != null">
         #{orderSn,jdbcType=VARCHAR},
       </if>
+      <if test="promotionId != null">
+        #{promotionId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null">
+        #{skuId,jdbcType=BIGINT},
+      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -269,21 +263,6 @@
       </if>
       <if test="promotionInfo != null">
         #{promotionInfo,jdbcType=VARCHAR},
-      </if>
-      <if test="billType != null">
-        #{billType,jdbcType=INTEGER},
-      </if>
-      <if test="billHeader != null">
-        #{billHeader,jdbcType=VARCHAR},
-      </if>
-      <if test="billContent != null">
-        #{billContent,jdbcType=VARCHAR},
-      </if>
-      <if test="billReceiverPhone != null">
-        #{billReceiverPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="billReceiverEmail != null">
-        #{billReceiverEmail,jdbcType=VARCHAR},
       </if>
       <if test="receiverName != null">
         #{receiverName,jdbcType=VARCHAR},
@@ -404,21 +383,6 @@
       <if test="promotionInfo != null">
         promotion_info = #{promotionInfo,jdbcType=VARCHAR},
       </if>
-      <if test="billType != null">
-        bill_type = #{billType,jdbcType=INTEGER},
-      </if>
-      <if test="billHeader != null">
-        bill_header = #{billHeader,jdbcType=VARCHAR},
-      </if>
-      <if test="billContent != null">
-        bill_content = #{billContent,jdbcType=VARCHAR},
-      </if>
-      <if test="billReceiverPhone != null">
-        bill_receiver_phone = #{billReceiverPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="billReceiverEmail != null">
-        bill_receiver_email = #{billReceiverEmail,jdbcType=VARCHAR},
-      </if>
       <if test="receiverName != null">
         receiver_name = #{receiverName,jdbcType=VARCHAR},
       </if>
@@ -494,11 +458,6 @@
       integration = #{integration,jdbcType=INTEGER},
       growth = #{growth,jdbcType=INTEGER},
       promotion_info = #{promotionInfo,jdbcType=VARCHAR},
-      bill_type = #{billType,jdbcType=INTEGER},
-      bill_header = #{billHeader,jdbcType=VARCHAR},
-      bill_content = #{billContent,jdbcType=VARCHAR},
-      bill_receiver_phone = #{billReceiverPhone,jdbcType=VARCHAR},
-      bill_receiver_email = #{billReceiverEmail,jdbcType=VARCHAR},
       receiver_name = #{receiverName,jdbcType=VARCHAR},
       receiver_phone = #{receiverPhone,jdbcType=VARCHAR},
       receiver_post_code = #{receiverPostCode,jdbcType=VARCHAR},
@@ -631,11 +590,6 @@
       <if test="integration != null">AND integration = #{integration}</if>
       <if test="growth != null">AND growth = #{growth}</if>
       <if test="promotionInfo != null">AND promotion_info = #{promotionInfo}</if>
-      <if test="billType != null">AND bill_type = #{billType}</if>
-      <if test="billHeader != null">AND bill_header = #{billHeader}</if>
-      <if test="billContent != null">AND bill_content = #{billContent}</if>
-      <if test="billReceiverPhone != null">AND bill_receiver_phone = #{billReceiverPhone}</if>
-      <if test="billReceiverEmail != null">AND bill_receiver_email = #{billReceiverEmail}</if>
       <if test="receiverName != null">AND receiver_name = #{receiverName}</if>
       <if test="receiverPhone != null">AND receiver_phone = #{receiverPhone}</if>
       <if test="receiverPostCode != null">AND receiver_post_code = #{receiverPostCode}</if>
@@ -652,6 +606,23 @@
       <if test="receiveTime != null">AND receive_time = #{receiveTime}</if>
       <if test="commentTime != null">AND comment_time = #{commentTime}</if>
       <if test="modifyTime != null">AND modify_time = #{modifyTime}</if>
+    </where>
+  </select>
+
+  <!-- 前台订单列表查询（支持多状态 IN 查询，如「待收货」=待发货+已发货） -->
+  <select id="selectByConditionWithStatuses" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM oms_order
+    <where>
+      AND member_id = #{memberId}
+      <if test="deleteStatus != null">
+        AND delete_status = #{deleteStatus}
+      </if>
+      <if test="statuses != null and statuses.size() > 0">
+        AND status IN
+        <foreach collection="statuses" item="s" open="(" separator="," close=")">
+          #{s}
+        </foreach>
+      </if>
     </where>
   </select>
 
@@ -681,11 +652,6 @@
       <if test="integration != null">AND integration = #{integration}</if>
       <if test="growth != null">AND growth = #{growth}</if>
       <if test="promotionInfo != null">AND promotion_info = #{promotionInfo}</if>
-      <if test="billType != null">AND bill_type = #{billType}</if>
-      <if test="billHeader != null">AND bill_header = #{billHeader}</if>
-      <if test="billContent != null">AND bill_content = #{billContent}</if>
-      <if test="billReceiverPhone != null">AND bill_receiver_phone = #{billReceiverPhone}</if>
-      <if test="billReceiverEmail != null">AND bill_receiver_email = #{billReceiverEmail}</if>
       <if test="receiverName != null">AND receiver_name = #{receiverName}</if>
       <if test="receiverPhone != null">AND receiver_phone = #{receiverPhone}</if>
       <if test="receiverPostCode != null">AND receiver_post_code = #{receiverPostCode}</if>
@@ -730,11 +696,6 @@
       <if test="record.integration != null">integration = #{record.integration},</if>
       <if test="record.growth != null">growth = #{record.growth},</if>
       <if test="record.promotionInfo != null">promotion_info = #{record.promotionInfo},</if>
-      <if test="record.billType != null">bill_type = #{record.billType},</if>
-      <if test="record.billHeader != null">bill_header = #{record.billHeader},</if>
-      <if test="record.billContent != null">bill_content = #{record.billContent},</if>
-      <if test="record.billReceiverPhone != null">bill_receiver_phone = #{record.billReceiverPhone},</if>
-      <if test="record.billReceiverEmail != null">bill_receiver_email = #{record.billReceiverEmail},</if>
       <if test="record.receiverName != null">receiver_name = #{record.receiverName},</if>
       <if test="record.receiverPhone != null">receiver_phone = #{record.receiverPhone},</if>
       <if test="record.receiverPostCode != null">receiver_post_code = #{record.receiverPostCode},</if>
@@ -776,11 +737,6 @@
       <if test="condition.integration != null">AND integration = #{condition.integration}</if>
       <if test="condition.growth != null">AND growth = #{condition.growth}</if>
       <if test="condition.promotionInfo != null">AND promotion_info = #{condition.promotionInfo}</if>
-      <if test="condition.billType != null">AND bill_type = #{condition.billType}</if>
-      <if test="condition.billHeader != null">AND bill_header = #{condition.billHeader}</if>
-      <if test="condition.billContent != null">AND bill_content = #{condition.billContent}</if>
-      <if test="condition.billReceiverPhone != null">AND bill_receiver_phone = #{condition.billReceiverPhone}</if>
-      <if test="condition.billReceiverEmail != null">AND bill_receiver_email = #{condition.billReceiverEmail}</if>
       <if test="condition.receiverName != null">AND receiver_name = #{condition.receiverName}</if>
       <if test="condition.receiverPhone != null">AND receiver_phone = #{condition.receiverPhone}</if>
       <if test="condition.receiverPostCode != null">AND receiver_post_code = #{condition.receiverPostCode}</if>

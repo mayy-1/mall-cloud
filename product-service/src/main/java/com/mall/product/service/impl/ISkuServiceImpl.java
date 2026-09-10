@@ -39,32 +39,29 @@ public class ISkuServiceImpl implements ISkuService {
 
     @Override
     public int deductStock(Long skuId, Integer quantity) {
-        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
-        if (skuStock == null || skuStock.getStock() < quantity) {
+        int rows = skuStockMapper.deductStock(skuId, quantity);
+        if (rows == 0) {
             throw new RuntimeException("库存不足");
         }
-        skuStock.setStock(skuStock.getStock() - quantity);
-        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+        return rows;
     }
 
     @Override
     public int lockStock(Long skuId, Integer quantity) {
-        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
-        if (skuStock == null) {
-            throw new RuntimeException("SKU库存不存在");
+        int rows = skuStockMapper.lockStock(skuId, quantity);
+        if (rows == 0) {
+            throw new RuntimeException("库存不足，无法锁定");
         }
-        skuStock.setLockStock((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) + quantity);
-        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+        return rows;
     }
 
     @Override
     public int releaseStock(Long skuId, Integer quantity) {
-        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
-        if (skuStock == null) {
+        int rows = skuStockMapper.releaseStock(skuId, quantity);
+        if (rows == 0) {
             throw new RuntimeException("SKU库存不存在");
         }
-        skuStock.setLockStock(Math.max((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) - quantity, 0));
-        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+        return rows;
     }
 
     @Override
@@ -75,14 +72,28 @@ public class ISkuServiceImpl implements ISkuService {
     }
 
     @Override
+    public PmsSkuStock getSkuStockBySkuId(Long skuId) {
+        return skuStockMapper.selectByPrimaryKey(skuId);
+    }
+
+    @Override
+    public List<PmsSkuStock> getSkuStockBySkuIds(List<Long> skuIds) {
+        if (skuIds == null || skuIds.isEmpty()) return List.of();
+        return skuStockMapper.selectBySkuIds(skuIds);
+    }
+
+    @Override
+    public List<PmsSkuStock> getSkuStockByProductIds(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) return List.of();
+        return skuStockMapper.selectByProductIds(productIds);
+    }
+
+    @Override
     public int paySuccessDeductStock(Long skuId, Integer quantity) {
-        PmsSkuStock skuStock = skuStockMapper.selectByPrimaryKey(skuId);
-        if (skuStock == null) {
-            throw new RuntimeException("SKU库存不存在");
+        int rows = skuStockMapper.paySuccessDeductStock(skuId, quantity);
+        if (rows == 0) {
+            throw new RuntimeException("库存不足，无法扣减");
         }
-        skuStock.setStock(skuStock.getStock() - quantity);
-        skuStock.setLockStock(Math.max((skuStock.getLockStock() == null ? 0 : skuStock.getLockStock()) - quantity, 0));
-        skuStock.setSale((skuStock.getSale() == null ? 0 : skuStock.getSale()) + quantity);
-        return skuStockMapper.updateByPrimaryKeySelective(skuStock);
+        return rows;
     }
 }

@@ -1,21 +1,21 @@
 package com.mall.order.service;
 
-import com.mall.order.domain.dto.SeckillOrderMessage;
+import com.mall.order.domain.dto.SeckillConfirmParam;
 
 /**
  * 秒杀订单服务接口
- * 处理秒杀异步下单：创建订单、扣减库存、记录日志
+ * 处理秒杀确认下单：校验占坑、创建订单（含收货地址）、扣减库存、回滚
  */
 public interface ISeckillOrderService {
 
     /**
-     * 创建秒杀订单
-     * 使用 Redisson 分布式锁作为兜底保护，防止极端并发下的重复下单
+     * 确认秒杀订单（占坑后选地址提交）
+     * 校验占坑标记 → 生成订单（含收货地址）→ 删除占坑标记 → 发延时取消消息
      *
-     * @param message 秒杀订单消息
+     * @param param 确认参数（活动ID、商品ID、收货地址ID、支付方式）
      * @return 订单ID
      */
-    Long createSeckillOrder(SeckillOrderMessage message);
+    Long confirmSeckillOrder(SeckillConfirmParam param);
 
     /**
      * 回滚秒杀库存

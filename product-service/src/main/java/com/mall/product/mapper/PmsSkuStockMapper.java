@@ -47,4 +47,34 @@ public interface PmsSkuStockMapper {
      * 批量删除SKU
      */
     int deleteByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 根据SKU编号集合批量查询SKU库存
+     */
+    List<PmsSkuStock> selectBySkuIds(@Param("skuIds") List<Long> skuIds);
+
+    /**
+     * 根据商品ID集合批量查询SKU库存（一个商品可能返回多个SKU）
+     */
+    List<PmsSkuStock> selectByProductIds(@Param("productIds") List<Long> productIds);
+
+    /**
+     * 原子扣减库存（stock - quantity，库存不足返回 0）
+     */
+    int deductStock(@Param("skuId") Long skuId, @Param("quantity") Integer quantity);
+
+    /**
+     * 原子锁定库存（lock_stock + quantity，可售不足返回 0）
+     */
+    int lockStock(@Param("skuId") Long skuId, @Param("quantity") Integer quantity);
+
+    /**
+     * 原子释放锁定库存（lock_stock - quantity，不小于 0）
+     */
+    int releaseStock(@Param("skuId") Long skuId, @Param("quantity") Integer quantity);
+
+    /**
+     * 原子支付成功扣减（stock - quantity、lock_stock - quantity、sale + quantity）
+     */
+    int paySuccessDeductStock(@Param("skuId") Long skuId, @Param("quantity") Integer quantity);
 }

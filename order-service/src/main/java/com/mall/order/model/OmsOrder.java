@@ -22,6 +22,12 @@ public class OmsOrder implements Serializable {
     @Schema(title = "订单编号")
     private String orderSn;
 
+    @Schema(title = "秒杀活动ID（幂等用，普通订单为空）")
+    private Long promotionId;
+
+    @Schema(title = "秒杀SKU ID（幂等用，普通订单为空）")
+    private Long skuId;
+
     @Schema(title = "提交时间")
     private Date createTime;
 
@@ -78,21 +84,6 @@ public class OmsOrder implements Serializable {
 
     @Schema(title = "活动信息")
     private String promotionInfo;
-
-    @Schema(title = "发票类型：0->不开发票；1->电子发票；2->纸质发票")
-    private Integer billType;
-
-    @Schema(title = "发票抬头")
-    private String billHeader;
-
-    @Schema(title = "发票内容")
-    private String billContent;
-
-    @Schema(title = "收票人电话")
-    private String billReceiverPhone;
-
-    @Schema(title = "收票人邮箱")
-    private String billReceiverEmail;
 
     @Schema(title = "收货人姓名")
     private String receiverName;

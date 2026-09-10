@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  * 订单设置Mapper
- * 提供订单设置的增删改查操作
  */
 public interface OmsOrderSettingMapper {
 
@@ -15,6 +14,7 @@ public interface OmsOrderSettingMapper {
     int insert(OmsOrderSetting row);
 
     int insertSelective(OmsOrderSetting row);
+
     OmsOrderSetting selectByPrimaryKey(Long id);
 
     List<OmsOrderSetting> selectByCondition(OmsOrderSetting record);

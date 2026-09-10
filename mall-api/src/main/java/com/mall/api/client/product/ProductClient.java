@@ -24,15 +24,6 @@ public interface ProductClient {
     @GetMapping("/batch")
     CommonResult<List<ProductDTO>> getByIds(@RequestParam("ids") List<Long> ids);
 
-    /** 综合搜索商品 */
-    @GetMapping("/search")
-    CommonResult<List<ProductDTO>> search(@RequestParam("keyword") String keyword,
-                                          @RequestParam(value = "brandId", required = false) Long brandId,
-                                          @RequestParam(value = "productCategoryId", required = false) Long productCategoryId,
-                                          @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                          @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-                                          @RequestParam(value = "sort", required = false) Integer sort);
-
     /** 获取商品分类树 */
     @GetMapping("/categoryTreeList")
     CommonResult<List<ProductCategoryDTO>> categoryTreeList();

@@ -25,6 +25,10 @@ public interface OmsOrderMapper {
 
     List<OmsOrder> selectByCondition(OmsOrder record);
 
+    List<OmsOrder> selectByConditionWithStatuses(@Param("memberId") Long memberId,
+                                                @Param("deleteStatus") Integer deleteStatus,
+                                                @Param("statuses") List<Integer> statuses);
+
     int deleteByCondition(OmsOrder record);
 
     int updateSelectiveByCondition(@Param("record") OmsOrder record, @Param("condition") OmsOrder condition);
@@ -34,7 +38,7 @@ public interface OmsOrderMapper {
     int updateByPrimaryKey(OmsOrder row);
 
     /** 后台订单列表查询 */
-    List<OmsOrder> getList(OmsOrderQueryParam queryParam);
+    List<OmsOrder> getList(@Param("queryParam") OmsOrderQueryParam queryParam);
 
     /** 批量发货 */
     int delivery(@Param("list") List<OmsOrderDeliveryParam> deliveryParamList);

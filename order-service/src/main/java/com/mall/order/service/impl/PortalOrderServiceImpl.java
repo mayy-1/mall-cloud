@@ -21,12 +21,15 @@ import com.mall.order.domain.dto.BuyNowParam;
 import com.mall.order.model.OmsOrderSetting;
 import com.mall.order.model.OmsOrder;
 import com.mall.order.model.OmsOrderItem;
+import com.mall.order.model.OmsOrderOperateHistory;
 import com.mall.order.domain.dto.ConfirmOrderResult;
 import com.mall.order.domain.dto.OmsOrderDetail;
 import com.mall.order.domain.dto.OrderParam;
+import com.mall.order.domain.dto.OrderPostMessage;
 import com.mall.order.service.IPortalOrderService;
 import com.mall.order.service.ISeckillOrderService;
 import com.mall.order.mq.CancelOrderSender;
+import com.mall.order.mq.OrderPostMessageSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,8 +86,12 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
     private final OmsOrderSettingMapper orderSettingMapper;
     /** 订单商品项Mapper */
     private final OmsOrderItemMapper orderItemMapper;
+    /** 订单操作记录Mapper */
+    private final OmsOrderOperateHistoryMapper orderOperateHistoryMapper;
     /** 取消订单消息发送器 */
     private final CancelOrderSender cancelOrderSender;
+    /** 下单后处理消息发送器 */
+    private final OrderPostMessageSender orderPostMessageSender;
     /** 秒杀订单服务 */
     private final ISeckillOrderService seckillOrderService;
 
@@ -96,6 +103,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
     /**
      * 根据勾选的购物车 ID 生成确认单预览
      */
+    /** 根据购物车生成确认单 */
     @Override
     public ConfirmOrderResult generateConfirmOrder(List<Long> cartIds) {
         ConfirmOrderResult result = new ConfirmOrderResult();
@@ -112,6 +120,8 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         CompletableFuture.allOf(cartFuture, addressFuture, integSettingFuture).join();
 
         List<CartItemDetailDTO> cartList = cartFuture.join();
+        // 批量查商品赠送积分/成长值（确认单展示用）
+        fetchGiftForCart(cartList);
         result.setCartPromotionItemList(cartList);
         result.setMemberReceiveAddressList(addressFuture.join());
         result.setIntegrationConsumeSetting(integSettingFuture.join());
@@ -129,6 +139,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
     }
 
     // 生成 buyNow 确认单
+    /** 立即购买-生成确认单 */
     @Override
     public ConfirmOrderResult buyNowConfirm(BuyNowParam buyNowParam) {
         ConfirmOrderResult result = new ConfirmOrderResult();
@@ -139,6 +150,9 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         // 查商品真实价格（价格防篡改 + 上下架校验）
         ProductDTO product = validateProduct(buyNowParam.getProductId());
         virtualItem.setPrice(product.getPrice());
+        // 确认单展示赠送积分/成长值
+        virtualItem.setGiftIntegration(product.getGiftPoint());
+        virtualItem.setGiftGrowth(product.getGiftGrowth());
         List<CartItemDetailDTO> cartList = List.of(virtualItem);
         result.setCartPromotionItemList(cartList);
 
@@ -166,8 +180,6 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
 
     /**
      * 读取当前请求的登录 token（主线程内可用）
-     * <p>order-service 未引入 Sa-Token，登录态由 member-service 统一校验，
-     * 因此这里直接从 Servlet 请求上下文取 Authorization 头，透传给下游。</p>
      */
     private String getCurrentToken() {
         ServletRequestAttributes attributes =
@@ -190,7 +202,9 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         }, orderConfirmExecutor);
     }
 
-    //  提交购物车订单
+    /**
+     * 提交购物车订单
+     */
     @Override
     @GlobalTransactional(timeoutMills = 300000, name = "order-generate-order")
     public Map<String, Object> generateOrder(OrderParam orderParam) {
@@ -204,10 +218,13 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         List<CartItemDetailDTO> cartPromotionItemList = cartClient.listCart(currentMember.getId(), orderParam.getCartIds()).getData();
         // 批量查询商品库存
         fetchStocksForCart(cartPromotionItemList);
+        // 赠送积分/成长值
+        fetchGiftForCart(cartPromotionItemList);
         for (CartItemDetailDTO item : cartPromotionItemList) {
             OmsOrderItem orderItem = new OmsOrderItem();
             BeanUtils.copyProperties(item, orderItem);
             orderItem.setProductPrice(item.getPrice());
+            orderItem.setProductQuantity(item.getQuantity());
             orderItem.setPromotionAmount(BigDecimal.ZERO);
             orderItem.setPromotionName("");
             orderItemList.add(orderItem);
@@ -250,6 +267,35 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         // 锁定 SKU 库存
         lockStock(cartPromotionItemList);
         // 构建订单主表数据
+        OmsOrder order = buildOrderData(orderItemList,orderParam,currentMember);
+        // 插入订单主表 + 批量插入订单明细
+        orderMapper.insert(order);
+        for (OmsOrderItem orderItem : orderItemList) {
+            orderItem.setOrderId(order.getId());
+            orderItem.setOrderSn(order.getOrderSn());
+        }
+        portalOrderItemMapper.insertList(orderItemList);
+        // 组装下单后处理消息：标记优惠券/扣积分/清购物车/发延时取消消息 交由 MQ 异步处理
+        List<Long> cartItemIds = cartPromotionItemList.stream()
+                .map(CartItemDetailDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        OrderPostMessage postMessage = OrderPostMessage.builder()
+                .orderId(order.getId())
+                .memberId(currentMember.getId())
+                .couponId(orderParam.getCouponId())
+                .useIntegration(orderParam.getUseIntegration())
+                .memberIntegration(currentMember.getIntegration())
+                .cartItemIds(cartItemIds)
+                .build();
+        orderPostMessageSender.send(postMessage);
+        Map<String, Object> result = new HashMap<>();
+        result.put("order", order);
+        result.put("orderItemList", orderItemList);
+        return result;
+    }
+
+    private OmsOrder buildOrderData(List<OmsOrderItem> orderItemList, OrderParam orderParam, MemberDTO currentMember) {
         OmsOrder order = new OmsOrder();
         order.setDiscountAmount(new BigDecimal(0));
         order.setTotalAmount(calcTotalAmount(orderItemList));
@@ -296,33 +342,10 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         if(CollUtil.isNotEmpty(orderSettings)){
             order.setAutoConfirmDay(orderSettings.get(0).getConfirmOvertime());
         }
-        // 插入订单主表 + 批量插入订单明细
-        orderMapper.insert(order);
-        for (OmsOrderItem orderItem : orderItemList) {
-            orderItem.setOrderId(order.getId());
-            orderItem.setOrderSn(order.getOrderSn());
-        }
-        portalOrderItemMapper.insertList(orderItemList);
-        // 标记优惠券已使用 / 扣减会员积分 / 清理已下单的购物车记录
-        if (orderParam.getCouponId() != null) {
-            updateCouponStatus(orderParam.getCouponId(), currentMember.getId(), 1);
-        }
-        if (orderParam.getUseIntegration() != null) {
-            order.setUseIntegration(orderParam.getUseIntegration());
-            if(currentMember.getIntegration()==null){
-                currentMember.setIntegration(0);
-            }
-            memberClient.updateIntegration(currentMember.getId(), currentMember.getIntegration() - orderParam.getUseIntegration(), 0);
-        }
-        deleteCartItemList(cartPromotionItemList, currentMember);
-        // 发送延时消息：超时未支付自动取消订单
-        sendDelayMessageCancelOrder(order.getId());
-        Map<String, Object> result = new HashMap<>();
-        result.put("order", order);
-        result.put("orderItemList", orderItemList);
-        return result;
+        return order;
     }
 
+    /** 支付成功回调 */
     @Override
     public Integer paySuccess(Long orderId, Integer payType) {
         OmsOrder order = new OmsOrder();
@@ -335,36 +358,18 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         for (OmsOrderItem orderItem : orderDetail.getOrderItemList()) {
             skuStockClient.paySuccessDeductStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
         }
+        // 记录支付成功操作历史
+        OmsOrderOperateHistory history = new OmsOrderOperateHistory();
+        history.setOrderId(orderId);
+        history.setOperateMan("用户");
+        history.setCreateTime(new Date());
+        history.setOrderStatus(1);
+        history.setNote("完成付款");
+        orderOperateHistoryMapper.insert(history);
         return orderDetail.getOrderItemList().size();
     }
 
-    @Override
-    @GlobalTransactional(timeoutMills = 300000, name = "order-cancel-timeout")
-    public Integer cancelTimeOutOrder() {
-        Integer count = 0;
-        OmsOrderSetting orderSetting = orderSettingMapper.selectByPrimaryKey(1L);
-        List<OmsOrderDetail> timeOutOrders = portalOrderMapper.getTimeOutOrders(orderSetting.getNormalOrderOvertime());
-        if (CollectionUtils.isEmpty(timeOutOrders)) {
-            return count;
-        }
-        List<Long> ids = new ArrayList<>();
-        for (OmsOrderDetail timeOutOrder : timeOutOrders) {
-            ids.add(timeOutOrder.getId());
-        }
-        portalOrderMapper.updateOrderStatus(ids, 4);
-        for (OmsOrderDetail timeOutOrder : timeOutOrders) {
-            for (OmsOrderItem orderItem : timeOutOrder.getOrderItemList()) {
-                skuStockClient.releaseStock(orderItem.getProductSkuId(), orderItem.getProductQuantity());
-            }
-            updateCouponStatus(timeOutOrder.getCouponId(), timeOutOrder.getMemberId(), 0);
-            if (timeOutOrder.getUseIntegration() != null) {
-                MemberDTO member = memberClient.getById(timeOutOrder.getMemberId()).getData();
-                memberClient.updateIntegration(timeOutOrder.getMemberId(), member.getIntegration() + timeOutOrder.getUseIntegration(), 0);
-            }
-        }
-        return timeOutOrders.size();
-    }
-
+    /** 取消单个订单 */
     @Override
     public void cancelOrder(Long orderId) {
         OmsOrder condition = new OmsOrder();
@@ -412,6 +417,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         }
     }
 
+    /** 发送延迟取消订单消息 */
     @Override
     public void sendDelayMessageCancelOrder(Long orderId) {
         OmsOrderSetting orderSetting = orderSettingMapper.selectByPrimaryKey(1L);
@@ -419,6 +425,27 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         cancelOrderSender.sendMessage(orderId, delayTimes);
     }
 
+    /** 下单后异步处理：标记优惠券已使用、扣减积分、清理购物车、发送延时取消订单消息 */
+    @Override
+    public void handlePostOrder(OrderPostMessage message) {
+        // 1. 标记优惠券已使用
+        if (message.getCouponId() != null) {
+            updateCouponStatus(message.getCouponId(), message.getMemberId(), 1);
+        }
+        // 2. 扣减会员积分
+        if (message.getUseIntegration() != null && message.getUseIntegration() > 0) {
+            int currentIntegration = message.getMemberIntegration() == null ? 0 : message.getMemberIntegration();
+            memberClient.updateIntegration(message.getMemberId(), currentIntegration - message.getUseIntegration(), 0);
+        }
+        // 3. 清理已下单的购物车记录
+        if (message.getCartItemIds() != null && !message.getCartItemIds().isEmpty()) {
+            cartClient.delete(message.getMemberId(), message.getCartItemIds());
+        }
+        // 4. 发送延时消息：超时未支付自动取消订单
+        sendDelayMessageCancelOrder(message.getOrderId());
+    }
+
+    /** 确认收货 */
     @Override
     public void confirmReceiveOrder(Long orderId) {
         MemberDTO member = memberClient.getCurrentMember().getData();
@@ -435,20 +462,14 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         orderMapper.updateByPrimaryKey(order);
     }
 
+    /** 分页获取订单列表（支持多状态查询，如待收货=待发货+已发货） */
     @Override
-    public CommonPage<OmsOrderDetail> list(Integer status, Integer pageNum, Integer pageSize) {
-        if(status==-1){
-            status = null;
-        }
+    public CommonPage<OmsOrderDetail> list(List<Integer> status, Integer pageNum, Integer pageSize) {
+        // null/空/包含-1 → 查全部
+        List<Integer> statuses = (status == null || status.isEmpty() || status.contains(-1)) ? null : status;
         MemberDTO member = memberClient.getCurrentMember().getData();
         PageHelper.startPage(pageNum, pageSize);
-        OmsOrder condition = new OmsOrder();
-        condition.setDeleteStatus(0);
-        condition.setMemberId(member.getId());
-        if(status!=null){
-            condition.setStatus(status);
-        }
-        List<OmsOrder> orderList = orderMapper.selectByCondition(condition);
+        List<OmsOrder> orderList = orderMapper.selectByConditionWithStatuses(member.getId(), 0, statuses);
         CommonPage<OmsOrder> orderPage = CommonPage.restPage(orderList);
         CommonPage<OmsOrderDetail> resultPage = new CommonPage<>();
         resultPage.setPageNum(orderPage.getPageNum());
@@ -477,6 +498,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return resultPage;
     }
 
+    /** 获取订单详情 */
     @Override
     public OmsOrderDetail detail(Long orderId) {
         OmsOrder omsOrder = orderMapper.selectByPrimaryKey(orderId);
@@ -489,6 +511,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return orderDetail;
     }
 
+    /** 删除订单 */
     @Override
     public void deleteOrder(Long orderId) {
         MemberDTO member = memberClient.getCurrentMember().getData();
@@ -504,6 +527,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         }
     }
 
+    /** 根据订单号支付成功回调 */
     @Override
     public void paySuccessByOrderSn(String orderSn, Integer payType) {
         OmsOrder condition = new OmsOrder();
@@ -534,18 +558,11 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return sb.toString();
     }
 
-    private void deleteCartItemList(List<CartItemDetailDTO> cartPromotionItemList, MemberDTO currentMember) {
-        List<Long> ids = new ArrayList<>();
-        for (CartItemDetailDTO cartPromotionItem : cartPromotionItemList) {
-            ids.add(cartPromotionItem.getId());
-        }
-        cartClient.delete(currentMember.getId(), ids);
-    }
-
     private Integer calcGiftGrowth(List<OmsOrderItem> orderItemList) {
         Integer sum = 0;
         for (OmsOrderItem orderItem : orderItemList) {
-            sum = sum + orderItem.getGiftGrowth() * orderItem.getProductQuantity();
+            Integer gift = orderItem.getGiftGrowth() == null ? 0 : orderItem.getGiftGrowth();
+            sum = sum + gift * orderItem.getProductQuantity();
         }
         return sum;
     }
@@ -553,7 +570,8 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
     private Integer calcGifIntegration(List<OmsOrderItem> orderItemList) {
         int sum = 0;
         for (OmsOrderItem orderItem : orderItemList) {
-            sum += orderItem.getGiftIntegration() * orderItem.getProductQuantity();
+            Integer gift = orderItem.getGiftIntegration() == null ? 0 : orderItem.getGiftIntegration();
+            sum += gift * orderItem.getProductQuantity();
         }
         return sum;
     }
@@ -714,9 +732,6 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return totalAmount;
     }
 
-    // ════════════════════════════════════════════════════
-    //  模式1+2 共用：库存 / 金额 / 优惠券 / 积分 / 订单号
-    // ════════════════════════════════════════════════════
 
     /** 批量锁定 SKU 库存 — 订单创建成功后调用，任意失败 Seata 回滚 */
     private void lockStock(List<CartItemDetailDTO> cartPromotionItemList) {
@@ -751,7 +766,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return calcAmount;
     }
 
-    // 提交立即购买订单
+    /** 立即购买-创建订单 */
     @Override
     @GlobalTransactional(timeoutMills = 300000, name = "order-buy-now")
     public Map<String, Object> buyNow(OrderParam orderParam, BuyNowParam buyNowParam) {
@@ -760,6 +775,9 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         ProductDTO product = validateProduct(buyNowParam.getProductId());
         CartItemDetailDTO virtualItem = buildBuyNowItem(buyNowParam);
         virtualItem.setPrice(product.getPrice());
+        // 恢复赠送积分/成长值
+        virtualItem.setGiftIntegration(product.getGiftPoint());
+        virtualItem.setGiftGrowth(product.getGiftGrowth());
         // 查 SKU 真实库存
         fetchRealStock(virtualItem);
         List<CartItemDetailDTO> cartList = List.of(virtualItem);
@@ -768,6 +786,7 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         OmsOrderItem orderItem = new OmsOrderItem();
         BeanUtils.copyProperties(virtualItem, orderItem);
         orderItem.setProductPrice(virtualItem.getPrice());
+        orderItem.setProductQuantity(virtualItem.getQuantity());
         orderItem.setPromotionAmount(BigDecimal.ZERO);
         orderItem.setPromotionName("");
         orderItemList.add(orderItem);
@@ -799,15 +818,16 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         orderItem.setOrderId(order.getId());
         orderItem.setOrderSn(order.getOrderSn());
         portalOrderItemMapper.insertList(orderItemList);
-        // 标记优惠券已使用 / 扣减积分
-        if (orderParam.getCouponId() != null) {
-            marketingCouponClient.updateCouponStatus(orderParam.getCouponId(), currentMember.getId(), 1);
-        }
-        if (orderParam.getUseIntegration() != null && orderParam.getUseIntegration() > 0) {
-            memberClient.updateIntegration(currentMember.getId(), currentMember.getIntegration() - orderParam.getUseIntegration(),0);
-        }
-        // 发送延时消息：超时未支付自动取消订单
-        cancelOrderSender.sendMessage(order.getId(), 60 * 1000);
+        // 组装下单后处理消息：标记优惠券/扣积分/发延时取消消息 交由 MQ 异步处理
+        OrderPostMessage postMessage = OrderPostMessage.builder()
+                .orderId(order.getId())
+                .memberId(currentMember.getId())
+                .couponId(orderParam.getCouponId())
+                .useIntegration(orderParam.getUseIntegration())
+                .memberIntegration(currentMember.getIntegration())
+                .build();
+        orderPostMessageSender.send(postMessage);
+
         Map<String, Object> res = new HashMap<>();
         res.put("order", orderMapper.getDetail(order.getId()));
         res.put("orderItemList", orderItemList);
@@ -836,32 +856,80 @@ public class PortalOrderServiceImpl implements IPortalOrderService {
         return product;
     }
 
-    // 购物车下单·批量查库存
+    // 购物车下单-批量查库存
     private void fetchStocksForCart(List<CartItemDetailDTO> items) {
+        if (items == null || items.isEmpty()) return;
+        // 1. 去重
+        List<Long> skuIds = items.stream()
+                .map(CartItemDetailDTO::getProductSkuId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        // 2. 批量查询
+        Map<Long, SkuStockDTO> stockMap = Collections.emptyMap();
+        if (!skuIds.isEmpty()) {
+            List<SkuStockDTO> skus = skuStockClient.getSkuStockBySkuIds(skuIds).getData();
+            if (skus != null && !skus.isEmpty()) {
+                stockMap = skus.stream()
+                        .collect(Collectors.toMap(SkuStockDTO::getId, s -> s, (a, b) -> a));
+            }
+        }
+        // 3. 回填 realStock
         for (CartItemDetailDTO item : items) {
-            fetchRealStock(item);
+            SkuStockDTO target = item.getProductSkuId() == null ? null : stockMap.get(item.getProductSkuId());
+            assert target != null;
+            fillRealStock(item, target);
+
         }
     }
 
-    // 立即购买查可用库存
+    // 单品下单·查库存
     private void fetchRealStock(CartItemDetailDTO item) {
-        if (item.getProductId() == null) return;
+        if (item.getProductId() == null && item.getProductSkuId() == null) return;
         try {
-            List<SkuStockDTO> skus = skuStockClient.getSkuStockByProductId(item.getProductId()).getData();
-            if (skus == null || skus.isEmpty()) {
-                item.setRealStock(0);
-                return;
+            SkuStockDTO target;
+            target = skuStockClient.getSkuStockBySkuId(item.getProductSkuId()).getData();
+            if (target == null) {
+                throw new RuntimeException("SKU不存在, skuId=" + item.getProductSkuId());
             }
-            SkuStockDTO target = skus.stream()
-                    .filter(s -> item.getProductSkuId() == null || item.getProductSkuId().equals(s.getId()))
-                    .findFirst().orElseThrow(() -> new Exception("购物车商品规格不存在，请重新选择"));
-            int total = target.getStock() != null ? target.getStock() : 0;
-            int locked = target.getLockStock() != null ? target.getLockStock() : 0;
-            item.setRealStock(Math.max(total - locked, 0));
+            fillRealStock(item, target);
         } catch (Exception e) {
             item.setRealStock(0);
         }
     }
+
+    //回填 realStock
+    private void fillRealStock(CartItemDetailDTO item, SkuStockDTO target) {
+        int total = target.getStock() != null ? target.getStock() : 0;
+        int locked = target.getLockStock() != null ? target.getLockStock() : 0;
+        item.setRealStock(Math.max(total - locked, 0));
+    }
+
+    // 购物车下单·批量查商品赠送积分/成长值
+    private void fetchGiftForCart(List<CartItemDetailDTO> items) {
+        if (items == null || items.isEmpty()) return;
+        List<Long> productIds = items.stream()
+                .map(CartItemDetailDTO::getProductId)
+                .filter(id -> id != null)
+                .distinct()
+                .collect(Collectors.toList());
+        if (productIds.isEmpty()) return;
+        List<ProductDTO> products = productClient.getByIds(productIds).getData();
+        if (products == null || products.isEmpty()) return;
+        // 构建 productId → ProductDTO 映射，回填到购物车项
+        Map<Long, ProductDTO> productMap = products.stream()
+                .collect(Collectors.toMap(ProductDTO::getId, p -> p, (a, b) -> a));
+        for (CartItemDetailDTO item : items) {
+            ProductDTO product = productMap.get(item.getProductId());
+            if (product != null) {
+                // ③ 商品 giftPoint/giftGrowth → 购物车项 giftIntegration/giftGrowth
+                item.setGiftIntegration(product.getGiftPoint());
+                item.setGiftGrowth(product.getGiftGrowth());
+            }
+        }
+    }
+
+
 
     private OmsOrder buildOrderForBuyNow(OrderParam orderParam, List<OmsOrderItem> items, MemberDTO member) {
         OmsOrder o = new OmsOrder();

@@ -25,7 +25,7 @@ public class OrderController {
     private final IOrderService orderService;
 
     @Operation(summary = "查询订单")
-    @GetMapping(value = "/list", params = "!status")
+    @GetMapping(value = "/list")
     public CommonResult<CommonPage<OmsOrder>> list(OmsOrderQueryParam queryParam,
                                                    @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
                                                    @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {

@@ -5,6 +5,12 @@ spring:
     name: payment-service
   profiles:
     active: dev
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 241119
+      client-type: jedis
 management:
   endpoints:
     web:

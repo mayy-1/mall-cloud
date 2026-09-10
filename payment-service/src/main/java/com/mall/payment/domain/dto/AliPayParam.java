@@ -5,10 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * @auther macrozheng
- * @description 支付宝支付请求参数
- * @date 2023/9/8
- * @github https://github.com/macrozheng
+ * 支付宝支付请求参数
  */
 @Data
 public class AliPayParam {

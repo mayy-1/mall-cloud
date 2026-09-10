@@ -8,7 +8,6 @@ import com.mall.user.mapper.UmsResourceMapper;
 import com.mall.user.model.UmsResource;
 import com.mall.user.service.IResourceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -26,9 +25,13 @@ public class ResourceServiceImpl implements IResourceService {
     /** Redis服务 */
     private final RedisService redisService;
 
-    /** 应用名称 */
-    @Value("${spring.application.name}")
-    private String applicationName;
+    /**
+     * 网关后台路由统一前缀。
+     * 注意：不能取 spring.application.name（=user-service），否则与网关收到的
+     * 实际请求前缀 /mall-admin 不一致，SaTokenConfig 中 AntPathMatcher 永远匹配不上，
+     * 导致接口级权限校验失效（仅剩登录校验）。
+     */
+    private static final String ADMIN_GATEWAY_PREFIX = "/mall-admin";
 
     @Override
     public UmsResource getItem(Long id) {
@@ -61,7 +64,8 @@ public class ResourceServiceImpl implements IResourceService {
         Map<String, String> pathResourceMap = new TreeMap<>();
         List<UmsResource> resourceList = resourceMapper.selectByCondition(null);
         for (UmsResource resource : resourceList) {
-            pathResourceMap.put("/" + applicationName + resource.getUrl(), resource.getId() + ":" + resource.getName());
+            // 网关实际请求前缀为 /mall-admin，规则 key 必须与之保持一致（/mall-admin + 服务内相对路径）
+            pathResourceMap.put(ADMIN_GATEWAY_PREFIX + resource.getUrl(), resource.getId() + ":" + resource.getName());
         }
         redisService.del(AuthConstant.PATH_RESOURCE_MAP);
         redisService.hSetAll(AuthConstant.PATH_RESOURCE_MAP, pathResourceMap);

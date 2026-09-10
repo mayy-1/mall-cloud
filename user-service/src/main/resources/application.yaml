@@ -27,7 +27,7 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 pagehelper:
   helper-dialect: mysql
-  reasonable: true
+  reasonable: false
   support-methods-arguments: true
   params: count=countSql
 sa-token:

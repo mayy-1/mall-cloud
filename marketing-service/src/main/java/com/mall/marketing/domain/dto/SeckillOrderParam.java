@@ -24,6 +24,9 @@ public class SeckillOrderParam {
     @NotNull(message = "商品ID不能为空")
     private Long productId;
 
+    @Schema(title = "SKU编号")
+    private Long skuId;
+
     @Schema(title = "会员ID（从Token解析）")
     private Long memberId;
 }

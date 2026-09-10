@@ -33,7 +33,7 @@ public interface OmsOrderReturnApplyMapper {
     int updateByPrimaryKey(OmsOrderReturnApply row);
 
     /** 后台退货申请列表查询 */
-    List<OmsOrderReturnApply> getList(OmsReturnApplyQueryParam queryParam);
+    List<OmsOrderReturnApply> getList(@Param("queryParam") OmsReturnApplyQueryParam queryParam);
 
     /** 后台退货申请详情 */
     OmsOrderReturnApplyResult getDetail(@Param("id") Long id);

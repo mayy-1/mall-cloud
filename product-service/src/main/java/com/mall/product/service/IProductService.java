@@ -34,11 +34,12 @@ public interface IProductService {
 
     List<PmsProduct> list(String keyword);
 
-    PmsProduct getItem(Long id);
-
     ProductDTO getDto(Long id);
 
     List<PmsProduct> listByIds(List<Long> ids);
+
+    /** 批量查询商品 DTO（Feign /batch 端点专用，与 ProductClient.getByIds 返回类型对齐） */
+    List<ProductDTO> listDtos(List<Long> ids);
 
     // ===== 首页聚合专用方法 =====
 
@@ -49,6 +50,4 @@ public interface IProductService {
     CommonResult<List<ProductDTO>> listNewProduct(Integer pageNum, Integer pageSize);
 
     List<ProductDTO> productList(PmsProductQueryParam param, Integer pageNum, Integer pageSize);
-
-    List<PmsProduct> search(String keyword, Long brandId, Long productCategoryId, Integer pageNum, Integer pageSize, Integer sort);
 }

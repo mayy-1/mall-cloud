@@ -18,6 +18,18 @@ public interface SkuStockClient {
     @GetMapping("/{productId}/list")
     CommonResult<List<SkuStockDTO>> getSkuStockByProductId(@PathVariable Long productId);
 
+    /** 根据SKU编号查询单个SKU */
+    @GetMapping("/{skuId}/detail")
+    CommonResult<SkuStockDTO> getSkuStockBySkuId(@PathVariable Long skuId);
+
+    /** 根据SKU编号集合批量查询SKU库存 */
+    @PostMapping("/stock/list")
+    CommonResult<List<SkuStockDTO>> getSkuStockBySkuIds(@RequestBody List<Long> skuIds);
+
+    /** 根据商品ID集合批量查询SKU库存（一个商品返回多个SKU） */
+    @PostMapping("/listByProductIds")
+    CommonResult<List<SkuStockDTO>> getSkuStockByProductIds(@RequestBody List<Long> productIds);
+
     /** 下单扣库存 */
     @PostMapping("/{skuId}/stock/deduct")
     CommonResult<Void> deductStock(@PathVariable Long skuId, @RequestParam Integer quantity);

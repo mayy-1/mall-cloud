@@ -14,4 +14,9 @@ public class SmsFlashPromotionProduct extends SmsFlashPromotionProductRelation{
     @Setter
     @Schema(title = "关联商品")
     private ProductDTO product;
+
+    @Getter
+    @Setter
+    @Schema(title = "秒杀SKU规格（spData，JSON字符串）")
+    private String spData;
 }

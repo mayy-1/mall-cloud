@@ -12,7 +12,6 @@
     <modules>
         <module>mall-common</module>
         <module>mall-api</module>           <!-- Feign 接口 + 跨服务 DTO -->
-        <module>mall-monitor</module>
         <module>mall-gateway</module>
         <module>user-service</module>       <!-- 后台用户+角色+菜单+资源，端口8081 -->
         <module>product-service</module>    <!-- 商品+品牌+分类+SKU+文件+首页聚合，端口8082 -->

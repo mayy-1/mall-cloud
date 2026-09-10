@@ -1,19 +1,3 @@
-/*
- Navicat Premium Data Transfer
-
- Source Server         : localhost
- Source Server Type    : MySQL
- Source Server Version : 80034 (8.0.34)
- Source Host           : localhost:3306
- Source Schema         : mall_member
-
- Target Server Type    : MySQL
- Target Server Version : 80034 (8.0.34)
- File Encoding         : 65001
-
- Date: 21/07/2026 16:11:08
-*/
-
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -103,7 +87,7 @@ CREATE TABLE `ums_member`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_username`(`username` ASC) USING BTREE,
   UNIQUE INDEX `idx_phone`(`phone` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '会员表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '会员表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ums_member
@@ -118,6 +102,7 @@ INSERT INTO `ums_member` VALUES (8, 4, 'shari', '$2a$10$NZ5o7r2E.ayT2ZoxgjlI.eJ6
 INSERT INTO `ums_member` VALUES (9, 4, 'aewen', '$2a$10$NZ5o7r2E.ayT2ZoxgjlI.eJ6OEYqjH7INR/F.mXDbjZJi9HF0YCVG', 'aewen', '18061581843', 1, '2018-11-12 14:22:55', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `ums_member` VALUES (10, 4, 'guest', '$2a$10$WQiD4RzEs1iJVWU.2HVu8OdSlExJHWKmwndaw3SUfMyqfKZmXe1vq', NULL, '18911111111', 1, '2020-03-14 14:52:18', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `ums_member` VALUES (11, 4, 'member', '$2a$10$Q08uzqvtPj61NnpYQZsVvOnyilJ3AU4VdngAcJFGvPhEeqhhC.hhS', 'member', '18961511111', 1, '2023-05-11 15:22:38', 'https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_02.png', 1, '2009-06-01', '上海', '学生', 'member', NULL, 5000, 1000, NULL, NULL);
+INSERT INTO `ums_member` VALUES (12, 4, 'mym', '$2a$10$KtKPJl4mF2gAfEGOF.MN4.9JNzeFIIOSk3XgAXJrBXOqp/F2zaCNa', NULL, '13711112222', 1, '2026-08-18 13:55:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for ums_member_level
@@ -161,7 +146,7 @@ CREATE TABLE `ums_member_login_log`  (
   `login_type` int NULL DEFAULT NULL COMMENT '登录类型：0->PC；1->android;2->ios;3->小程序',
   `province` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '会员登录记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '会员登录记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ums_member_login_log
@@ -179,6 +164,20 @@ INSERT INTO `ums_member_login_log` VALUES (10, 1, '2026-07-19 14:46:35', '192.16
 INSERT INTO `ums_member_login_log` VALUES (11, 1, '2026-07-19 14:56:04', '192.168.31.20', NULL, 0, NULL);
 INSERT INTO `ums_member_login_log` VALUES (12, 1, '2026-07-19 15:07:43', '192.168.31.20', NULL, 0, NULL);
 INSERT INTO `ums_member_login_log` VALUES (13, 1, '2026-07-21 14:14:10', '10.195.45.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (14, 1, '2026-07-22 20:23:54', '10.195.45.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (15, 1, '2026-07-22 20:24:08', '10.195.45.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (16, 1, '2026-07-29 12:47:29', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (17, 1, '2026-07-29 12:47:35', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (18, 1, '2026-07-29 12:52:15', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (19, 1, '2026-07-29 12:52:16', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (20, 1, '2026-07-29 13:11:15', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (21, 1, '2026-07-29 13:11:19', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (22, 1, '2026-07-29 13:17:24', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (23, 1, '2026-07-29 13:20:11', '10.235.94.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (24, 12, '2026-08-18 13:56:11', '10.113.29.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (25, 12, '2026-08-18 14:07:28', '10.113.29.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (26, 1, '2026-08-18 14:40:13', '10.113.29.31', NULL, 0, NULL);
+INSERT INTO `ums_member_login_log` VALUES (27, 1, '2026-08-30 13:42:44', '10.113.29.31', NULL, 0, NULL);
 
 -- ----------------------------
 -- Table structure for ums_member_member_tag_relation
@@ -332,7 +331,7 @@ CREATE TABLE `undo_log`  (
   `log_modified` datetime NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `ux_undo_log`(`xid` ASC, `branch_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Seata AT undo_log' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Seata AT undo_log' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of undo_log

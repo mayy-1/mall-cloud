@@ -1,7 +1,5 @@
 package com.mall.product.controller;
 
-import com.mall.api.client.marketing.SubjectClient;
-import com.mall.api.dto.CmsSubjectProductRelationDTO;
 import com.mall.api.dto.ProductDTO;
 import com.mym.mall.common.api.CommonPage;
 import com.mym.mall.common.api.CommonResult;
@@ -9,16 +7,10 @@ import com.mall.product.domain.dto.PmsProductCategoryWithChildrenItem;
 import com.mall.product.domain.dto.PmsProductParam;
 import com.mall.product.domain.dto.PmsProductQueryParam;
 import com.mall.product.domain.dto.PmsProductResult;
-import com.mall.product.model.PmsBrand;
 import com.mall.product.model.PmsProduct;
-import com.mall.product.model.PmsProductCategory;
-import com.mall.product.service.IBrandService;
 import com.mall.product.service.ICategoryService;
 import com.mall.product.service.IProductService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,16 +33,6 @@ public class ProductController {
     private final IProductService productService;
     private final ICategoryService productCategoryService;
 
-    // ==================== 用户端接口 ====================
-
-    /**
-     * 【用户端】根据ID查询商品基础信息（已废弃，详情页用 /detail，此接口暂留兼容）
-     */
-    @GetMapping("/{id}")
-    @Operation(summary = "根据id获取商品基础信息")
-    public CommonResult<PmsProduct> getItem(@PathVariable Long id) {
-        return CommonResult.success(productService.getItem(id));
-    }
 
     /** 【Feign】根据ID查询商品DTO */
     @GetMapping("/feign/{id}")
@@ -74,27 +56,8 @@ public class ProductController {
      */
     @GetMapping("/batch")
     @Operation(summary = "批量获取商品信息")
-    public CommonResult<List<PmsProduct>> getListByIds(@RequestParam("ids") List<Long> ids) {
-        return CommonResult.success(productService.listByIds(ids));
-    }
-
-    /**
-     * 【用户端】前台商品搜索
-     */
-
-    @Operation(summary = "综合搜索、筛选、排序")
-    @Parameter(name = "sort", description = "排序字段:0->按相关度；1->按新品；2->按销量；3->价格从低到高；4->价格从高到低",
-            in= ParameterIn.QUERY,schema = @Schema(type = "integer",defaultValue = "0",allowableValues = {"0","1","2","3","4"}))
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    @ResponseBody
-    public CommonResult<CommonPage<PmsProduct>> search(@RequestParam(required = false) String keyword,
-                                                       @RequestParam(required = false) Long brandId,
-                                                       @RequestParam(required = false) Long productCategoryId,
-                                                       @RequestParam(required = false, defaultValue = "0") Integer pageNum,
-                                                       @RequestParam(required = false, defaultValue = "5") Integer pageSize,
-                                                       @RequestParam(required = false, defaultValue = "0") Integer sort) {
-        List<PmsProduct> productList = productService.search(keyword, brandId, productCategoryId, pageNum, pageSize, sort);
-        return CommonResult.success(CommonPage.restPage(productList));
+    public CommonResult<List<ProductDTO>> getListByIds(@RequestParam("ids") List<Long> ids) {
+        return CommonResult.success(productService.listDtos(ids));
     }
 
     /**
@@ -106,7 +69,6 @@ public class ProductController {
         return CommonResult.success(productCategoryService.listWithChildren());
     }
 
-    // ==================== 管理端接口 ====================
 
     /**
      * 【管理端】新增商品

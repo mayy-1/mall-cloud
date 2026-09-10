@@ -66,6 +66,14 @@ spring:
                 - Path=/mall-portal/home/**,/mall-portal/product/**,/mall-portal/brand/**
               filters:
                 - StripPrefix=1
+            # 门户商品搜索 → search-service(ES)。与 /mall-portal/product/** 路径互不重叠，
+            # search-service Controller 前缀即 /esProduct
+            - id: portal-search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/mall-portal/esProduct/**
+              filters:
+                - StripPrefix=1
             - id: portal-member-service
               uri: lb://member-service
               predicates:
@@ -138,6 +146,7 @@ secure:
       - "/mall-portal/sso/getAuthCode"
       - "/mall-portal/home/**"
       - "/mall-portal/product/**"
+      - "/mall-portal/esProduct/**"
       - "/mall-portal/brand/**"
       - "/mall-portal/subject/**"
       - "/mall-portal/coupon/member/listByProduct/**"

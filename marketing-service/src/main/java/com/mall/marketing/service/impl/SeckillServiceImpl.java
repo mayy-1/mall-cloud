@@ -1,16 +1,19 @@
 package com.mall.marketing.service.impl;
 
 import com.mall.api.dto.SeckillProductDetailDTO;
+import com.mall.api.dto.SeckillHoldInfo;
 import com.mall.api.dto.SmsFlashPromotion;
 import com.mall.marketing.domain.QueueEnum;
-import com.mall.marketing.domain.dto.SeckillOrderMessage;
+import com.mall.marketing.domain.dto.SeckillHoldMessage;
 import com.mall.marketing.domain.dto.SeckillOrderParam;
 import com.mall.marketing.mapper.SmsFlashPromotionMapper;
 import com.mall.marketing.mapper.SmsFlashPromotionProductRelationMapper;
 import com.mall.marketing.model.SmsFlashPromotionProductRelation;
 import com.mall.marketing.service.SeckillService;
 import com.mall.api.client.product.ProductClient;
+import com.mall.api.client.product.SkuStockClient;
 import com.mall.api.dto.ProductDTO;
+import com.mall.api.dto.SkuStockDTO;
 import com.mym.mall.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,11 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * 秒杀服务实现
- * 核心流程：Lua 脚本原子扣减 → 发送 MQ 消息 → 异步创建订单
+ * 核心流程：Lua 脚本原子扣减 + 写占坑标记 → 发占坑超时延时消息 → 超时未确认则回滚
  */
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,16 @@ public class SeckillServiceImpl implements SeckillService {
 
     private static final String SECKILL_STOCK_KEY = "seckill:stock:%d:%d";
     private static final String SECKILL_USERS_KEY = "seckill:users:%d:%d";
+    /** 占坑标记 key：抢到但未确认支付的占位 */
+    private static final String SECKILL_HOLD_KEY = "seckill:hold:%d:%d:%d";
+
+    /** 占坑时长（秒）：抢到后 5 分钟内未确认支付则回滚库存 */
+    private static final long SECKILL_HOLD_TTL_SECONDS = 5 * 60L;
+
+    /** 秒杀 key 过期缓冲（秒）：活动结束后额外保留 1 天，便于对账与查询 */
+    private static final long SECKILL_KEY_TTL_BUFFER = 24 * 60 * 60L;
+    /** 秒杀 key 兜底过期时间（秒）：活动未配置结束时间或已结束时给 1 天 */
+    private static final long SECKILL_KEY_TTL_FALLBACK = 24 * 60 * 60L;
 
     /** Lua 脚本返回值：秒杀成功 */
     private static final int SECKILL_SUCCESS = 1;
@@ -53,6 +67,8 @@ public class SeckillServiceImpl implements SeckillService {
     private final SmsFlashPromotionProductRelationMapper productRelationMapper;
     /** 商品服务 Feign */
     private final ProductClient productClient;
+    /** SKU Feign（用于秒杀详情查规格 spData） */
+    private final SkuStockClient skuStockClient;
 
     /** 预加载 Lua 脚本 */
     private final DefaultRedisScript<Long> seckillScript = createSeckillScript();
@@ -82,6 +98,7 @@ public class SeckillServiceImpl implements SeckillService {
         // 3. 构造 Redis Key
         String stockKey = String.format(SECKILL_STOCK_KEY, promotionId, productId);
         String usersKey = String.format(SECKILL_USERS_KEY, promotionId, productId);
+        String holdKey = String.format(SECKILL_HOLD_KEY, promotionId, productId, memberId);
 
         // 4. 执行 Lua 原子脚本：判断用户是否已购买 + 判断库存 + 扣减
         Long result = redisTemplate.execute(
@@ -93,24 +110,36 @@ public class SeckillServiceImpl implements SeckillService {
         int seckillResult = result != null ? result.intValue() : SECKILL_STOCK_EMPTY;
 
         if (seckillResult == SECKILL_SUCCESS) {
-            // 5. Lua 扣减成功 → 发送 MQ 异步消息
-            SeckillOrderMessage message = SeckillOrderMessage.builder()
+            // 4.1 给已购买用户 Set 设置过期时间（活动结束后 + 1 天，避免长期堆积）
+            redisTemplate.expire(usersKey, calcSeckillKeyTtl(promotion), TimeUnit.SECONDS);
+
+            // 5. 写占坑标记（含确认建单所需信息，5min 内未确认则回滚）
+            SeckillHoldInfo holdInfo = new SeckillHoldInfo();
+            holdInfo.setSkuId(relation.getSkuId());
+            holdInfo.setSeckillPrice(relation.getFlashPromotionPrice());
+            holdInfo.setQuantity(1);
+            holdInfo.setProductName(getProductName(productId));
+            redisTemplate.opsForValue().set(holdKey, holdInfo, SECKILL_HOLD_TTL_SECONDS, TimeUnit.SECONDS);
+
+            // 6. 发送「占坑超时检查」延时消息（5min），超时未确认支付则回滚库存
+            SeckillHoldMessage holdMessage = SeckillHoldMessage.builder()
                     .promotionId(promotionId)
-                    .sessionId(param.getSessionId())
                     .productId(productId)
-                    .productName(getProductName(productId))
                     .memberId(memberId)
-                    .seckillPrice(relation.getFlashPromotionPrice())
                     .quantity(1)
-                    .createTime(new Date())
                     .build();
 
             rabbitTemplate.convertAndSend(
-                    QueueEnum.QUEUE_SECKILL_ORDER.getExchange(),
-                    QueueEnum.QUEUE_SECKILL_ORDER.getRouteKey(),
-                    message
+                    QueueEnum.QUEUE_TTL_SECKILL_HOLD.getExchange(),
+                    QueueEnum.QUEUE_TTL_SECKILL_HOLD.getRouteKey(),
+                    holdMessage,
+                    message -> {
+                        message.getMessageProperties().setExpiration(
+                                String.valueOf(SECKILL_HOLD_TTL_SECONDS * 1000));
+                        return message;
+                    }
             );
-            LOGGER.info("秒杀成功，已发送MQ消息, memberId={}, productId={}", memberId, productId);
+            LOGGER.info("秒杀占坑成功, memberId={}, productId={}", memberId, productId);
         } else if (seckillResult == SECKILL_STOCK_EMPTY) {
             LOGGER.info("秒杀失败，库存不足, memberId={}, productId={}", memberId, productId);
         } else if (seckillResult == SECKILL_REPEAT) {
@@ -145,6 +174,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void warmUpStock(Long promotionId) {
+        SmsFlashPromotion promotion = flashPromotionMapper.selectByPrimaryKey(promotionId);
+        long ttl = calcSeckillKeyTtl(promotion);
+
         SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
         condition.setFlashPromotionId(promotionId);
         List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
@@ -153,18 +185,18 @@ public class SeckillServiceImpl implements SeckillService {
             String stockKey = String.format(SECKILL_STOCK_KEY, promotionId, relation.getProductId());
             String usersKey = String.format(SECKILL_USERS_KEY, promotionId, relation.getProductId());
 
-            // 仅在 key 不存在时设置（避免覆盖已运行的秒杀数据）
+            // 仅在 key 不存在时设置（避免覆盖已运行的秒杀数据），并带上过期时间
             Boolean stockExists = redisTemplate.hasKey(stockKey);
             if (Boolean.FALSE.equals(stockExists)) {
-                redisTemplate.opsForValue().set(stockKey, relation.getFlashPromotionCount());
-                LOGGER.info("预热库存, promotionId={}, productId={}, stock={}",
-                        promotionId, relation.getProductId(), relation.getFlashPromotionCount());
+                redisTemplate.opsForValue().set(stockKey, relation.getFlashPromotionCount(), ttl, TimeUnit.SECONDS);
+                LOGGER.info("预热库存, promotionId={}, productId={}, stock={}, ttl={}s",
+                        promotionId, relation.getProductId(), relation.getFlashPromotionCount(), ttl);
             }
 
             // 初始化已购买用户 Set（如果不存在，设置过期时间为活动结束后 1 天）
             Boolean usersExists = redisTemplate.hasKey(usersKey);
             if (Boolean.FALSE.equals(usersExists)) {
-                // 空 Set 无需初始化；购买时 sadd 会自动创建
+                // 空 Set 无法在 Redis 中单独存在；首次购买时由 Lua 脚本 sadd 创建并设置过期时间
                 LOGGER.info("初始化用户记录 key, promotionId={}, productId={}", promotionId, relation.getProductId());
             }
         }
@@ -172,6 +204,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void reconcileStock(Long promotionId) {
+        SmsFlashPromotion promotion = flashPromotionMapper.selectByPrimaryKey(promotionId);
+        long ttl = calcSeckillKeyTtl(promotion);
+
         SmsFlashPromotionProductRelation condition = new SmsFlashPromotionProductRelation();
         condition.setFlashPromotionId(promotionId);
         List<SmsFlashPromotionProductRelation> relations = productRelationMapper.selectByCondition(condition);
@@ -186,8 +221,8 @@ public class SeckillServiceImpl implements SeckillService {
             if (redisStock != dbStock) {
                 LOGGER.warn("秒杀库存不一致, promotionId={}, productId={}, redisStock={}, dbStock={}",
                         promotionId, relation.getProductId(), redisStock, dbStock);
-                // 以 DB 为准修正 Redis（DB 已通过 MQ 消费者扣减过）
-                redisTemplate.opsForValue().set(stockKey, dbStock);
+                // 以 DB 为准修正 Redis（DB 已通过 MQ 消费者扣减过），并重新带上过期时间
+                redisTemplate.opsForValue().set(stockKey, dbStock, ttl, TimeUnit.SECONDS);
             }
         }
     }
@@ -247,6 +282,19 @@ public class SeckillServiceImpl implements SeckillService {
         ProductDTO product = productClient.getById(productId).getData();
 
         SeckillProductDetailDTO dto = new SeckillProductDetailDTO();
+        // 场次ID + 秒杀SKU（单SKU秒杀，规格固定）
+        dto.setSessionId(relation.getFlashPromotionSessionId());
+        dto.setSkuId(relation.getSkuId());
+        if (relation.getSkuId() != null) {
+            try {
+                CommonResult<SkuStockDTO> skuRes = skuStockClient.getSkuStockBySkuId(relation.getSkuId());
+                if (skuRes != null && skuRes.getData() != null) {
+                    dto.setSkuSpData(skuRes.getData().getSpData());
+                }
+            } catch (Exception e) {
+                // SKU 查不到不影响主流程
+            }
+        }
         dto.setPromotionId(promotionId);
         dto.setPromotionTitle(promotion.getTitle());
         dto.setProductId(productId);
@@ -293,6 +341,20 @@ public class SeckillServiceImpl implements SeckillService {
         CommonResult<ProductDTO> result = productClient.getById(productId);
         ProductDTO product = result != null ? result.getData() : null;
         return product != null ? product.getName() : null;
+    }
+
+    /**
+     * 计算秒杀相关 key 的过期时间（秒）：
+     * 活动结束后再保留 1 天缓冲，便于对账与查询；
+     * 活动未配置结束时间或已结束时给 1 天兜底，避免 key 永久堆积。
+     */
+    private long calcSeckillKeyTtl(SmsFlashPromotion promotion) {
+        if (promotion == null || promotion.getEndDate() == null) {
+            return SECKILL_KEY_TTL_FALLBACK;
+        }
+        long ttl = (promotion.getEndDate().getTime() - System.currentTimeMillis()) / 1000
+                + SECKILL_KEY_TTL_BUFFER;
+        return Math.max(ttl, SECKILL_KEY_TTL_FALLBACK);
     }
 
     private static DefaultRedisScript<Long> createSeckillScript() {

@@ -38,7 +38,7 @@ mybatis:
     map-underscore-to-camel-case: true
 pagehelper:
   helper-dialect: mysql
-  reasonable: true
+  reasonable: false
 sa-token:
   token-name: Authorization
   timeout: 2592000

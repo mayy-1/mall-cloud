@@ -9,9 +9,11 @@ import com.mall.product.mapper.PmsProductCategoryMapper;
 import com.mall.product.mapper.PmsProductMapper;
 import com.mall.product.model.*;
 import com.mall.product.service.ICategoryService;
+import com.mym.mall.common.service.RedisService;
 import org.springframework.util.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,18 @@ public class ICategoryServiceImpl implements ICategoryService {
 
     private final PmsProductCategoryMapper productCategoryMapper;
 
+    /** Redis缓存服务 */
+    private final RedisService redisService;
+    /** Redis数据库前缀 */
+    @Value("${redis.database}")
+    private String REDIS_DATABASE;
+    /** 分类树缓存过期时间（秒） */
+    @Value("${redis.expire.categoryTree}")
+    private long REDIS_EXPIRE_CATEGORY_TREE;
+    /** 分类树缓存key */
+    @Value("${redis.key.categoryTree}")
+    private String REDIS_KEY_CATEGORY_TREE;
+
     @Override
     @Transactional
     public int create(PmsProductCategoryParam pmsProductCategoryParam) {
@@ -49,6 +63,7 @@ public class ICategoryServiceImpl implements ICategoryService {
         if (!CollectionUtils.isEmpty(productAttributeIdList)) {
             insertRelationList(productCategory.getId(), productAttributeIdList);
         }
+        deleteCategoryTreeCache();
         return count;
     }
 
@@ -92,6 +107,7 @@ public class ICategoryServiceImpl implements ICategoryService {
             relationCondition.setProductCategoryId(id);
             productCategoryAttributeRelationMapper.deleteByCondition(relationCondition);
         }
+        deleteCategoryTreeCache();
         return productCategoryMapper.updateByPrimaryKeySelective(productCategory);
     }
 
@@ -106,7 +122,9 @@ public class ICategoryServiceImpl implements ICategoryService {
 
     @Override
     public int delete(Long id) {
-        return productCategoryMapper.deleteByPrimaryKey(id);
+        int count = productCategoryMapper.deleteByPrimaryKey(id);
+        deleteCategoryTreeCache();
+        return count;
     }
 
     @Override
@@ -118,18 +136,27 @@ public class ICategoryServiceImpl implements ICategoryService {
     public int updateNavStatus(List<Long> ids, Integer navStatus) {
         PmsProductCategory record = new PmsProductCategory();
         record.setNavStatus(navStatus);
-        return productCategoryMapper.updateByIds(record, ids);
+        int count = productCategoryMapper.updateByIds(record, ids);
+        deleteCategoryTreeCache();
+        return count;
     }
 
     @Override
     public int updateShowStatus(List<Long> ids, Integer showStatus) {
         PmsProductCategory record = new PmsProductCategory();
         record.setShowStatus(showStatus);
-        return productCategoryMapper.updateByIds(record, ids);
+        int count = productCategoryMapper.updateByIds(record, ids);
+        deleteCategoryTreeCache();
+        return count;
     }
 
     @Override
     public List<PmsProductCategoryWithChildrenItem> listWithChildren() {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_CATEGORY_TREE;
+        Object cached = redisService.get(key);
+        if (cached != null) {
+            return (List<PmsProductCategoryWithChildrenItem>) cached;
+        }
         // 1. 从 Mapper 获取扁平数据（一级分类 + 直接子分类，按行展开）
         List<PmsProductCategoryFlatItem> flatList = productCategoryMapper.listWithChildren();
         if (CollectionUtils.isEmpty(flatList)) {
@@ -154,7 +181,16 @@ public class ICategoryServiceImpl implements ICategoryService {
                 parent.getChildren().add(child);
             }
         }
-        return new ArrayList<>(treeMap.values());
+        List<PmsProductCategoryWithChildrenItem> result = new ArrayList<>(treeMap.values());
+        redisService.set(key, result, REDIS_EXPIRE_CATEGORY_TREE);
+        return result;
+    }
+
+    /** 删除分类缓存（分类树 + 分类列表） */
+    private void deleteCategoryTreeCache() {
+        // 分类树与分类列表共用 product:category 前缀，一次性删除
+        String prefix = REDIS_DATABASE + ":product:category:";
+        redisService.delByPrefix(prefix);
     }
 
     /**

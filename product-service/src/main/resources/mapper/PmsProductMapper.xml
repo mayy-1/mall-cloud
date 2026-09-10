@@ -771,25 +771,4 @@
     </foreach>
   </update>
 
-  <select id="selectBySearch" resultMap="ResultMapWithBLOBs">
-    SELECT * FROM pms_product
-    WHERE delete_status = 0
-    <if test="keyword != null and keyword != ''">
-      AND (name LIKE concat('%', #{keyword}, '%') OR keywords LIKE concat('%', #{keyword}, '%'))
-    </if>
-    <if test="brandId != null">
-      AND brand_id = #{brandId}
-    </if>
-    <if test="productCategoryId != null">
-      AND product_category_id = #{productCategoryId}
-    </if>
-    <choose>
-      <when test="sort == 1">ORDER BY id DESC</when>
-      <when test="sort == 2">ORDER BY sale DESC</when>
-      <when test="sort == 3">ORDER BY price ASC</when>
-      <when test="sort == 4">ORDER BY price DESC</when>
-      <otherwise>ORDER BY sort DESC</otherwise>
-    </choose>
-  </select>
-
 </mapper>

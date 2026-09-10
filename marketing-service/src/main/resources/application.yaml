@@ -32,7 +32,7 @@ mybatis:
     map-underscore-to-camel-case: true
 pagehelper:
   helper-dialect: mysql
-  reasonable: true
+  reasonable: false
 # ========== Seata 分布式事务 ==========
 seata:
   enabled: false

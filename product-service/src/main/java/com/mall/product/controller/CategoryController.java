@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * 商品分类管理 Controller
- * 【管理端专用】全部分类增删改查 + 树形展示
  */
 @RestController
 @RequiredArgsConstructor

@@ -43,6 +43,21 @@ public interface ISkuService {
     List<PmsSkuStock> getSkuStockByProductId(Long productId);
 
     /**
+     * 根据SKU编号查询单个SKU库存
+     */
+    PmsSkuStock getSkuStockBySkuId(Long skuId);
+
+    /**
+     * 根据SKU编号集合批量查询SKU库存
+     */
+    List<PmsSkuStock> getSkuStockBySkuIds(List<Long> skuIds);
+
+    /**
+     * 根据商品ID集合批量查询SKU库存（一个商品可能返回多个SKU）
+     */
+    List<PmsSkuStock> getSkuStockByProductIds(List<Long> productIds);
+
+    /**
      * 支付成功扣减库存（减stock + 减lockStock + 增sale）
      */
     int paySuccessDeductStock(Long skuId, Integer quantity);

@@ -1,35 +1,36 @@
 package com.mall.order.service.impl;
 
+import com.mall.api.client.member.MemberAddressClient;
 import com.mall.api.client.member.MemberClient;
 import com.mall.api.client.product.SkuStockClient;
+import com.mall.api.dto.MemberAddressDTO;
 import com.mall.api.dto.MemberDTO;
+import com.mall.api.dto.SeckillHoldInfo;
 import com.mall.api.dto.SkuStockDTO;
-import com.mall.order.domain.dto.SeckillOrderMessage;
+import com.mall.order.domain.dto.SeckillConfirmParam;
 import com.mall.order.mapper.OmsOrderItemMapper;
 import com.mall.order.mapper.OmsOrderMapper;
 import com.mall.order.model.OmsOrder;
 import com.mall.order.model.OmsOrderItem;
 import com.mall.order.mq.CancelOrderSender;
 import com.mall.order.service.ISeckillOrderService;
+import com.mym.mall.common.exception.Asserts;
 import com.mym.mall.common.service.RedisService;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 秒杀订单服务实现
- * 核心流程：Redisson 兜底锁 → 锁定 SKU 库存 → 创建订单 → 扣减秒杀库存
+ * 核心流程：唯一索引幂等（uk_seckill_order）→ 锁定 SKU 库存 → 创建订单 → 延时取消
  */
 @Service
 @RequiredArgsConstructor
@@ -37,13 +38,11 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeckillOrderServiceImpl.class);
 
-    private static final String SECKILL_LOCK_KEY = "seckill:lock:order:%d:%d";
-
-    private final RedissonClient redissonClient;
     private final OmsOrderMapper orderMapper;
     private final OmsOrderItemMapper orderItemMapper;
     private final SkuStockClient skuStockClient;
     private final MemberClient memberClient;
+    private final MemberAddressClient memberAddressClient;
     private final RedisService redisService;
     private final CancelOrderSender cancelOrderSender;
 
@@ -52,86 +51,113 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     @Value("${redis.database}")
     private String REDIS_DATABASE;
 
+    /**
+     * 确认秒杀订单（占坑后选地址提交）
+     * 校验占坑标记 → 生成订单（含收货地址）→ 删除占坑标记 → 发延时取消消息
+     */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Long createSeckillOrder(SeckillOrderMessage message) {
-        Long memberId = message.getMemberId();
-        Long productId = message.getProductId();
-        String lockKey = String.format(SECKILL_LOCK_KEY, memberId, productId);
+    @GlobalTransactional(timeoutMills = 300000, name = "order-seckill-confirm")
+    public Long confirmSeckillOrder(SeckillConfirmParam param) {
+        Long promotionId = param.getPromotionId();
+        Long productId = param.getProductId();
 
-        RLock lock = redissonClient.getLock(lockKey);
-        try {
-            // 1. Redisson 分布式锁兜底（最多等待 5 秒，锁定 10 秒自动释放）
-            boolean acquired = lock.tryLock(5, 10, TimeUnit.SECONDS);
-            if (!acquired) {
-                LOGGER.warn("获取分布式锁失败, memberId={}, productId={}", memberId, productId);
-                throw new RuntimeException("系统繁忙，请稍后重试");
-            }
-            // 2. 获取会员信息
-            MemberDTO member = memberClient.getById(memberId).getData();
-            // 3. 查找商品 SKU
-            List<SkuStockDTO> skuList = skuStockClient.getSkuStockByProductId(productId).getData();
-            if (skuList == null || skuList.isEmpty()) {
-                throw new RuntimeException("商品SKU不存在, productId=" + productId);
-            }
-            SkuStockDTO skuStock = skuList.get(0);
-            // 4. 锁定库存（lock_stock + 1）
-            skuStockClient.lockStock(skuStock.getId(), message.getQuantity());
-            // 5. 构建订单对象
-            OmsOrder order = new OmsOrder();
-            order.setMemberId(memberId);
-            order.setMemberUsername(member != null ? member.getUsername() : "");
-            order.setTotalAmount(message.getSeckillPrice().multiply(new BigDecimal(message.getQuantity())));
-            order.setPayAmount(message.getSeckillPrice().multiply(new BigDecimal(message.getQuantity())));
-            order.setFreightAmount(BigDecimal.ZERO);
-            order.setPromotionAmount(BigDecimal.ZERO);
-            order.setIntegrationAmount(BigDecimal.ZERO);
-            order.setCouponAmount(BigDecimal.ZERO);
-            order.setDiscountAmount(BigDecimal.ZERO);
-            order.setPayType(0);
-            order.setSourceType(1);
-            order.setStatus(0);
-            order.setOrderType(1);
-            order.setCreateTime(message.getCreateTime() != null ? message.getCreateTime() : new Date());
-            order.setConfirmStatus(0);
-            order.setDeleteStatus(0);
-            order.setIntegration(0);
-            order.setGrowth(0);
-            order.setPromotionInfo("秒杀活动ID:" + message.getPromotionId());
-            order.setOrderSn(generateOrderSn(order));
-            // 6. 插入订单
-            orderMapper.insert(order);
-            // 7. 构建订单商品项
-            OmsOrderItem orderItem = new OmsOrderItem();
-            orderItem.setOrderId(order.getId());
-            orderItem.setOrderSn(order.getOrderSn());
-            orderItem.setProductId(productId);
-            orderItem.setProductName(message.getProductName());
-            orderItem.setProductPrice(message.getSeckillPrice());
-            orderItem.setProductQuantity(message.getQuantity());
-            orderItem.setProductSkuId(skuStock.getId());
-            orderItem.setProductSkuCode(skuStock.getSkuCode());
-            orderItem.setPromotionName("秒杀价");
-            orderItem.setPromotionAmount(BigDecimal.ZERO);
-            orderItem.setCouponAmount(BigDecimal.ZERO);
-            orderItem.setIntegrationAmount(BigDecimal.ZERO);
-            orderItem.setRealAmount(message.getSeckillPrice());
-            orderItem.setGiftIntegration(0);
-            orderItem.setGiftGrowth(0);
-            orderItemMapper.insert(orderItem);
-            // 8. 发送延时取消消息：秒杀订单 5 分钟未支付自动取消
-            cancelOrderSender.sendMessage(order.getId(), 5 * 60 * 1000);
-            LOGGER.info("秒杀订单创建成功, orderId={}, orderSn={}", order.getId(), order.getOrderSn());
-            return order.getId();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("获取分布式锁被中断", e);
-        } finally {
-            // 释放锁（仅当当前线程持有锁时释放）
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
+        // 1. 获取当前会员
+        MemberDTO currentMember = memberClient.getCurrentMember().getData();
+        Long memberId = currentMember.getId();
+
+        // 2. 校验占坑标记
+        String holdKey = String.format("seckill:hold:%d:%d:%d", promotionId, productId, memberId);
+        Object holdObj = redisService.get(holdKey);
+        if (holdObj == null) {
+            Asserts.fail("抢购资格已失效或超时，请重新抢购");
         }
+        SeckillHoldInfo holdInfo = (SeckillHoldInfo) holdObj;
+
+        // 3. 查 SKU
+        SkuStockDTO skuStock = skuStockClient.getSkuStockBySkuId(holdInfo.getSkuId()).getData();
+        if (skuStock == null) {
+            Asserts.fail("商品SKU不存在");
+        }
+
+        // 4. 查收货地址
+        MemberAddressDTO address = memberAddressClient.getItem(param.getMemberReceiveAddressId()).getData();
+        if (address == null) {
+            Asserts.fail("收货地址不存在");
+        }
+        int quantity = holdInfo.getQuantity() != null ? holdInfo.getQuantity() : 1;
+
+        // 5. 构建订单（含收货地址）
+        OmsOrder order = new OmsOrder();
+        order.setPromotionId(promotionId);
+        order.setSkuId(holdInfo.getSkuId());
+        order.setMemberId(memberId);
+        order.setMemberUsername(currentMember.getUsername());
+        order.setTotalAmount(holdInfo.getSeckillPrice());
+        order.setPayAmount(holdInfo.getSeckillPrice());
+        order.setFreightAmount(BigDecimal.ZERO);
+        order.setPromotionAmount(BigDecimal.ZERO);
+        order.setIntegrationAmount(BigDecimal.ZERO);
+        order.setCouponAmount(BigDecimal.ZERO);
+        order.setDiscountAmount(BigDecimal.ZERO);
+        order.setPayType(param.getPayType() != null ? param.getPayType() : 0);
+        order.setSourceType(1);
+        order.setStatus(0);
+        order.setOrderType(1);
+        order.setCreateTime(new Date());
+        order.setConfirmStatus(0);
+        order.setDeleteStatus(0);
+        order.setIntegration(0);
+        order.setGrowth(0);
+        order.setPromotionInfo("秒杀活动ID:" + promotionId);
+        // 从收货地址表填充收件人信息
+        order.setReceiverName(address.getName());
+        order.setReceiverPhone(address.getPhoneNumber());
+        order.setReceiverPostCode(address.getPostCode());
+        order.setReceiverProvince(address.getProvince());
+        order.setReceiverCity(address.getCity());
+        order.setReceiverRegion(address.getRegion());
+        order.setReceiverDetailAddress(address.getDetailAddress());
+        order.setOrderSn(generateOrderSn(order));
+
+        // 6. 插入订单（唯一索引 uk_seckill_order 幂等守卫）
+        try {
+            orderMapper.insert(order);
+        } catch (DuplicateKeyException e) {
+            LOGGER.info("重复确认秒杀订单，忽略, promotionId={}, skuId={}, memberId={}",
+                    promotionId, holdInfo.getSkuId(), memberId);
+            return null;
+        }
+
+        // 7. 锁定库存（原子 SQL，可售不足抛异常触发全局回滚）
+        skuStockClient.lockStock(skuStock.getId(), quantity);
+
+        // 8. 构建订单商品项
+        OmsOrderItem orderItem = new OmsOrderItem();
+        orderItem.setOrderId(order.getId());
+        orderItem.setOrderSn(order.getOrderSn());
+        orderItem.setProductId(productId);
+        orderItem.setProductName(holdInfo.getProductName());
+        orderItem.setProductPrice(holdInfo.getSeckillPrice());
+        orderItem.setProductQuantity(quantity);
+        orderItem.setProductSkuId(skuStock.getId());
+        orderItem.setProductSkuCode(skuStock.getSkuCode());
+        orderItem.setPromotionName("秒杀价");
+        orderItem.setPromotionAmount(BigDecimal.ZERO);
+        orderItem.setCouponAmount(BigDecimal.ZERO);
+        orderItem.setIntegrationAmount(BigDecimal.ZERO);
+        orderItem.setRealAmount(holdInfo.getSeckillPrice());
+        orderItem.setGiftIntegration(0);
+        orderItem.setGiftGrowth(0);
+        orderItemMapper.insert(orderItem);
+
+        // 9. 删除占坑标记（占坑已转化为订单）
+        redisService.del(holdKey);
+
+        // 10. 发送延时取消消息：秒杀订单 5 分钟未支付自动取消
+        cancelOrderSender.sendMessage(order.getId(), 5 * 60 * 1000);
+        LOGGER.info("秒杀订单确认成功, orderId={}, orderSn={}, memberId={}",
+                order.getId(), order.getOrderSn(), memberId);
+        return order.getId();
     }
 
     /**
@@ -169,4 +195,3 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
         LOGGER.info("已移除用户购买记录, memberId={}, 用户可再次参与秒杀", memberId);
     }
 }
-

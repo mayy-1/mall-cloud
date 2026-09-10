@@ -38,4 +38,8 @@ public class CartItemDetailDTO {
     private String productAttr;
     /** 真实可售库存（下单时查 product-service，用于 hasStock 校验） */
     private Integer realStock;
+    /** 赠送的积分（下单时从商品查，落订单项） */
+    private Integer giftIntegration;
+    /** 赠送的成长值（下单时从商品查，落订单项） */
+    private Integer giftGrowth;
 }

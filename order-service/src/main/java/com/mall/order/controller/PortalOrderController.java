@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -80,9 +81,6 @@ public class PortalOrderController {
         return CommonResult.success(result, "下单成功");
     }
 
-    // ════════════════════════════════════════════════════
-    //  统一支付 & 订单管理（三种下单模式共用）
-    // ════════════════════════════════════════════════════
 
     @Operation(summary = "用户支付成功的回调")
     @PostMapping("/paySuccess")
@@ -98,28 +96,20 @@ public class PortalOrderController {
         return CommonResult.success(null, "支付成功");
     }
 
-    @Operation(summary = "自动取消超时订单")
-    @PostMapping("/cancelTimeOutOrder")
-    public CommonResult cancelTimeOutOrder() {
-        orderService.cancelTimeOutOrder();
-        return CommonResult.success(null);
-    }
-
-    @Operation(summary = "取消单个超时订单")
-    @PostMapping("/cancelOrder")
-    public CommonResult cancelOrder(Long orderId) {
-        orderService.sendDelayMessageCancelOrder(orderId);
-        return CommonResult.success(null);
-    }
-
-    @Operation(summary = "按状态分页获取用户订单列表")
-    @Parameter(name = "status", description = "订单状态：-1->全部；0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭",
-            in = ParameterIn.QUERY, schema = @Schema(type = "integer",defaultValue = "-1",allowableValues = {"-1","0","1","2","3","4"}))
+    @Operation(summary = "按状态分页获取用户订单列表（支持多状态，如待收货=待发货+已发货）")
+    @Parameter(name = "status", description = "订单状态，逗号分隔多值：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；-1查全部",
+            in = ParameterIn.QUERY, schema = @Schema(type = "string"))
     @GetMapping(value = "/list", params = "status")
-    public CommonResult<CommonPage<OmsOrderDetail>> list(@RequestParam Integer status,
+    public CommonResult<CommonPage<OmsOrderDetail>> list(@RequestParam(required = false) String status,
                                                    @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                    @RequestParam(required = false, defaultValue = "5") Integer pageSize) {
-        CommonPage<OmsOrderDetail> orderPage = orderService.list(status, pageNum, pageSize);
+        List<Integer> statusList = new ArrayList<>();
+        if (status != null && !status.trim().isEmpty()) {
+            for (String s : status.split(",")) {
+                statusList.add(Integer.valueOf(s.trim()));
+            }
+        }
+        CommonPage<OmsOrderDetail> orderPage = orderService.list(statusList, pageNum, pageSize);
         return CommonResult.success(orderPage);
     }
 

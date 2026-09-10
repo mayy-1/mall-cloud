@@ -19,6 +19,8 @@ public class SeckillProductDetailDTO {
     private BigDecimal seckillPrice;
     private Integer seckillStock;
     private Integer limitPerUser;
+    private Long skuId;
+    private String skuSpData;
     private String startTime;
     private String endTime;
     private Integer status;

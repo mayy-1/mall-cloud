@@ -18,6 +18,6 @@ public class HomeContentResult {
     private List<ProductDTO> newProductList;
     private List<ProductDTO> hotProductList;
     private List<SubjectDTO> subjectList;
-    private HomeFlashPromotionDTO homeFlashPromotion;  // DTO from mall-api
+    private HomeFlashPromotionDTO homeFlashPromotion;
     private List<HomeAdvertiseDTO> advertiseList;
 }

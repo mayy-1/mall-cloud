@@ -35,6 +35,11 @@ public interface RedisService {
     Long del(List<String> keys);
 
     /**
+     * 按前缀删除（用于缓存失效，慎用大范围前缀）
+     */
+    void delByPrefix(String prefix);
+
+    /**
      * 设置过期时间
      */
     Boolean expire(String key, long time);

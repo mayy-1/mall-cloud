@@ -14,10 +14,6 @@ public interface PortalOrderMapper {
 
     int updateSkuStock(@Param("itemList") List<OmsOrderItem> orderItemList);
 
-    List<OmsOrderDetail> getTimeOutOrders(@Param("minute") Integer minute);
-
-    int updateOrderStatus(@Param("ids") List<Long> ids, @Param("status") Integer status);
-
     int releaseSkuStockLock(@Param("itemList") List<OmsOrderItem> orderItemList);
 }
 

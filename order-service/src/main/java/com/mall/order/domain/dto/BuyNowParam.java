@@ -1,8 +1,9 @@
 package com.mall.order.domain.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 /**
  * 立即购买下单参数（无需购物车）
@@ -31,7 +32,7 @@ public class BuyNowParam {
     /** 商品规格属性 */
     private String productAttr;
     /** 商品价格（用户看到的价格） */
-    private java.math.BigDecimal price;
+    private BigDecimal price;
     /** 购买数量 */
     private Integer quantity;
 }

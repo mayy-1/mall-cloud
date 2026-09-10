@@ -82,5 +82,26 @@ public class SkuController {
     public CommonResult<List<PmsSkuStock>> getSkuStockByProductId(@PathVariable Long productId) {
         return CommonResult.success(skuStockService.getSkuStockByProductId(productId));
     }
+
+    /** 【Feign·trade-service】根据SKU编号查询单个SKU */
+    @GetMapping("/{skuId}/detail")
+    @Operation(summary = "根据SKU编号查询SKU库存")
+    public CommonResult<PmsSkuStock> getSkuStockBySkuId(@PathVariable Long skuId) {
+        return CommonResult.success(skuStockService.getSkuStockBySkuId(skuId));
+    }
+
+    /** 【Feign·trade-service】根据SKU编号集合批量查询SKU库存 */
+    @PostMapping("/stock/list")
+    @Operation(summary = "根据SKU编号集合批量查询SKU库存")
+    public CommonResult<List<PmsSkuStock>> getSkuStockBySkuIds(@RequestBody List<Long> skuIds) {
+        return CommonResult.success(skuStockService.getSkuStockBySkuIds(skuIds));
+    }
+
+    /** 【Feign·trade-service】根据商品ID集合批量查询SKU库存（一个商品返回多个SKU） */
+    @PostMapping("/listByProductIds")
+    @Operation(summary = "根据商品ID集合批量查询SKU库存")
+    public CommonResult<List<PmsSkuStock>> getSkuStockByProductIds(@RequestBody List<Long> productIds) {
+        return CommonResult.success(skuStockService.getSkuStockByProductIds(productIds));
+    }
 }
 

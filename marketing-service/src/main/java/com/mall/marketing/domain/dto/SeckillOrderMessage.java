@@ -30,6 +30,9 @@ public class SeckillOrderMessage implements Serializable {
     /** 商品ID */
     private Long productId;
 
+    /** SKU编号 */
+    private Long skuId;
+
     /** 商品名称 */
     private String productName;
 
